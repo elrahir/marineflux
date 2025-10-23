@@ -19,40 +19,43 @@ export async function GET(request: NextRequest) {
       limitCount,
     });
 
-    let q = query(collection(db, 'quotations'));
+    let constraints: any[] = [];
 
     // Filter by RFQ
     if (rfqId) {
-      q = query(q, where('rfqId', '==', rfqId));
+      constraints.push(where('rfqId', '==', rfqId));
     }
 
     // Filter by supplier
     if (supplierUid) {
-      q = query(q, where('supplierUid', '==', supplierUid));
+      constraints.push(where('supplierUid', '==', supplierUid));
     }
 
     // Filter by shipowner
     if (shipownerUid) {
-      q = query(q, where('shipownerUid', '==', shipownerUid));
+      constraints.push(where('shipownerUid', '==', shipownerUid));
     }
 
     // Filter by status
     if (status) {
-      q = query(q, where('status', '==', status));
+      constraints.push(where('status', '==', status));
     }
 
-    // Order by created date (newest first)
-    q = query(q, orderBy('createdAt', 'desc'), limit(limitCount));
+    // Build query with all constraints
+    let q = constraints.length > 0 
+      ? query(collection(db, 'quotations'), ...constraints, orderBy('createdAt', 'desc'), limit(limitCount))
+      : query(collection(db, 'quotations'), orderBy('createdAt', 'desc'), limit(limitCount));
 
     const querySnapshot = await getDocs(q);
     const quotations: any[] = [];
 
     querySnapshot.forEach((doc) => {
+      const data = doc.data();
       quotations.push({
         id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate?.()?.toISOString(),
-        updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString(),
+        ...data,
+        createdAt: data.createdAt?.toDate?.()?.toISOString(),
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString(),
       });
     });
 

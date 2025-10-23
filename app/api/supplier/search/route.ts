@@ -6,30 +6,39 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const searchQuery = searchParams.get('q')?.toLowerCase() || '';
-    const category = searchParams.get('category');
+    const mainCategory = searchParams.get('category');
+    const subcategory = searchParams.get('subcategory');
+    const supplierType = searchParams.get('type'); // 'supplier' or 'service-provider'
     const minRating = parseFloat(searchParams.get('minRating') || '0');
     const verified = searchParams.get('verified');
     const limitCount = parseInt(searchParams.get('limit') || '50');
 
-    let q = query(collection(db, 'suppliers'));
+    let constraints: any[] = [];
 
-    // Filter by category
-    if (category && category !== 'all') {
-      q = query(q, where('serviceTypes', 'array-contains', category));
+    // Filter by supplier type
+    if (supplierType && supplierType !== 'all') {
+      constraints.push(where('supplierType', '==', supplierType));
+    }
+
+    // Filter by main category (using new mainCategories field)
+    if (mainCategory && mainCategory !== 'all') {
+      constraints.push(where('mainCategories', 'array-contains', mainCategory));
     }
 
     // Filter by verified status
     if (verified === 'true') {
-      q = query(q, where('isVerified', '==', true));
+      constraints.push(where('isVerified', '==', true));
     }
 
     // Filter by minimum rating
     if (minRating > 0) {
-      q = query(q, where('rating', '>=', minRating));
+      constraints.push(where('rating', '>=', minRating));
     }
 
-    // Order by rating (highest first)
-    q = query(q, orderBy('rating', 'desc'), limit(limitCount));
+    // Build query with all constraints
+    let q = constraints.length > 0 
+      ? query(collection(db, 'suppliers'), ...constraints, orderBy('rating', 'desc'), limit(limitCount))
+      : query(collection(db, 'suppliers'), orderBy('rating', 'desc'), limit(limitCount));
 
     const querySnapshot = await getDocs(q);
     const suppliers: any[] = [];
@@ -42,19 +51,32 @@ export async function GET(request: NextRequest) {
         data.companyName?.toLowerCase().includes(searchQuery) ||
         data.description?.toLowerCase().includes(searchQuery);
 
-      if (matchesSearch) {
+      // Client-side subcategory filter
+      const matchesSubcategory = !subcategory || 
+        data.subcategories?.includes(subcategory);
+
+      if (matchesSearch && matchesSubcategory) {
         suppliers.push({
           id: doc.id,
           uid: data.uid,
           companyName: data.companyName,
-          serviceTypes: data.serviceTypes || [],
+          email: data.email,
+          supplierType: data.supplierType || 'supplier',
+          mainCategories: data.mainCategories || [],
+          subcategories: data.subcategories || [],
+          // Support old field for backward compatibility
+          serviceTypes: data.mainCategories || data.serviceTypes || [],
           rating: data.rating || 0,
           reviewCount: data.reviewCount || 0,
           totalOrders: data.totalOrders || 0,
           isVerified: data.isVerified || false,
           description: data.description || '',
           location: data.location || '',
-          contactEmail: data.contactEmail || '',
+          address: data.address || '',
+          country: data.country || '',
+          city: data.city || '',
+          phone: data.phone || '',
+          website: data.website || '',
         });
       }
     });

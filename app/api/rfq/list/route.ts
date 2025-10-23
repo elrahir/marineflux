@@ -8,45 +8,58 @@ export async function GET(request: NextRequest) {
     const userUid = searchParams.get('uid');
     const userRole = searchParams.get('role');
     const status = searchParams.get('status');
-    const category = searchParams.get('category');
+    const mainCategory = searchParams.get('category');
+    const subcategory = searchParams.get('subcategory');
     const limitCount = parseInt(searchParams.get('limit') || '50');
 
-    console.log('Fetching RFQs with params:', { userUid, userRole, status, category, limitCount });
+    console.log('Fetching RFQs with params:', { userUid, userRole, status, mainCategory, subcategory, limitCount });
 
-    let q = query(collection(db, 'rfqs'));
+    let constraints: any[] = [];
 
     // Filter by shipowner if role is shipowner
     if (userRole === 'shipowner' && userUid) {
-      q = query(q, where('shipownerUid', '==', userUid));
+      constraints.push(where('shipownerUid', '==', userUid));
       console.log('Filtering by shipownerUid:', userUid);
     }
 
     // Filter by status
     if (status) {
-      q = query(q, where('status', '==', status));
+      constraints.push(where('status', '==', status));
       console.log('Filtering by status:', status);
     }
 
-    // Filter by category
-    if (category) {
-      q = query(q, where('category', '==', category));
-      console.log('Filtering by category:', category);
+    // Filter by main category (using new mainCategories array)
+    if (mainCategory && mainCategory !== 'all') {
+      constraints.push(where('mainCategories', 'array-contains', mainCategory));
+      console.log('Filtering by mainCategory:', mainCategory);
     }
 
-    // Order by created date (newest first)
-    q = query(q, orderBy('createdAt', 'desc'), limit(limitCount));
+    // Build query with all constraints
+    let q = constraints.length > 0 
+      ? query(collection(db, 'rfqs'), ...constraints, orderBy('createdAt', 'desc'), limit(limitCount))
+      : query(collection(db, 'rfqs'), orderBy('createdAt', 'desc'), limit(limitCount));
 
     const querySnapshot = await getDocs(q);
     const rfqs: any[] = [];
 
     querySnapshot.forEach((doc) => {
-      rfqs.push({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate?.()?.toISOString(),
-        updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString(),
-        deadline: doc.data().deadline?.toDate?.()?.toISOString(),
-      });
+      const data = doc.data();
+      
+      // Client-side subcategory filter
+      const matchesSubcategory = !subcategory || 
+        data.subcategories?.includes(subcategory);
+
+      if (matchesSubcategory) {
+        rfqs.push({
+          id: doc.id,
+          ...data,
+          mainCategories: data.mainCategories || data.category ? [data.category] : [],
+          subcategories: data.subcategories || [],
+          createdAt: data.createdAt?.toDate?.()?.toISOString(),
+          updatedAt: data.updatedAt?.toDate?.()?.toISOString(),
+          deadline: data.deadline?.toDate?.()?.toISOString(),
+        });
+      }
     });
 
     console.log(`Found ${rfqs.length} RFQs`);
