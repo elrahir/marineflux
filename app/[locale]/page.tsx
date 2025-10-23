@@ -271,12 +271,19 @@ function PortalCardsSection({ locale }: { locale: string }) {
                 </ul>
               </CardHeader>
               <CardContent className="p-8 pt-0">
-                <Link href={`/${locale}/login?type=shipowner`}>
-                  <Button size="lg" className="w-full bg-maritime-600 hover:bg-maritime-700 text-white shadow-md">
-                    {locale === 'tr' ? 'Gemi Sahibi Olarak Giriş' : 'Login as Shipowner'}
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
+                <div className="space-y-3">
+                  <Link href={`/${locale}/register`}>
+                    <Button size="lg" className="w-full bg-maritime-600 hover:bg-maritime-700 text-white shadow-md">
+                      {locale === 'tr' ? 'Gemi Sahibi Olarak Başla' : 'Start as Shipowner'}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link href={`/${locale}/login?type=shipowner`}>
+                    <Button size="lg" variant="outline" className="w-full border-maritime-600 text-maritime-600 hover:bg-maritime-50">
+                      {locale === 'tr' ? 'Zaten hesabım var' : 'I have an account'}
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -313,12 +320,19 @@ function PortalCardsSection({ locale }: { locale: string }) {
                 </ul>
               </CardHeader>
               <CardContent className="p-8 pt-0">
-                <Link href={`/${locale}/login?type=supplier`}>
-                  <Button size="lg" className="w-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-md">
-                    {locale === 'tr' ? 'Tedarikçi Olarak Giriş' : 'Login as Supplier'}
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
+                <div className="space-y-3">
+                  <Link href={`/${locale}/register`}>
+                    <Button size="lg" className="w-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-md">
+                      {locale === 'tr' ? 'Tedarikçi Olarak Başla' : 'Start as Supplier'}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link href={`/${locale}/login?type=supplier`}>
+                    <Button size="lg" variant="outline" className="w-full border-emerald-700 text-emerald-700 hover:bg-emerald-50">
+                      {locale === 'tr' ? 'Zaten hesabım var' : 'I have an account'}
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </div>

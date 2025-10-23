@@ -119,7 +119,13 @@ export default function LoginPage({ params }: { params: Promise<{ locale: string
               </Button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-muted-foreground">
+            <div className="mt-6 text-center text-sm">
+              <p className="text-gray-600 mb-2">
+                {locale === 'tr' ? 'Hesabınız yok mu?' : "Don't have an account?"}{' '}
+                <Link href={`/${locale}/register`} className="text-maritime-600 hover:underline font-semibold">
+                  {locale === 'tr' ? 'Kayıt Ol' : 'Register'}
+                </Link>
+              </p>
               <Link href={`/${locale}`} className="text-primary hover:underline">
                 {locale === 'tr' ? '← Ana sayfaya dön' : '← Back to homepage'}
               </Link>
