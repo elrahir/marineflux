@@ -107,7 +107,22 @@ export default function SupplierMessagesPage({ params }: { params: Promise<{ loc
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!messageText.trim() || !selectedChat || !user?.uid || !userData) return;
+    if (!messageText.trim() || !selectedChat || !user?.uid || !userData) {
+      console.log('Cannot send message - missing data:', {
+        hasText: !!messageText.trim(),
+        hasChat: !!selectedChat,
+        hasUser: !!user?.uid,
+        hasUserData: !!userData
+      });
+      return;
+    }
+
+    console.log('Sending message:', {
+      chatId: selectedChat.id,
+      senderId: user.uid,
+      senderName: userData.fullName || userData.email,
+      senderRole: userData.role,
+    });
 
     setSending(true);
     try {
@@ -124,13 +139,20 @@ export default function SupplierMessagesPage({ params }: { params: Promise<{ loc
         }),
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        const errorData = await response.json();
+        console.error('Server error:', errorData);
+        throw new Error(errorData.error || 'Failed to send message');
       }
 
+      const data = await response.json();
+      console.log('Message sent successfully:', data);
       setMessageText('');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
+      alert(`Failed to send message: ${error.message}`);
     } finally {
       setSending(false);
     }
