@@ -6,6 +6,11 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Database, Users, Package, CheckCircle, XCircle } from 'lucide-react';
+import { 
+  SUPPLIER_MAIN_CATEGORIES, 
+  SERVICE_PROVIDER_MAIN_CATEGORIES,
+  getSubcategories 
+} from '@/types/categories';
 
 const SHIPOWNER_COUNT = 20;
 const SUPPLIER_COUNT = 100;
@@ -76,11 +81,51 @@ export default function SeedDataPage({ params }: { params: Promise<{ locale: str
     const suffix = turkishSupplierSuffixes[Math.floor(index / turkishSupplierPrefixes.length) % turkishSupplierSuffixes.length];
     const companyName = `${prefix} ${suffix}`;
     
+    // Randomly assign supplier type (70% product supplier, 30% service provider)
+    const supplierType = Math.random() < 0.7 ? 'supplier' : 'service-provider';
+    
+    // Get categories based on supplier type
+    const allCategories = supplierType === 'supplier' 
+      ? SUPPLIER_MAIN_CATEGORIES 
+      : SERVICE_PROVIDER_MAIN_CATEGORIES;
+    
+    // Randomly select 2-4 main categories
+    const categoryCount = Math.floor(Math.random() * 3) + 2; // 2-4 categories
+    const mainCategories: string[] = [];
+    const categoryIndices = new Set<number>();
+    
+    while (categoryIndices.size < Math.min(categoryCount, allCategories.length)) {
+      categoryIndices.add(Math.floor(Math.random() * allCategories.length));
+    }
+    
+    categoryIndices.forEach(i => {
+      mainCategories.push(allCategories[i].id);
+    });
+    
+    // Generate subcategories for selected categories
+    const subcategories: string[] = [];
+    mainCategories.forEach(categoryId => {
+      const subs = getSubcategories(categoryId, supplierType as any);
+      if (subs.length > 0) {
+        // Add 1-2 random subcategories for this category
+        const subCount = Math.floor(Math.random() * 2) + 1;
+        for (let i = 0; i < subCount && i < subs.length; i++) {
+          const randomSub = subs[Math.floor(Math.random() * subs.length)];
+          if (!subcategories.includes(randomSub.id)) {
+            subcategories.push(randomSub.id);
+          }
+        }
+      }
+    });
+    
     return {
       email: `supplier${index + 1}@marineflux.com`,
       password: 'test123',
       role: 'supplier',
       companyName,
+      supplierType,
+      mainCategories,
+      subcategories,
     };
   };
 
@@ -289,8 +334,8 @@ export default function SeedDataPage({ params }: { params: Promise<{ locale: str
               </CardTitle>
               <CardDescription>
                 {locale === 'tr'
-                  ? `${SHIPOWNER_COUNT} armatör ve ${SUPPLIER_COUNT} tedarikçi oluşturulacak`
-                  : `Will create ${SHIPOWNER_COUNT} shipowners and ${SUPPLIER_COUNT} suppliers`}
+                  ? `${SHIPOWNER_COUNT} armatör ve ${SUPPLIER_COUNT} tedarikçi oluşturulacak (kategoriler ile)`
+                  : `Will create ${SHIPOWNER_COUNT} shipowners and ${SUPPLIER_COUNT} suppliers (with categories)`}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -388,8 +433,9 @@ export default function SeedDataPage({ params }: { params: Promise<{ locale: str
                 <li>• {locale === 'tr' ? 'Tüm kullanıcılar için şifre: ' : 'Password for all users: '}<code className="bg-white px-2 py-1 rounded">test123</code></li>
                 <li>• {locale === 'tr' ? 'Email formatı: ' : 'Email format: '}<code className="bg-white px-2 py-1 rounded">shipowner1@marineflux.com</code></li>
                 <li>• {locale === 'tr' ? 'Her kullanıcı Firebase Authentication ve Firestore\'a eklenir' : 'Each user is added to Firebase Authentication and Firestore'}</li>
-                <li>• {locale === 'tr' ? 'Tedarikçi profilleri otomatik kategorize edilir (12 kategori)' : 'Supplier profiles are auto-categorized (12 categories)'}</li>
-                <li>• {locale === 'tr' ? 'Her tedarikçiye 2-4 kategori, sertifika ve iletişim bilgileri atanır' : 'Each supplier gets 2-4 categories, certifications and contact info'}</li>
+                <li>• {locale === 'tr' ? 'Tedarikçiler otomatik olarak tür (70% ürün / 30% hizmet) atanırlar' : 'Suppliers are automatically assigned type (70% product / 30% service)'}</li>
+                <li>• {locale === 'tr' ? 'Her tedarikçiye 2-4 ana kategori ve alt kategoriler atanır' : 'Each supplier gets 2-4 main categories and subcategories'}</li>
+                <li>• {locale === 'tr' ? 'Tüm kategoriler yeni kategori sistemi ile uyumludur' : 'All categories are compatible with the new category system'}</li>
                 <li>• {locale === 'tr' ? 'İşlem yaklaşık ' : 'Process takes approximately '}{((SHIPOWNER_COUNT + SUPPLIER_COUNT) * 0.2 / 60).toFixed(1)} {locale === 'tr' ? 'dakika sürer' : 'minutes'}</li>
               </ul>
             </CardContent>
