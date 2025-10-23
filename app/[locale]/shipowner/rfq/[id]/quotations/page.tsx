@@ -172,6 +172,13 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
   };
 
   const handleContactSupplier = (supplierUid: string, supplierCompany: string) => {
+    console.log('Opening chat with:', { supplierUid, supplierCompany, rfqId: id });
+    
+    if (!supplierUid) {
+      alert(locale === 'tr' ? 'Tedarikçi bilgisi bulunamadı' : 'Supplier info not found');
+      return;
+    }
+    
     // Trigger floating chat widget to open with this supplier
     window.dispatchEvent(new CustomEvent('openChat', {
       detail: {
@@ -310,6 +317,14 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                             <Building2 className="h-5 w-5 text-gray-600" />
                             <h3 className="text-lg font-semibold">{quotation.supplierCompany}</h3>
                             {getStatusBadge(quotation.status)}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleContactSupplier(quotation.supplierUid, quotation.supplierCompany)}
+                            >
+                              <MessageCircle className="mr-1 h-4 w-4" />
+                              {locale === 'tr' ? 'Mesaj' : 'Message'}
+                            </Button>
                             {quotation.price === lowestPrice && (
                               <Badge className="bg-green-100 text-green-800">
                                 {locale === 'tr' ? '💰 En Uygun Fiyat' : '💰 Best Price'}
@@ -374,7 +389,7 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                       {quotation.status === 'pending' && (
                         <div className="flex gap-2">
                           <Button 
-                            className="flex-1"
+                            className="flex-1 bg-green-600 hover:bg-green-700"
                             onClick={() => handleAcceptQuotation(quotation.id)}
                             disabled={processing === quotation.id}
                           >
@@ -386,18 +401,9 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                             {locale === 'tr' ? 'Teklifi Kabul Et' : 'Accept Quote'}
                           </Button>
                           <Button 
-                            variant="outline" 
-                            className="flex-1"
-                            onClick={() => handleContactSupplier(quotation.supplierUid, quotation.supplierCompany)}
-                          >
-                            <MessageCircle className="mr-2 h-4 w-4" />
-                            {locale === 'tr' ? 'İletişime Geç' : 'Contact Supplier'}
-                          </Button>
-                          <Button 
-                            variant="ghost"
+                            variant="destructive"
                             onClick={() => handleRejectQuotation(quotation.id)}
                             disabled={processing === quotation.id}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             {locale === 'tr' ? 'Reddet' : 'Reject'}
                           </Button>

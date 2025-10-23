@@ -11,13 +11,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send, ArrowLeft } from 'lucide-react';
+import { Loader2, Send, ArrowLeft, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 interface RFQ {
   id: string;
   title: string;
   description: string;
+  shipownerUid: string;
   shipownerCompany: string;
   category: string;
 }
@@ -114,6 +115,25 @@ export default function SubmitQuotePage({ params }: { params: Promise<{ locale: 
     }
   };
 
+  const handleContactShipowner = () => {
+    console.log('Opening chat with shipowner:', { shipownerUid: rfq?.shipownerUid, shipownerCompany: rfq?.shipownerCompany, rfqId: id });
+    
+    if (!rfq?.shipownerUid) {
+      alert(locale === 'tr' ? 'Armatör bilgisi bulunamadı' : 'Shipowner info not found');
+      return;
+    }
+    
+    // Trigger floating chat widget to open with shipowner
+    window.dispatchEvent(new CustomEvent('openChat', {
+      detail: {
+        recipientId: rfq.shipownerUid,
+        recipientName: rfq.shipownerCompany,
+        relatedEntityId: id,
+        relatedEntityType: 'rfq'
+      }
+    }));
+  };
+
   if (loading) {
     return (
       <ProtectedRoute allowedRoles={['supplier']} locale={locale}>
@@ -164,12 +184,22 @@ export default function SubmitQuotePage({ params }: { params: Promise<{ locale: 
 
           {/* Header */}
           <div>
-            <Link href={`/${locale}/supplier/rfqs/${id}`}>
-              <Button variant="ghost" size="sm" className="mb-4">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {locale === 'tr' ? 'Geri' : 'Back'}
+            <div className="flex items-center justify-between mb-4">
+              <Link href={`/${locale}/supplier/rfqs/${id}`}>
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {locale === 'tr' ? 'Geri' : 'Back'}
+                </Button>
+              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleContactShipowner}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                {locale === 'tr' ? 'Armatöre Mesaj Gönder' : 'Message Shipowner'}
               </Button>
-            </Link>
+            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {locale === 'tr' ? 'Teklif Hazırla' : 'Prepare Your Quote'}
             </h1>
