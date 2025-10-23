@@ -7,16 +7,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Ship, Package, Building2, User, Mail, Lock, Phone, MapPin, Globe, CheckCircle } from 'lucide-react';
+import { Ship, Package, Building2, User, Mail, Lock, Phone, MapPin, Globe, CheckCircle, Wrench } from 'lucide-react';
 import Link from 'next/link';
+import { SUPPLIER_MAIN_CATEGORIES, SERVICE_PROVIDER_MAIN_CATEGORIES, getSubcategories, hasSubcategories } from '@/types/categories';
 
 export default function RegisterPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
   const t = useTranslations();
   const router = useRouter();
 
-  const [step, setStep] = useState<'type' | 'details'>("type");
+  const [step, setStep] = useState<'type' | 'supplier-type' | 'categories' | 'details'>("type");
   const [userType, setUserType] = useState<'shipowner' | 'supplier'>('shipowner');
+  const [supplierType, setSupplierType] = useState<'supplier' | 'service-provider'>('supplier');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -51,7 +55,39 @@ export default function RegisterPage({ params }: { params: Promise<{ locale: str
 
   const handleTypeSelect = (type: 'shipowner' | 'supplier') => {
     setUserType(type);
-    setStep('details');
+    // If supplier, go to supplier type selection, otherwise go to details
+    if (type === 'supplier') {
+      setStep('supplier-type');
+    } else {
+      setStep('details');
+    }
+  };
+
+  const handleSupplierTypeSelect = (type: 'supplier' | 'service-provider') => {
+    setSupplierType(type);
+    setStep('categories');
+  };
+
+  const handleCategoryToggle = (categoryId: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const handleSubcategoryToggle = (subcategoryId: string) => {
+    setSelectedSubcategories(prev => 
+      prev.includes(subcategoryId) 
+        ? prev.filter(id => id !== subcategoryId)
+        : [...prev, subcategoryId]
+    );
+  };
+
+  const getDisplayCategories = () => {
+    return supplierType === 'supplier' 
+      ? SUPPLIER_MAIN_CATEGORIES 
+      : SERVICE_PROVIDER_MAIN_CATEGORIES;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,6 +123,12 @@ export default function RegisterPage({ params }: { params: Promise<{ locale: str
           city: formData.city,
           address: formData.address,
           website: formData.companyWebsite,
+          // Supplier-specific data
+          ...(userType === 'supplier' && {
+            supplierType: supplierType,
+            mainCategories: selectedCategories,
+            subcategories: selectedSubcategories,
+          }),
         }),
       });
 
@@ -236,6 +278,195 @@ export default function RegisterPage({ params }: { params: Promise<{ locale: str
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Step 1.5: Supplier Type Selection */}
+        {step === 'supplier-type' && (
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {/* Regular Supplier Card */}
+            <Card 
+              className="cursor-pointer border-2 border-gray-200 hover:border-blue-600 hover:shadow-2xl transition-all duration-300 card-hover"
+              onClick={() => handleSupplierTypeSelect('supplier')}
+            >
+              <CardHeader className="text-center p-8">
+                <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Package className="h-10 w-10 text-blue-600" />
+                </div>
+                <CardTitle className="text-2xl font-bold mb-2">
+                  {locale === 'tr' ? 'Ürün Tedarikçisi' : 'Product Supplier'}
+                </CardTitle>
+                <CardDescription className="text-base">
+                  {locale === 'tr'
+                    ? 'Gemi malzemeleri ve yedek parçalar satın'
+                    : 'Sell ship supplies and spare parts'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-8 pb-8">
+                <ul className="space-y-3">
+                  {[
+                    locale === 'tr' ? '11 Ürün Kategorisi' : '11 Product Categories',
+                    locale === 'tr' ? 'Global Market' : 'Global Market',
+                    locale === 'tr' ? 'Hızlı Teslimat' : 'Fast Delivery',
+                    locale === 'tr' ? 'Kalite Güvencesi' : 'Quality Assurance'
+                  ].map((feature, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-gray-700">
+                      <CheckCircle className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button className="w-full mt-6 bg-blue-600 hover:bg-blue-700">
+                  {locale === 'tr' ? 'Devam Et' : 'Continue'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Service Provider Card */}
+            <Card 
+              className="cursor-pointer border-2 border-gray-200 hover:border-purple-600 hover:shadow-2xl transition-all duration-300 card-hover"
+              onClick={() => handleSupplierTypeSelect('service-provider')}
+            >
+              <CardHeader className="text-center p-8">
+                <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Wrench className="h-10 w-10 text-purple-600" />
+                </div>
+                <CardTitle className="text-2xl font-bold mb-2">
+                  {locale === 'tr' ? 'Servis Sağlayıcı' : 'Service Provider'}
+                </CardTitle>
+                <CardDescription className="text-base">
+                  {locale === 'tr'
+                    ? 'Teknik hizmetler ve danışmanlık sunun'
+                    : 'Provide technical services and consulting'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-8 pb-8">
+                <ul className="space-y-3">
+                  {[
+                    locale === 'tr' ? '9 Servis Kategorisi' : '9 Service Categories',
+                    locale === 'tr' ? 'Uzman Ekip' : 'Expert Team',
+                    locale === 'tr' ? 'Sertifikalar' : 'Certifications',
+                    locale === 'tr' ? 'Müşteri Desteği' : 'Customer Support'
+                  ].map((feature, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-gray-700">
+                      <CheckCircle className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button className="w-full mt-6 bg-purple-600 hover:bg-purple-700">
+                  {locale === 'tr' ? 'Devam Et' : 'Continue'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Step 1.7: Category Selection */}
+        {step === 'categories' && (
+          <Card className="max-w-5xl mx-auto shadow-2xl border-2">
+            <CardHeader className="border-b bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl">
+                    {locale === 'tr' ? 'Kategoriler Seçin' : 'Select Categories'}
+                  </CardTitle>
+                  <CardDescription>
+                    {supplierType === 'supplier' 
+                      ? (locale === 'tr' ? 'Satış yaptığınız ürün kategorilerini seçin' : 'Select product categories you sell')
+                      : (locale === 'tr' ? 'Sağladığınız hizmet kategorilerini seçin' : 'Select services you provide')}
+                  </CardDescription>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => {
+                  setSelectedCategories([]);
+                  setSelectedSubcategories([]);
+                  setStep('supplier-type');
+                }}>
+                  {locale === 'tr' ? 'Geri' : 'Back'}
+                </Button>
+              </div>
+            </CardHeader>
+
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                {/* Main Categories Grid */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    {locale === 'tr' ? 'Ana Kategoriler' : 'Main Categories'}
+                  </h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {getDisplayCategories().map((category) => (
+                      <button
+                        key={category.id}
+                        onClick={() => handleCategoryToggle(category.id)}
+                        className={`p-4 rounded-lg border-2 transition-all text-left ${
+                          selectedCategories.includes(category.id)
+                            ? 'border-maritime-600 bg-maritime-50'
+                            : 'border-gray-200 bg-white hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-medium text-gray-900">
+                          {locale === 'tr' ? category.labelTr : category.labelEn}
+                        </div>
+                        <div className={`text-sm mt-1 ${selectedCategories.includes(category.id) ? 'text-maritime-700' : 'text-gray-500'}`}>
+                          {selectedCategories.includes(category.id) ? '✓ ' : ''}{locale === 'tr' ? 'Seçildi' : 'Selected'}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Subcategories for selected categories */}
+                {selectedCategories.some(id => hasSubcategories(id)) && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      {locale === 'tr' ? 'Alt Kategoriler' : 'Subcategories'}
+                    </h3>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {selectedCategories
+                        .filter(id => hasSubcategories(id))
+                        .flatMap(id => getSubcategories(id))
+                        .map((subcategory) => (
+                          <button
+                            key={subcategory.id}
+                            onClick={() => handleSubcategoryToggle(subcategory.id)}
+                            className={`p-4 rounded-lg border-2 transition-all text-left text-sm ${
+                              selectedSubcategories.includes(subcategory.id)
+                                ? 'border-blue-600 bg-blue-50'
+                                : 'border-gray-200 bg-white hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="font-medium text-gray-900">
+                              {locale === 'tr' ? subcategory.labelTr : subcategory.labelEn}
+                            </div>
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 justify-between pt-6 border-t">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSelectedCategories([]);
+                      setSelectedSubcategories([]);
+                      setStep('supplier-type');
+                    }}
+                  >
+                    {locale === 'tr' ? 'Geri' : 'Back'}
+                  </Button>
+                  <Button 
+                    onClick={() => setStep('details')}
+                    disabled={selectedCategories.length === 0}
+                    className="bg-maritime-600 hover:bg-maritime-700"
+                  >
+                    {locale === 'tr' ? 'Sonraki Adıma Geç' : 'Continue to Details'}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Step 2: Registration Form */}
