@@ -37,13 +37,17 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
   const [processing, setProcessing] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchQuotations();
-    fetchRfqDetails();
-  }, [id]);
+    if (user?.uid) {
+      fetchQuotations();
+      fetchRfqDetails();
+    }
+  }, [id, user?.uid]);
 
   const fetchRfqDetails = async () => {
+    if (!user?.uid) return;
+    
     try {
-      const response = await fetch(`/api/rfq/list?uid=${user?.uid}&role=shipowner`);
+      const response = await fetch(`/api/rfq/list?uid=${user.uid}&role=shipowner`);
       const data = await response.json();
       
       if (data.success) {

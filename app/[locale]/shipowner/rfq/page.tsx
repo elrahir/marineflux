@@ -43,8 +43,17 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
 
   const fetchRfqs = async () => {
     try {
+      setLoading(true);
       const statusParam = filter !== 'all' ? `&status=${filter}` : '';
       const response = await fetch(`/api/rfq/list?uid=${user?.uid}&role=shipowner${statusParam}`);
+      
+      if (!response.ok) {
+        console.error('API Error:', response.status, response.statusText);
+        const errorData = await response.json();
+        console.error('Error details:', errorData);
+        return;
+      }
+      
       const data = await response.json();
       
       if (data.success) {

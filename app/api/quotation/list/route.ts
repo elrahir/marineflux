@@ -11,6 +11,14 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const limitCount = parseInt(searchParams.get('limit') || '50');
 
+    console.log('Fetching quotations with params:', {
+      rfqId,
+      supplierUid,
+      shipownerUid,
+      status,
+      limitCount,
+    });
+
     let q = query(collection(db, 'quotations'));
 
     // Filter by RFQ
@@ -47,6 +55,8 @@ export async function GET(request: NextRequest) {
         updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString(),
       });
     });
+
+    console.log(`Found ${quotations.length} quotations`);
 
     return NextResponse.json({
       success: true,

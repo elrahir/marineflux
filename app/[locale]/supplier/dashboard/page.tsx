@@ -1,6 +1,6 @@
 'use client';
 
-import { use } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -9,9 +9,53 @@ import { Button } from '@/components/ui/button';
 import { FileText, Package, DollarSign, Star, TrendingUp, Clock } from 'lucide-react';
 import Link from 'next/link';
 
+interface RFQ {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  quotationCount: number;
+  deadline: string;
+  shipownerCompany: string;
+  createdAt: string;
+}
+
 export default function SupplierDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
   const t = useTranslations();
+  
+  const [rfqs, setRfqs] = useState<RFQ[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      // Tedarikçiler için açık RFQ'ları getir
+      const response = await fetch('/api/rfq/list?status=open&limit=100');
+      const data = await response.json();
+      
+      if (data.success) {
+        setRfqs(data.rfqs);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const stats = {
+    newRfqs: rfqs.length,
+    endingToday: rfqs.filter(r => {
+      const diff = new Date(r.deadline).getTime() - new Date().getTime();
+      return diff < 24 * 60 * 60 * 1000 && diff > 0;
+    }).length,
+  };
+
+  const recentRfqs = rfqs.slice(0, 3);
 
   return (
     <ProtectedRoute allowedRoles={['supplier']} locale={locale}>
@@ -28,14 +72,29 @@ export default function SupplierDashboard({ params }: { params: Promise<{ locale
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-gray-600">
-                  {locale === 'tr' ? 'Yeni RFQ\'lar' : 'New RFQs'}
+                  {locale === 'tr' ? 'Açık RFQ\'lar' : 'Open RFQs'}
                 </CardTitle>
                 <FileText className="h-4 w-4 text-gray-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">18</div>
+                <div className="text-2xl font-bold">{loading ? '...' : stats.newRfqs}</div>
                 <p className="text-xs text-gray-600 mt-1">
-                  {locale === 'tr' ? '+4 bugün' : '+4 today'}
+                  {locale === 'tr' ? 'Teklif verilebilir' : 'Available to quote'}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  {locale === 'tr' ? 'Bugün Bitenler' : 'Ending Today'}
+                </CardTitle>
+                <Clock className="h-4 w-4 text-gray-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-600">{loading ? '...' : stats.endingToday}</div>
+                <p className="text-xs text-gray-600 mt-1">
+                  {locale === 'tr' ? 'Acil teklifler' : 'Urgent opportunities'}
                 </p>
               </CardContent>
             </Card>
@@ -45,12 +104,12 @@ export default function SupplierDashboard({ params }: { params: Promise<{ locale
                 <CardTitle className="text-sm font-medium text-gray-600">
                   {locale === 'tr' ? 'Gönderilen Teklifler' : 'Sent Quotations'}
                 </CardTitle>
-                <Clock className="h-4 w-4 text-gray-400" />
+                <Package className="h-4 w-4 text-gray-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">34</div>
+                <div className="text-2xl font-bold">0</div>
                 <p className="text-xs text-gray-600 mt-1">
-                  {locale === 'tr' ? '12 beklemede' : '12 pending'}
+                  {locale === 'tr' ? 'Henüz teklif yok' : 'No quotes yet'}
                 </p>
               </CardContent>
             </Card>
@@ -60,64 +119,17 @@ export default function SupplierDashboard({ params }: { params: Promise<{ locale
                 <CardTitle className="text-sm font-medium text-gray-600">
                   {locale === 'tr' ? 'Aktif Siparişler' : 'Active Orders'}
                 </CardTitle>
-                <Package className="h-4 w-4 text-gray-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">22</div>
-                <p className="text-xs text-green-600 mt-1">
-                  {locale === 'tr' ? '8 teslimat bu hafta' : '8 deliveries this week'}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {locale === 'tr' ? 'Bu Ay Gelir' : 'Revenue This Month'}
-                </CardTitle>
                 <DollarSign className="h-4 w-4 text-gray-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$67,450</div>
-                <p className="text-xs text-green-600 mt-1">
-                  {locale === 'tr' ? '+18% geçen aya göre' : '+18% from last month'}
+                <div className="text-2xl font-bold">0</div>
+                <p className="text-xs text-gray-600 mt-1">
+                  {locale === 'tr' ? 'Henüz sipariş yok' : 'No orders yet'}
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Rating Overview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{locale === 'tr' ? 'Değerlendirme Özeti' : 'Rating Overview'}</CardTitle>
-              <CardDescription>
-                {locale === 'tr' ? 'Müşteri memnuniyeti puanınız' : 'Your customer satisfaction score'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="text-5xl font-bold text-primary">4.8</div>
-                  <div>
-                    <div className="flex gap-1 mb-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`h-6 w-6 ${i < 5 ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-                      ))}
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {locale === 'tr' ? '142 değerlendirme' : '142 reviews'}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-green-600">98%</p>
-                  <p className="text-sm text-gray-600">
-                    {locale === 'tr' ? 'Zamanında teslimat' : 'On-time delivery'}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Quick Actions */}
           <Card>
@@ -152,37 +164,58 @@ export default function SupplierDashboard({ params }: { params: Promise<{ locale
           {/* Recent RFQs */}
           <Card>
             <CardHeader>
-              <CardTitle>{locale === 'tr' ? 'Yeni RFQ\'lar' : 'New RFQs'}</CardTitle>
-              <CardDescription>
-                {locale === 'tr' ? 'Teklif verebileceğiniz aktif talepler' : 'Active requests you can quote on'}
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>{locale === 'tr' ? 'Yeni RFQ\'lar' : 'New RFQs'}</CardTitle>
+                  <CardDescription>
+                    {locale === 'tr' ? 'Teklif verebileceğiniz aktif talepler' : 'Active requests you can quote on'}
+                  </CardDescription>
+                </div>
+                <Link href={`/${locale}/supplier/rfqs`}>
+                  <Button variant="outline" size="sm">
+                    {locale === 'tr' ? 'Tümünü Gör' : 'View All'}
+                  </Button>
+                </Link>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {[1, 2, 3].map((item) => (
-                  <div key={item} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center gap-4">
-                      <FileText className="h-10 w-10 text-primary" />
-                      <div>
-                        <h4 className="font-semibold">
-                          {locale === 'tr' ? 'Makine Yedek Parça Talebi' : 'Engine Spare Parts Request'}
-                        </h4>
+              {loading ? (
+                <div className="text-center py-8 text-gray-500">
+                  {locale === 'tr' ? 'Yükleniyor...' : 'Loading...'}
+                </div>
+              ) : recentRfqs.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">
+                    {locale === 'tr' ? 'Şu anda açık RFQ bulunmuyor' : 'No open RFQs at the moment'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentRfqs.map((rfq) => (
+                    <div key={rfq.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-4">
+                        <FileText className="h-10 w-10 text-primary" />
+                        <div>
+                          <h4 className="font-semibold">{rfq.title}</h4>
+                          <p className="text-sm text-gray-600">{rfq.shipownerCompany}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
                         <p className="text-sm text-gray-600">
-                          {locale === 'tr' ? 'Mediterranean Shipping Co.' : 'Mediterranean Shipping Co.'}
+                          {locale === 'tr' ? 'Son tarih: ' : 'Deadline: '}
+                          {new Date(rfq.deadline).toLocaleDateString(locale)}
                         </p>
+                        <Link href={`/${locale}/supplier/rfqs/${rfq.id}/quote`}>
+                          <Button size="sm" className="mt-2">
+                            {locale === 'tr' ? 'Teklif Ver' : 'Submit Quote'}
+                          </Button>
+                        </Link>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600">
-                        {locale === 'tr' ? 'Son tarih: 3 gün' : 'Deadline: 3 days'}
-                      </p>
-                      <Button size="sm" className="mt-2">
-                        {locale === 'tr' ? 'Teklif Ver' : 'Submit Quote'}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -31,6 +31,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate and convert deadline
+    let deadlineTimestamp;
+    try {
+      deadlineTimestamp = Timestamp.fromDate(new Date(deadline));
+    } catch (error) {
+      console.error('Invalid deadline format:', deadline);
+      return NextResponse.json(
+        { error: 'Invalid deadline format' },
+        { status: 400 }
+      );
+    }
+
     // Create RFQ
     const rfqData = {
       shipownerUid,
@@ -39,7 +51,7 @@ export async function POST(request: NextRequest) {
       description,
       category,
       vessel: vessel || null,
-      deadline: Timestamp.fromDate(new Date(deadline)),
+      deadline: deadlineTimestamp,
       status: 'open',
       quotationCount: 0,
       attachments,
@@ -47,7 +59,11 @@ export async function POST(request: NextRequest) {
       updatedAt: Timestamp.now(),
     };
 
+    console.log('Creating RFQ with data:', { ...rfqData, deadline: deadline });
+
     const docRef = await addDoc(collection(db, 'rfqs'), rfqData);
+    
+    console.log('RFQ created successfully with ID:', docRef.id);
 
     return NextResponse.json({
       success: true,
