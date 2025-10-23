@@ -86,6 +86,7 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
         { icon: FileText, label: t('shipowner.myRfqs'), href: `/${locale}/shipowner/rfq` },
         { icon: ShoppingCart, label: t('shipowner.orders'), href: `/${locale}/shipowner/orders` },
         { icon: History, label: t('shipowner.history'), href: `/${locale}/shipowner/history` },
+        { icon: Settings, label: t('common.profile'), href: `/${locale}/shipowner/profile` },
       ];
     } else {
       return [

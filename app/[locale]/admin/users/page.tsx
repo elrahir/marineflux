@@ -8,8 +8,8 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, UserPlus, Ship, Package, Shield } from 'lucide-react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { Users, UserPlus, Ship, Package, Shield, Trash2, Eye, Loader2 } from 'lucide-react';
+import { collection, getDocs, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 
 interface User {
@@ -27,6 +27,7 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'admin' | 'shipowner' | 'supplier'>('all');
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -98,6 +99,34 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
     admin: users.filter(u => u.role === 'admin').length,
     shipowner: users.filter(u => u.role === 'shipowner').length,
     supplier: users.filter(u => u.role === 'supplier').length,
+  };
+
+  const handleDeleteUser = async (uid: string, email: string) => {
+    if (!confirm(`${locale === 'tr' ? 'Kullanıcıyı silmek istediğinize emin misiniz?' : 'Are you sure you want to delete this user?'} (${email})`)) {
+      return;
+    }
+
+    try {
+      setDeleting(uid);
+      await deleteDoc(doc(db, 'users', uid));
+      
+      // Also delete from role-specific collections
+      const roleCollections = ['shipowners', 'suppliers', 'admins'];
+      for (const collection of roleCollections) {
+        try {
+          await deleteDoc(doc(db, collection, uid));
+        } catch (err) {
+          // Document might not exist
+        }
+      }
+
+      setUsers(users.filter(u => u.uid !== uid));
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert(locale === 'tr' ? 'Kullanıcı silinirken hata oluştu' : 'Error deleting user');
+    } finally {
+      setDeleting(null);
+    }
   };
 
   return (
@@ -221,6 +250,9 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
                         <th className="text-left p-4 font-medium text-gray-600">
                           {locale === 'tr' ? 'Oluşturulma' : 'Created'}
                         </th>
+                        <th className="text-left p-4 font-medium text-gray-600">
+                          {locale === 'tr' ? 'İşlemler' : 'Actions'}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -241,6 +273,30 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
                           </td>
                           <td className="p-4 text-sm text-gray-600">
                             {user.createdAt?.toDate?.()?.toLocaleDateString() || '-'}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => window.location.href = `/${locale}/admin/users/${user.uid}`}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={deleting === user.uid}
+                                onClick={() => handleDeleteUser(user.uid, user.email)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                {deleting === user.uid ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
