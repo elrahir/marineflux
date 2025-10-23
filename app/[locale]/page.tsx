@@ -149,9 +149,9 @@ function HeroSection({ locale }: { locale: string }) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-6xl mx-auto text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white border-2 border-maritime-600 rounded-full px-6 py-2 mb-8 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-white border-2 border-maritime-600 rounded-full px-6 py-2 mb-6 md:mb-8 shadow-sm">
             <Ship className="h-4 w-4 text-maritime-600" />
-            <span className="text-sm font-semibold text-maritime-700">
+            <span className="text-xs sm:text-sm font-semibold text-maritime-700">
               {locale === 'tr' 
                 ? "Türkiye'nin İlk Denizcilik B2B Platformu"
                 : "Turkey's First Maritime B2B Platform"}
@@ -159,16 +159,16 @@ function HeroSection({ locale }: { locale: string }) {
           </div>
 
           {/* Animated Text */}
-          <div className="mb-10 md:mb-12 min-h-[180px] md:min-h-[220px] flex items-center justify-center">
-            <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight">
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-5 mb-3">
+          <div className="mb-8 md:mb-10 lg:mb-12 min-h-[140px] md:min-h-[160px] lg:min-h-[180px] flex items-center justify-center">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 mb-2 md:mb-3">
                 <span className="text-gray-900">{locale === 'tr' ? 'İHTİYACIN' : 'YOUR NEED'}</span>
-                <span className="text-gradient-maritime min-w-[200px] sm:min-w-[280px] md:min-w-[380px] lg:min-w-[500px] inline-block transition-all duration-300 text-center">
+                <span className="text-gradient-maritime min-w-[140px] sm:min-w-[180px] md:min-w-[240px] lg:min-w-[300px] inline-block transition-all duration-300 text-center">
                   {words[currentWord]}
                 </span>
                 <span className="text-gray-900">{locale === 'tr' ? 'İSE' : 'IS'}</span>
               </div>
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-5">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4">
                 <span className="text-gradient-maritime">MARINEFLUX</span>
                 <span className="text-gray-900">{locale === 'tr' ? 'KULLAN' : 'USE'}</span>
               </div>
@@ -176,42 +176,42 @@ function HeroSection({ locale }: { locale: string }) {
           </div>
 
           {/* Subtitle */}
-          <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto mb-12 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-10 md:mb-12 leading-relaxed">
             {locale === 'tr'
               ? 'Denizcilik tedarik zincirinin güvenilir dijital platformunda yerinizi alın. Tedarikçiler ve alıcıları bir araya getiriyoruz.'
               : 'Take your place in the trusted digital platform of the maritime supply chain. We bring suppliers and buyers together.'}
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
             <Link href={`/${locale}/login`}>
-              <Button size="lg" className="bg-maritime-600 hover:bg-maritime-700 text-white px-8 py-6 text-lg shadow-maritime">
+              <Button size="lg" className="bg-maritime-600 hover:bg-maritime-700 text-white px-6 sm:px-8 py-5 md:py-6 text-base md:text-lg shadow-maritime">
                 {locale === 'tr' ? 'Hemen Başla' : 'Get Started'}
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-2 border-maritime-600 text-maritime-600 hover:bg-maritime-50 px-8 py-6 text-lg">
+            <Button size="lg" variant="outline" className="border-2 border-maritime-600 text-maritime-600 hover:bg-maritime-50 px-6 sm:px-8 py-5 md:py-6 text-base md:text-lg">
               {locale === 'tr' ? 'Nasıl Çalışır?' : 'How It Works'}
             </Button>
           </div>
 
           {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-3xl mx-auto">
+          <div className="mt-12 md:mt-16 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto">
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-maritime-700">500+</div>
-              <div className="text-sm md:text-base text-gray-600 mt-2">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-maritime-700">500+</div>
+              <div className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 md:mt-2">
                 {locale === 'tr' ? 'Tedarikçi' : 'Suppliers'}
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-maritime-700">1,000+</div>
-              <div className="text-sm md:text-base text-gray-600 mt-2">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-maritime-700">1,000+</div>
+              <div className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 md:mt-2">
                 {locale === 'tr' ? 'Ürün' : 'Products'}
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-maritime-700">24/7</div>
-              <div className="text-sm md:text-base text-gray-600 mt-2">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-maritime-700">24/7</div>
+              <div className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 md:mt-2">
                 {locale === 'tr' ? 'Destek' : 'Support'}
               </div>
             </div>
