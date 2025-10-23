@@ -115,13 +115,15 @@
 - [x] Order management system
 - [x] Order status workflow (pending → confirmed → in_progress → shipped → delivered)
 - [x] Basic search and filtering
-- [ ] Real-time notifications UI
+- [x] Real-time notifications UI
 - [ ] File upload functionality
 - [ ] Advanced search with complex filters
 - [ ] Rating and review system UI
 
 ### Admin Features
-- [ ] User creation/management interface
+- [x] User creation/management interface
+- [x] User listing and filtering
+- [x] User deletion with confirmation
 - [ ] Platform analytics dashboard
 - [ ] System settings
 - [ ] User verification workflow
@@ -131,6 +133,7 @@
 - [x] Quotation comparison interface (quotations page)
 - [x] Order tracking interface (order detail with timeline)
 - [x] Order list with status filters
+- [x] Profile management (company info, location, description)
 - [ ] Payment history view
 - [ ] Supplier directory with ratings
 - [ ] Multi-vessel management
@@ -140,8 +143,9 @@
 - [x] Quotation management (list & status tracking)
 - [x] Order fulfillment tracking (order detail with status updates)
 - [x] Order list with filters
+- [x] Profile management (company info, location, ratings)
 - [ ] Revenue reports
-- [ ] Profile management with auto-populate
+- [ ] Profile auto-populate from form data
 - [ ] Advanced analytics dashboard
 
 ### Communication & Messaging
@@ -215,8 +219,8 @@
 1. ✅ Real-time messaging system
 2. ✅ Registration page with role selection
 3. ✅ Sortable data tables
-4. ⏳ Profile management (Supplier & Shipowner)
-5. ⏳ Admin user management interface
+4. ✅ Profile management (Supplier & Shipowner)
+5. ✅ Admin user management interface
 6. ⏳ File upload for RFQs and quotations
 7. ⏳ Real-time notifications UI
 8. ⏳ Advanced search and filters
@@ -252,14 +256,16 @@
 - ✅ Professional maritime color theme implemented
 - ✅ Real-time data integration with Firestore
 - ✅ Real-time messaging system fully functional
+- ✅ Real-time notifications system functional
+- ✅ Profile management for shipowners and suppliers
+- ✅ Admin user management interface complete
 - ✅ Responsive design across all pages
 - ✅ Sortable tables for better data management
 - ✅ Floating chat widget with unread badges
 - ✅ Context-aware messaging (RFQ/Quotation linked)
 - 🚧 File upload functionality pending
-- 🚧 Real-time notifications UI pending
-- 🚧 Admin user management UI pending
-- 🚧 Profile management pages pending
+- 🚧 Advanced search and filters pending
+- 🚧 Rating and review system UI pending
 
 ## 🚀 Getting Started
 
@@ -279,18 +285,20 @@ For questions or issues:
 ---
 
 Last Updated: 2025-10-23
-Version: 0.4.0 (Communication & Messaging system added, Registration flow complete)
-Status: Phase 2 In Progress - Real-time messaging complete, Profile management next
+Version: 0.5.0 (Profile management & Admin features complete, Real-time notifications implemented)
+Status: Phase 2 In Progress - Admin tools complete, File upload next
 
-### Recent Updates (v0.4.0)
-- ✅ Real-time messaging system with Firestore
-- ✅ Floating chat widget (WhatsApp/Slack-style UI)
-- ✅ Registration page with 2-step flow
-- ✅ Sortable data tables for RFQs and quotations
-- ✅ Message buttons on RFQ/Quotation pages
-- ✅ Navbar chat icon with unread badge
-- ✅ Context-aware chat creation
-- ✅ Debug logging for message sending
+### Recent Updates (v0.5.0)
+- ✅ Supplier profile management page
+- ✅ Shipowner profile management page
+- ✅ Admin user management with delete functionality
+- ✅ Real-time notifications dropdown in navbar
+- ✅ Unread notification badges with count
+- ✅ Notification type-specific icons and colors
+- ✅ Mark notifications as read functionality
+- ✅ Sidebar navigation links for profile pages
+- ✅ User deletion confirmation dialog
+- ✅ Enhanced admin user filtering and display
 
 
 
