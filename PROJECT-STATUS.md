@@ -9,13 +9,16 @@
 - [x] Internationalization (next-intl) for Turkish and English
 - [x] Firebase SDK integration (Firestore, Auth, Storage, Messaging)
 - [x] Project folder structure
+- [x] Firestore composite indexes for queries
 
 ### Authentication & Authorization
 - [x] Firebase Authentication integration
 - [x] Login page with role-based routing
+- [x] Registration page (2-step flow: role selection + details)
 - [x] Protected route component
 - [x] Auth hooks (useAuth)
 - [x] User role types (admin, shipowner, supplier)
+- [x] Terms and privacy policy acceptance
 
 ### UI Components
 - [x] shadcn/ui base components (Button, Card, Input, Badge, Label, Textarea)
@@ -27,6 +30,9 @@
 - [x] Status badges with icons
 - [x] Timeline components
 - [x] Filter buttons and search bars
+- [x] Sortable data tables with column headers
+- [x] Floating chat widget component
+- [x] Minimal list view tables (inspired by modern B2B platforms)
 
 ### Landing Page
 - [x] Hero section with CTAs and animated text
@@ -138,6 +144,20 @@
 - [ ] Profile management with auto-populate
 - [ ] Advanced analytics dashboard
 
+### Communication & Messaging
+- [x] Real-time messaging system (Firestore-based)
+- [x] Floating chat widget (WhatsApp/Slack-style)
+- [x] Chat creation and management
+- [x] Message sending and receiving with real-time updates
+- [x] Unread message count badges
+- [x] Chat list with search functionality
+- [x] Message buttons on RFQ/Quotation pages
+- [x] Navbar chat icon with unread badge
+- [x] System messages for events
+- [x] Participant management
+- [x] Read receipts and timestamps
+- [x] Context-aware chat creation (RFQ/Quotation/Order)
+
 ### Additional Features
 - [ ] Email notifications
 - [ ] Push notifications
@@ -148,7 +168,6 @@
 - [ ] Activity logs
 - [ ] Multi-vessel management
 - [ ] Service categories management
-- [ ] Messaging system
 - [ ] Contract templates
 
 ### Testing
@@ -174,14 +193,14 @@
 
 ## 📊 Project Statistics
 
-- **Total Files Created**: 60+
-- **Components**: 20+
-- **Pages**: 20+
-- **TypeScript Types**: 5 files
+- **Total Files Created**: 80+
+- **Components**: 25+
+- **Pages**: 25+
+- **TypeScript Types**: 6 files (User, Order, Quotation, RFQ, Supplier, Message)
 - **Localization Keys**: 150+ (TR + EN)
-- **Firebase Collections**: 7 (users, shipowners, suppliers, rfqs, quotations, orders, notifications)
-- **UI Components**: 10+ (Button, Card, Input, Badge, Label, Textarea, etc.)
-- **API Routes**: 12+ (RFQ, Quotation, Order, User, Supplier management)
+- **Firebase Collections**: 9 (users, shipowners, suppliers, rfqs, quotations, orders, notifications, chats, messages)
+- **UI Components**: 15+ (Button, Card, Input, Badge, Label, Textarea, FloatingChatWidget, etc.)
+- **API Routes**: 16+ (RFQ, Quotation, Order, User, Supplier, Chat, Message management)
 
 ## 🎯 Next Priorities
 
@@ -193,13 +212,16 @@
 5. ⏳ Implement notifications
 
 ### Phase 2: Enhanced Features (Current Focus)
-1. ⏳ Real-time notifications UI
-2. ⏳ File upload for RFQs and quotations
-3. ⏳ Advanced search and filters
-4. ⏳ Rating and review system
+1. ✅ Real-time messaging system
+2. ✅ Registration page with role selection
+3. ✅ Sortable data tables
+4. ⏳ Profile management (Supplier & Shipowner)
 5. ⏳ Admin user management interface
-6. ⏳ Payment integration preparation
-7. ⏳ Supplier profile management
+6. ⏳ File upload for RFQs and quotations
+7. ⏳ Real-time notifications UI
+8. ⏳ Advanced search and filters
+9. ⏳ Rating and review system
+10. ⏳ Payment integration preparation
 
 ### Phase 3: Polish & Production (Next)
 1. Testing and bug fixes
@@ -225,14 +247,19 @@
 - ✅ Security rules are configured (currently open for development)
 - ✅ Landing page is complete with modern B2B SaaS design
 - ✅ Three main dashboards are functional with real data
-- ✅ Authentication flow is working
+- ✅ Authentication flow is working (Login + Registration)
 - ✅ Core RFQ → Quotation → Order flow is complete
 - ✅ Professional maritime color theme implemented
 - ✅ Real-time data integration with Firestore
+- ✅ Real-time messaging system fully functional
 - ✅ Responsive design across all pages
+- ✅ Sortable tables for better data management
+- ✅ Floating chat widget with unread badges
+- ✅ Context-aware messaging (RFQ/Quotation linked)
 - 🚧 File upload functionality pending
-- 🚧 Real-time notifications pending
+- 🚧 Real-time notifications UI pending
 - 🚧 Admin user management UI pending
+- 🚧 Profile management pages pending
 
 ## 🚀 Getting Started
 
@@ -251,9 +278,19 @@ For questions or issues:
 
 ---
 
-Last Updated: 2025-01-23
-Version: 0.3.0 (Major features complete: RFQ, Quotation, Order management)
-Status: Phase 1 Complete - Moving to Phase 2 (Enhanced Features)
+Last Updated: 2025-10-23
+Version: 0.4.0 (Communication & Messaging system added, Registration flow complete)
+Status: Phase 2 In Progress - Real-time messaging complete, Profile management next
+
+### Recent Updates (v0.4.0)
+- ✅ Real-time messaging system with Firestore
+- ✅ Floating chat widget (WhatsApp/Slack-style UI)
+- ✅ Registration page with 2-step flow
+- ✅ Sortable data tables for RFQs and quotations
+- ✅ Message buttons on RFQ/Quotation pages
+- ✅ Navbar chat icon with unread badge
+- ✅ Context-aware chat creation
+- ✅ Debug logging for message sending
 
 
 
