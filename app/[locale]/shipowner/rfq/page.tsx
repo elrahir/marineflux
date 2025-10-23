@@ -8,7 +8,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, Eye, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 interface RFQ {
@@ -34,6 +34,8 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
   const [rfqs, setRfqs] = useState<RFQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'open' | 'closed' | 'awarded'>('all');
+  const [sortColumn, setSortColumn] = useState<string>('createdAt');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     if (user?.uid) {
@@ -79,13 +81,75 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
     return categories[category]?.[locale as 'tr' | 'en'] || category;
   };
 
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (column: string) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="h-3 w-3 ml-1 text-gray-400" />;
+    }
+    return sortDirection === 'asc' 
+      ? <ArrowUp className="h-3 w-3 ml-1 text-maritime-600" />
+      : <ArrowDown className="h-3 w-3 ml-1 text-maritime-600" />;
+  };
+
   const stats = {
     open: rfqs.filter(r => r.status === 'open').length,
     pending: rfqs.filter(r => r.status === 'open' && r.quotationCount > 0).length,
     awarded: rfqs.filter(r => r.status === 'awarded').length,
   };
 
-  const filteredRfqs = filter === 'all' ? rfqs : rfqs.filter(r => r.status === filter);
+  // Filter and sort
+  let filteredRfqs = filter === 'all' ? rfqs : rfqs.filter(r => r.status === filter);
+  
+  // Apply sorting
+  filteredRfqs = [...filteredRfqs].sort((a, b) => {
+    let aValue: any;
+    let bValue: any;
+
+    switch (sortColumn) {
+      case 'vessel':
+        aValue = a.vessel?.name || '';
+        bValue = b.vessel?.name || '';
+        break;
+      case 'createdAt':
+        aValue = new Date(a.createdAt).getTime();
+        bValue = new Date(b.createdAt).getTime();
+        break;
+      case 'deadline':
+        aValue = new Date(a.deadline).getTime();
+        bValue = new Date(b.deadline).getTime();
+        break;
+      case 'category':
+        aValue = getCategoryLabel(a.category);
+        bValue = getCategoryLabel(b.category);
+        break;
+      case 'title':
+        aValue = a.title;
+        bValue = b.title;
+        break;
+      case 'quotationCount':
+        aValue = a.quotationCount || 0;
+        bValue = b.quotationCount || 0;
+        break;
+      case 'status':
+        aValue = a.status;
+        bValue = b.status;
+        break;
+      default:
+        return 0;
+    }
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   return (
     <ProtectedRoute allowedRoles={['shipowner']} locale={locale}>
@@ -209,26 +273,68 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 border-y">
                     <tr>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
-                        {locale === 'tr' ? 'Gemi' : 'Vessel'}
+                      <th 
+                        className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('vessel')}
+                      >
+                        <div className="flex items-center">
+                          {locale === 'tr' ? 'Gemi' : 'Vessel'}
+                          {getSortIcon('vessel')}
+                        </div>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
-                        {locale === 'tr' ? 'Tarih' : 'Date'}
+                      <th 
+                        className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('createdAt')}
+                      >
+                        <div className="flex items-center">
+                          {locale === 'tr' ? 'Tarih' : 'Date'}
+                          {getSortIcon('createdAt')}
+                        </div>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
-                        {locale === 'tr' ? 'Kategori' : 'Category'}
+                      <th 
+                        className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('category')}
+                      >
+                        <div className="flex items-center">
+                          {locale === 'tr' ? 'Kategori' : 'Category'}
+                          {getSortIcon('category')}
+                        </div>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
-                        {locale === 'tr' ? 'Başlık' : 'Title'}
+                      <th 
+                        className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('title')}
+                      >
+                        <div className="flex items-center">
+                          {locale === 'tr' ? 'Başlık' : 'Title'}
+                          {getSortIcon('title')}
+                        </div>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
-                        {locale === 'tr' ? 'Son Tarih' : 'Deadline'}
+                      <th 
+                        className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('deadline')}
+                      >
+                        <div className="flex items-center">
+                          {locale === 'tr' ? 'Son Tarih' : 'Deadline'}
+                          {getSortIcon('deadline')}
+                        </div>
                       </th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
-                        {locale === 'tr' ? 'Teklifler' : 'Offers'}
+                      <th 
+                        className="text-center py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('quotationCount')}
+                      >
+                        <div className="flex items-center justify-center">
+                          {locale === 'tr' ? 'Teklifler' : 'Offers'}
+                          {getSortIcon('quotationCount')}
+                        </div>
                       </th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
-                        {locale === 'tr' ? 'Durum' : 'Status'}
+                      <th 
+                        className="text-center py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('status')}
+                      >
+                        <div className="flex items-center justify-center">
+                          {locale === 'tr' ? 'Durum' : 'Status'}
+                          {getSortIcon('status')}
+                        </div>
                       </th>
                       <th className="text-center py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
                         {locale === 'tr' ? 'İşlem' : 'Action'}
