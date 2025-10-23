@@ -24,6 +24,7 @@ import {
   DollarSign,
   Settings,
   Star,
+  MessageCircle,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -56,6 +57,7 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
         { icon: LayoutDashboard, label: t('dashboard.overview'), href: `/${locale}/shipowner/dashboard` },
         { icon: Search, label: t('common.search'), href: `/${locale}/shipowner/search` },
         { icon: FileText, label: t('shipowner.myRfqs'), href: `/${locale}/shipowner/rfq` },
+        { icon: MessageCircle, label: locale === 'tr' ? 'Mesajlar' : 'Messages', href: `/${locale}/shipowner/messages` },
         { icon: ShoppingCart, label: t('shipowner.orders'), href: `/${locale}/shipowner/orders` },
         { icon: History, label: t('shipowner.history'), href: `/${locale}/shipowner/history` },
       ];
@@ -64,6 +66,7 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
         { icon: LayoutDashboard, label: t('dashboard.overview'), href: `/${locale}/supplier/dashboard` },
         { icon: FileText, label: t('supplier.rfqs'), href: `/${locale}/supplier/rfqs` },
         { icon: Package, label: t('supplier.myQuotations'), href: `/${locale}/supplier/quotations` },
+        { icon: MessageCircle, label: locale === 'tr' ? 'Mesajlar' : 'Messages', href: `/${locale}/supplier/messages` },
         { icon: ShoppingCart, label: t('supplier.orders'), href: `/${locale}/supplier/orders` },
         { icon: DollarSign, label: t('supplier.payments'), href: `/${locale}/supplier/payments` },
         { icon: Star, label: t('supplier.profile'), href: `/${locale}/supplier/profile` },
