@@ -142,7 +142,7 @@ function HeroSection({ locale }: { locale: string }) {
   }, [words.length]);
 
   return (
-    <section className="relative py-20 md:py-32 lg:py-40 overflow-hidden bg-gradient-to-br from-gray-50 via-slate-50 to-white">
+    <section className="relative py-16 md:py-20 lg:py-24 overflow-hidden bg-gradient-to-br from-gray-50 via-slate-50 to-white">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-maritime-600 rounded-full opacity-5 blur-3xl"></div>
@@ -152,7 +152,7 @@ function HeroSection({ locale }: { locale: string }) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-6xl mx-auto text-center">
           {/* Platform Tagline */}
-          <div className="mb-8 md:mb-10">
+          <div className="mb-6 md:mb-8">
             <p className="text-base md:text-lg text-gray-700 font-medium">
               {locale === 'tr'
                 ? "Türkiye'nin ilk ve tek denizcilik sektörü B2B platformu"
@@ -161,8 +161,8 @@ function HeroSection({ locale }: { locale: string }) {
           </div>
 
           {/* Multi-line Animated Text */}
-          <div className="mb-8 md:mb-10 lg:mb-12 min-h-auto flex items-center justify-center">
-            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight space-y-2 md:space-y-3">
+          <div className="mb-6 md:mb-8 lg:mb-10 min-h-auto flex items-center justify-center">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight space-y-1 md:space-y-2">
               <div>
                 <span className="text-gray-900">{locale === 'tr' ? 'İHTİYACIN' : 'YOUR NEED'}</span>
               </div>
@@ -184,14 +184,14 @@ function HeroSection({ locale }: { locale: string }) {
           </div>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-10 md:mb-12 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed">
             {locale === 'tr'
               ? 'Denizcilik tedarik zincirinin güvenilir dijital platformunda yerinizi alın. Tedarikçiler ve alıcıları bir araya getiriyoruz.'
               : 'Take your place in the trusted digital platform of the maritime supply chain. We bring suppliers and buyers together.'}
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 md:mb-10">
             <Link href={`/${locale}/login`}>
               <Button size="lg" className="bg-maritime-600 hover:bg-maritime-700 text-white px-6 sm:px-8 py-5 md:py-6 text-base md:text-lg shadow-maritime">
                 {locale === 'tr' ? 'Hemen Başla' : 'Get Started'}
@@ -204,7 +204,7 @@ function HeroSection({ locale }: { locale: string }) {
           </div>
 
           {/* Stats */}
-          <div className="mt-12 md:mt-16 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto">
+          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto">
             <div className="text-center">
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-maritime-700">500+</div>
               <div className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 md:mt-2">
