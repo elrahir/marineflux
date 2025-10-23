@@ -27,6 +27,8 @@ interface FloatingChatWidgetProps {
   recipientName?: string;
   relatedEntityId?: string;
   relatedEntityType?: 'rfq' | 'quotation' | 'order';
+  isOpen?: boolean;
+  setIsOpen?: (open: boolean) => void;
 }
 
 export function FloatingChatWidget({ 
@@ -35,11 +37,17 @@ export function FloatingChatWidget({
   recipientId,
   recipientName,
   relatedEntityId,
-  relatedEntityType 
+  relatedEntityType,
+  isOpen: externalIsOpen,
+  setIsOpen: externalSetIsOpen
 }: FloatingChatWidgetProps) {
   const { user, userData } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+
+  // Use external state if provided, otherwise use internal
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = externalSetIsOpen || setInternalIsOpen;
   const [view, setView] = useState<'list' | 'chat'>('list');
   const [chats, setChats] = useState<Chat[]>([]);
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
@@ -299,19 +307,7 @@ export function FloatingChatWidget({
   };
 
   if (!isOpen) {
-    return (
-      <Button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-maritime-600 hover:bg-maritime-700 z-50"
-      >
-        <MessageCircle className="h-6 w-6" />
-        {totalUnread > 0 && (
-          <Badge className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
-            {totalUnread > 9 ? '9+' : totalUnread}
-          </Badge>
-        )}
-      </Button>
-    );
+    return null;
   }
 
   if (isMinimized) {

@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { logout } from '@/lib/firebase/auth';
 import { FloatingChatWidget } from '@/components/chat/FloatingChatWidget';
+import { db } from '@/lib/firebase/config';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import {
   Anchor,
   LayoutDashboard,
@@ -37,13 +40,36 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, locale, userType }: DashboardLayoutProps) {
   const t = useTranslations();
   const router = useRouter();
-  const { userData } = useAuth();
+  const { userData, user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const handleLogout = async () => {
     await logout();
     router.push(`/${locale}/login`);
   };
+
+  // Listen for unread messages
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const q = query(
+      collection(db, 'chats'),
+      where('participantIds', 'array-contains', user.uid)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let totalUnread = 0;
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        totalUnread += data.unreadCount?.[user.uid] || 0;
+      });
+      setUnreadCount(totalUnread);
+    });
+
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   const getNavigationItems = () => {
     if (userType === 'admin') {
@@ -97,6 +123,22 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
 
             {/* Right Side Items */}
             <div className="flex items-center gap-4">
+              {/* Chat Button */}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative"
+                onClick={() => setChatOpen(true)}
+              >
+                <MessageCircle className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs rounded-full">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Badge>
+                )}
+              </Button>
+
+              {/* Notification Button */}
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
@@ -166,7 +208,7 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
       </main>
 
       {/* Floating Chat Widget */}
-      <FloatingChatWidget locale={locale} />
+      <FloatingChatWidget locale={locale} isOpen={chatOpen} setIsOpen={setChatOpen} />
     </div>
   );
 }
