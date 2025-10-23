@@ -35,19 +35,6 @@ export default function LandingPage({ params }: { params: Promise<{ locale: stri
         {/* Hero Section */}
         <HeroSection locale={locale} />
 
-        {/* Platform Tagline Section */}
-        <section className="bg-white border-t border-b border-gray-100 py-6 md:py-8">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <p className="text-base md:text-lg text-gray-700 font-medium">
-                {locale === 'tr'
-                  ? "Türkiye'nin ilk ve tek denizcilik sektörü B2B platformu"
-                  : "Turkey's first and only maritime sector B2B platform"}
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* Portal Cards Section */}
         <PortalCardsSection locale={locale} />
 
@@ -164,6 +151,15 @@ function HeroSection({ locale }: { locale: string }) {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-6xl mx-auto text-center">
+          {/* Platform Tagline */}
+          <div className="mb-8 md:mb-10">
+            <p className="text-base md:text-lg text-gray-700 font-medium">
+              {locale === 'tr'
+                ? "Türkiye'nin ilk ve tek denizcilik sektörü B2B platformu"
+                : "Turkey's first and only maritime sector B2B platform"}
+            </p>
+          </div>
+
           {/* Multi-line Animated Text */}
           <div className="mb-8 md:mb-10 lg:mb-12 min-h-auto flex items-center justify-center">
             <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight space-y-2 md:space-y-3">
