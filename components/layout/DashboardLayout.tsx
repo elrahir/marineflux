@@ -10,7 +10,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { logout } from '@/lib/firebase/auth';
 import { FloatingChatWidget } from '@/components/chat/FloatingChatWidget';
 import { db } from '@/lib/firebase/config';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy, updateDoc, doc, limit } from 'firebase/firestore';
 import {
   Anchor,
   LayoutDashboard,
@@ -29,6 +29,8 @@ import {
   Settings,
   Star,
   MessageCircle,
+  Check,
+  AlertCircle,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -44,6 +46,9 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const handleLogout = async () => {
     await logout();
@@ -66,6 +71,32 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
         totalUnread += data.unreadCount?.[user.uid] || 0;
       });
       setUnreadCount(totalUnread);
+    });
+
+    return () => unsubscribe();
+  }, [user?.uid]);
+
+  // Listen for notifications
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const q = query(
+      collection(db, 'notifications'),
+      where('uid', '==', user.uid),
+      orderBy('createdAt', 'desc'),
+      limit(10)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const notifData: any[] = [];
+      let unread = 0;
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        notifData.push({ id: doc.id, ...data });
+        if (!data.read) unread++;
+      });
+      setNotifications(notifData);
+      setUnreadNotifications(unread);
     });
 
     return () => unsubscribe();
@@ -140,10 +171,85 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
               </Button>
 
               {/* Notification Button */}
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-              </Button>
+              <div className="relative">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="relative"
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                >
+                  <Bell className="h-5 w-5" />
+                  {unreadNotifications > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-blue-500 text-white text-xs rounded-full">
+                      {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                    </Badge>
+                  )}
+                </Button>
+
+                {/* Notifications Dropdown */}
+                {notificationsOpen && (
+                  <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                    <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                      <h3 className="font-semibold text-gray-900">
+                        {locale === 'tr' ? 'Bildirimler' : 'Notifications'}
+                      </h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setNotificationsOpen(false)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    <div className="divide-y divide-gray-200">
+                      {notifications.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
+                          {locale === 'tr' ? 'Bildirim yok' : 'No notifications'}
+                        </div>
+                      ) : (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                              !notification.read ? 'bg-blue-50' : ''
+                            }`}
+                            onClick={() => {
+                              if (notification.link) {
+                                window.location.href = `/${locale}${notification.link}`;
+                              }
+                              if (!notification.read) {
+                                updateDoc(doc(db, 'notifications', notification.id), { read: true });
+                              }
+                            }}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 mt-1">
+                                {notification.type === 'rfq' && <FileText className="h-4 w-4 text-blue-600" />}
+                                {notification.type === 'quotation' && <Package className="h-4 w-4 text-purple-600" />}
+                                {notification.type === 'order' && <ShoppingCart className="h-4 w-4 text-green-600" />}
+                                {notification.type === 'payment' && <DollarSign className="h-4 w-4 text-yellow-600" />}
+                                {notification.type === 'review' && <Star className="h-4 w-4 text-orange-600" />}
+                                {notification.type === 'system' && <AlertCircle className="h-4 w-4 text-gray-600" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-gray-900 text-sm">{notification.title}</p>
+                                <p className="text-gray-600 text-sm mt-1 line-clamp-2">{notification.message}</p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {notification.createdAt?.toDate?.()?.toLocaleString() || '-'}
+                                </p>
+                              </div>
+                              {!notification.read && (
+                                <div className="flex-shrink-0 h-2 w-2 bg-blue-600 rounded-full mt-2" />
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <div className="flex items-center gap-3">
                 <div className="hidden sm:block text-right">
