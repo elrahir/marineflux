@@ -5,10 +5,10 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Clock, CheckCircle, XCircle, Plus, Ship, Calendar, Package } from 'lucide-react';
+import { Plus, Eye } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 interface RFQ {
@@ -49,13 +49,10 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
       
       if (!response.ok) {
         console.error('API Error:', response.status, response.statusText);
-        const errorData = await response.json();
-        console.error('Error details:', errorData);
         return;
       }
       
       const data = await response.json();
-      
       if (data.success) {
         setRfqs(data.rfqs);
       }
@@ -63,34 +60,6 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
       console.error('Error fetching RFQs:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'open':
-        return (
-          <Badge className="bg-green-100 text-green-800">
-            <Clock className="h-3 w-3 mr-1" />
-            {locale === 'tr' ? 'Açık' : 'Open'}
-          </Badge>
-        );
-      case 'closed':
-        return (
-          <Badge className="bg-gray-100 text-gray-800">
-            <XCircle className="h-3 w-3 mr-1" />
-            {locale === 'tr' ? 'Kapalı' : 'Closed'}
-          </Badge>
-        );
-      case 'awarded':
-        return (
-          <Badge className="bg-blue-100 text-blue-800">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            {locale === 'tr' ? 'Verildi' : 'Awarded'}
-          </Badge>
-        );
-      default:
-        return <Badge>{status}</Badge>;
     }
   };
 
@@ -107,18 +76,12 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
       'services': { tr: 'Hizmetler', en: 'Services' },
       'other': { tr: 'Diğer', en: 'Other' },
     };
-    
     return categories[category]?.[locale as 'tr' | 'en'] || category;
   };
 
-  const isDeadlinePassed = (deadline: string) => {
-    return new Date(deadline) < new Date();
-  };
-
   const stats = {
-    total: rfqs.length,
     open: rfqs.filter(r => r.status === 'open').length,
-    closed: rfqs.filter(r => r.status === 'closed').length,
+    pending: rfqs.filter(r => r.status === 'open' && r.quotationCount > 0).length,
     awarded: rfqs.filter(r => r.status === 'awarded').length,
   };
 
@@ -128,175 +91,237 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
     <ProtectedRoute allowedRoles={['shipowner']} locale={locale}>
       <DashboardLayout locale={locale} userType="shipowner">
         <div className="space-y-6">
-          {/* Page Header */}
+          {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                {locale === 'tr' ? 'Teklif Taleplerim' : 'My RFQs'}
+              <h1 className="text-2xl font-bold text-gray-900">
+                {locale === 'tr' ? 'RFQ Yönetimi' : 'RFQ Management'}
               </h1>
-              <p className="text-gray-600 mt-2">
-                {locale === 'tr' 
-                  ? 'Oluşturduğunuz teklif taleplerini görüntüleyin ve yönetin'
-                  : 'View and manage your quotation requests'}
+              <p className="text-sm text-gray-600 mt-1">
+                {locale === 'tr' ? 'Teklif taleplerini yönetin ve takip edin' : 'Manage and track your RFQs'}
               </p>
             </div>
             <Link href={`/${locale}/shipowner/rfq/create`}>
-              <Button size="lg">
-                <Plus className="mr-2 h-5 w-5" />
-                {locale === 'tr' ? 'Yeni RFQ Oluştur' : 'Create New RFQ'}
+              <Button size="sm" className="bg-maritime-600 hover:bg-maritime-700">
+                <Plus className="h-4 w-4 mr-2" />
+                {locale === 'tr' ? 'Yeni RFQ' : 'New RFQ'}
               </Button>
             </Link>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card 
-              className={`cursor-pointer transition-all ${filter === 'all' ? 'ring-2 ring-primary' : ''}`}
-              onClick={() => setFilter('all')}
-            >
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {locale === 'tr' ? 'Toplam RFQ' : 'Total RFQs'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.total}</div>
+          {/* Stats Row - Compact */}
+          <div className="grid grid-cols-3 gap-4">
+            <Card className="border-l-4 border-l-green-500">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase tracking-wide">
+                      {locale === 'tr' ? 'Açık RFQ' : 'Open RFQs'}
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.open}</p>
+                  </div>
+                  <div className="text-green-600 text-xs font-semibold">
+                    {locale === 'tr' ? 'Aktif' : 'Active'}
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            <Card 
-              className={`cursor-pointer transition-all ${filter === 'open' ? 'ring-2 ring-green-500' : ''}`}
-              onClick={() => setFilter('open')}
-            >
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {locale === 'tr' ? 'Açık' : 'Open'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.open}</div>
+            <Card className="border-l-4 border-l-blue-500">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase tracking-wide">
+                      {locale === 'tr' ? 'Teklif Bekleyen' : 'Pending Quotes'}
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.pending}</p>
+                  </div>
+                  <div className="text-blue-600 text-xs font-semibold">
+                    {locale === 'tr' ? 'Devam Eden' : 'In Progress'}
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            <Card 
-              className={`cursor-pointer transition-all ${filter === 'closed' ? 'ring-2 ring-gray-500' : ''}`}
-              onClick={() => setFilter('closed')}
-            >
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {locale === 'tr' ? 'Kapalı' : 'Closed'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-gray-600">{stats.closed}</div>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className={`cursor-pointer transition-all ${filter === 'awarded' ? 'ring-2 ring-blue-500' : ''}`}
-              onClick={() => setFilter('awarded')}
-            >
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {locale === 'tr' ? 'Verildi' : 'Awarded'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">{stats.awarded}</div>
+            <Card className="border-l-4 border-l-purple-500">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase tracking-wide">
+                      {locale === 'tr' ? 'Sipariş Verilen' : 'Awarded'}
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.awarded}</p>
+                  </div>
+                  <div className="text-purple-600 text-xs font-semibold">
+                    {locale === 'tr' ? 'Tamamlandı' : 'Completed'}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* RFQ List */}
+          {/* Filters */}
           <Card>
-            <CardHeader>
-              <CardTitle>
-                {filter === 'all' 
-                  ? (locale === 'tr' ? 'Tüm RFQ\'lar' : 'All RFQs')
-                  : `${filteredRfqs.length} ${filter === 'open' ? (locale === 'tr' ? 'Açık' : 'Open') : filter === 'closed' ? (locale === 'tr' ? 'Kapalı' : 'Closed') : (locale === 'tr' ? 'Verilmiş' : 'Awarded')} RFQ`}
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold">
+                  {locale === 'tr' ? 'Günlük İş Akışı' : 'Daily Workflow'}
               </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="text-center py-8 text-gray-500">
-                  {t('common.loading')}
+                <div className="flex gap-2">
+                  <Button
+                    variant={filter === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('all')}
+                    className="text-xs"
+                  >
+                    {locale === 'tr' ? 'Tümü' : 'All'}
+                  </Button>
+                  <Button
+                    variant={filter === 'open' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('open')}
+                    className="text-xs"
+                  >
+                    {locale === 'tr' ? 'Açık' : 'Open'}
+                  </Button>
+                  <Button
+                    variant={filter === 'awarded' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('awarded')}
+                    className="text-xs"
+                  >
+                    {locale === 'tr' ? 'Verildi' : 'Awarded'}
+                  </Button>
+                  <Button
+                    variant={filter === 'closed' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('closed')}
+                    className="text-xs"
+                  >
+                    {locale === 'tr' ? 'Kapalı' : 'Closed'}
+                  </Button>
                 </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-y">
+                    <tr>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
+                        {locale === 'tr' ? 'Gemi' : 'Vessel'}
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
+                        {locale === 'tr' ? 'Tarih' : 'Date'}
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
+                        {locale === 'tr' ? 'Kategori' : 'Category'}
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
+                        {locale === 'tr' ? 'Başlık' : 'Title'}
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
+                        {locale === 'tr' ? 'Son Tarih' : 'Deadline'}
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
+                        {locale === 'tr' ? 'Teklifler' : 'Offers'}
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
+                        {locale === 'tr' ? 'Durum' : 'Status'}
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-700 text-xs uppercase tracking-wider">
+                        {locale === 'tr' ? 'İşlem' : 'Action'}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+              {loading ? (
+                      <tr>
+                        <td colSpan={8} className="py-8 text-center text-gray-500">
+                          {locale === 'tr' ? 'Yükleniyor...' : 'Loading...'}
+                        </td>
+                      </tr>
               ) : filteredRfqs.length === 0 ? (
-                <div className="text-center py-12">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">
-                    {locale === 'tr' ? 'Henüz RFQ oluşturmadınız' : 'No RFQs created yet'}
-                  </p>
-                  <Link href={`/${locale}/shipowner/rfq/create`}>
-                    <Button>
-                      <Plus className="mr-2 h-4 w-4" />
-                      {locale === 'tr' ? 'İlk RFQ\'nuzu Oluşturun' : 'Create Your First RFQ'}
-                    </Button>
-                  </Link>
+                      <tr>
+                        <td colSpan={8} className="py-8 text-center text-gray-500">
+                          {locale === 'tr' ? 'RFQ bulunamadı' : 'No RFQs found'}
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredRfqs.map((rfq) => (
+                        <tr 
+                          key={rfq.id} 
+                          className="hover:bg-gray-50 transition-colors cursor-pointer"
+                          onClick={() => window.location.href = `/${locale}/shipowner/rfq/${rfq.id}`}
+                        >
+                          <td className="py-3 px-4 text-gray-900">
+                            {rfq.vessel ? (
+                              <div>
+                                <div className="font-medium">{rfq.vessel.name}</div>
+                                <div className="text-xs text-gray-500">{rfq.vessel.type}</div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {filteredRfqs.map((rfq) => (
-                    <div key={rfq.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold">{rfq.title}</h3>
-                            {getStatusBadge(rfq.status)}
-                          </div>
-                          <p className="text-gray-600 text-sm mb-3">{rfq.description}</p>
-                          
-                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                            <div className="flex items-center gap-1">
-                              <Package className="h-4 w-4" />
-                              {getCategoryLabel(rfq.category)}
-                            </div>
-                            
-                            {rfq.vessel && (
-                              <div className="flex items-center gap-1">
-                                <Ship className="h-4 w-4" />
-                                {rfq.vessel.name}
-                              </div>
+                              <span className="text-gray-400 text-xs">-</span>
                             )}
-                            
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              {locale === 'tr' ? 'Son tarih: ' : 'Deadline: '}
-                              <span className={isDeadlinePassed(rfq.deadline) ? 'text-red-600 font-medium' : ''}>
-                                {new Date(rfq.deadline).toLocaleDateString(locale)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="text-right ml-6">
-                          <div className="text-2xl font-bold text-primary">
-                            {rfq.quotationCount}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {locale === 'tr' ? 'Teklif' : 'Quotes'}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <Link href={`/${locale}/shipowner/rfq/${rfq.id}`} className="flex-1">
-                          <Button variant="outline" className="w-full">
-                            {locale === 'tr' ? 'Detaylar' : 'View Details'}
+                          </td>
+                          <td className="py-3 px-4 text-gray-700">
+                            {new Date(rfq.createdAt).toLocaleDateString(locale, { 
+                              month: 'short', 
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                              {getCategoryLabel(rfq.category)}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="font-medium text-gray-900">{rfq.title}</div>
+                            <div className="text-xs text-gray-500 line-clamp-1">{rfq.description}</div>
+                          </td>
+                          <td className="py-3 px-4 text-gray-700">
+                            {new Date(rfq.deadline).toLocaleDateString(locale, { 
+                              month: 'short', 
+                              day: 'numeric'
+                            })}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold text-xs">
+                              {rfq.quotationCount}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {rfq.status === 'open' && (
+                              <Badge className="bg-green-50 text-green-700 border border-green-200">
+                                {locale === 'tr' ? 'Açık' : 'Open'}
+                              </Badge>
+                            )}
+                            {rfq.status === 'closed' && (
+                              <Badge className="bg-gray-50 text-gray-700 border border-gray-200">
+                                {locale === 'tr' ? 'Kapalı' : 'Closed'}
+                              </Badge>
+                            )}
+                            {rfq.status === 'awarded' && (
+                              <Badge className="bg-purple-50 text-purple-700 border border-purple-200">
+                                {locale === 'tr' ? 'Verildi' : 'Awarded'}
+                              </Badge>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <Link href={`/${locale}/shipowner/rfq/${rfq.id}`} onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
-                        {rfq.quotationCount > 0 && (
-                          <Link href={`/${locale}/shipowner/rfq/${rfq.id}/quotations`} className="flex-1">
-                            <Button className="w-full">
-                              {locale === 'tr' ? 'Teklifleri Görüntüle' : 'View Quotations'}
-                            </Button>
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
                 </div>
-              )}
             </CardContent>
           </Card>
         </div>
