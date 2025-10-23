@@ -6,12 +6,29 @@ import { db } from '@/lib/firebase/config';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, role, companyName } = await request.json();
+    const body = await request.json();
+    const { 
+      email, 
+      password, 
+      role, 
+      companyName,
+      // Optional fields
+      fullName,
+      phone,
+      country,
+      city,
+      address,
+      website,
+      // Supplier-specific fields
+      supplierType,
+      mainCategories,
+      subcategories,
+    } = body;
 
-    // Validate input
+    // Validate required fields
     if (!email || !password || !role || !companyName) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: 'Email, password, role, and company name are required' },
         { status: 400 }
       );
     }
@@ -20,6 +37,14 @@ export async function POST(request: NextRequest) {
     if (!['admin', 'shipowner', 'supplier'].includes(role)) {
       return NextResponse.json(
         { error: 'Invalid role' },
+        { status: 400 }
+      );
+    }
+
+    // Validate supplier type if role is supplier
+    if (role === 'supplier' && supplierType && !['supplier', 'service-provider'].includes(supplierType)) {
+      return NextResponse.json(
+        { error: 'Invalid supplier type' },
         { status: 400 }
       );
     }
@@ -33,12 +58,18 @@ export async function POST(request: NextRequest) {
 
     const uid = userCredential.user.uid;
 
-    // Create user document in Firestore
+    // Create user document in Firestore with all provided fields
     await setDoc(doc(db, 'users', uid), {
       uid,
       email,
       role,
       companyName,
+      ...(fullName && { fullName }),
+      ...(phone && { phone }),
+      ...(country && { country }),
+      ...(city && { city }),
+      ...(address && { address }),
+      ...(website && { website }),
       createdAt: Timestamp.now(),
     });
 
@@ -46,19 +77,35 @@ export async function POST(request: NextRequest) {
     if (role === 'shipowner') {
       await setDoc(doc(db, 'shipowners', uid), {
         uid,
+        companyName,
+        ...(phone && { phone }),
+        ...(country && { country }),
+        ...(city && { city }),
+        ...(address && { address }),
+        ...(website && { website }),
         vessels: [],
         activeOrders: 0,
         totalSpent: 0,
+        createdAt: Timestamp.now(),
       });
     } else if (role === 'supplier') {
       await setDoc(doc(db, 'suppliers', uid), {
         uid,
         companyName,
-        serviceTypes: [],
+        email,
+        ...(phone && { phone }),
+        ...(country && { country }),
+        ...(city && { city }),
+        ...(address && { address }),
+        ...(website && { website }),
+        supplierType: supplierType || 'supplier',
+        mainCategories: mainCategories || [],
+        subcategories: subcategories || [],
         rating: 0,
         reviewCount: 0,
         totalOrders: 0,
         isVerified: false,
+        createdAt: Timestamp.now(),
       });
     }
 
@@ -69,6 +116,8 @@ export async function POST(request: NextRequest) {
         email,
         role,
         companyName,
+        ...(supplierType && { supplierType }),
+        ...(mainCategories && { mainCategories }),
       },
     });
   } catch (error: any) {
