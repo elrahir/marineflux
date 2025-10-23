@@ -165,8 +165,8 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">
-                  {locale === 'tr' ? 'Günlük İş Akışı' : 'Daily Workflow'}
-              </CardTitle>
+                  {locale === 'tr' ? 'RFQ Listesi' : 'RFQ List'}
+                </CardTitle>
                 <div className="flex gap-2">
                   <Button
                     variant={filter === 'all' ? 'default' : 'outline'}
