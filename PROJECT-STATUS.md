@@ -92,6 +92,8 @@
 - [x] Order types
 - [x] Quotation and RFQ types
 - [x] Review and Notification types
+- [x] Category system types (SupplierType, Categories, Subcategories)
+- [x] Supplier type differentiation (Product Supplier vs Service Provider)
 
 ### Utilities
 - [x] Class name utility (cn)
@@ -116,6 +118,10 @@
 - [x] Order status workflow (pending → confirmed → in_progress → shipped → delivered)
 - [x] Basic search and filtering
 - [x] Real-time notifications UI
+- [x] Category system (Supplier vs Service Provider classification)
+- [x] Hierarchical categories (11 supplier + 9 service provider categories)
+- [x] Category filtering in search and RFQ listing
+- [x] Mock data generation with category assignment
 - [ ] File upload functionality
 - [ ] Advanced search with complex filters
 - [ ] Rating and review system UI
@@ -285,20 +291,21 @@ For questions or issues:
 ---
 
 Last Updated: 2025-10-23
-Version: 0.5.0 (Profile management & Admin features complete, Real-time notifications implemented)
-Status: Phase 2 In Progress - Admin tools complete, File upload next
+Version: 0.6.0 (Category system fully integrated)
+Status: Phase 2 Complete - Category system, Admin features, Profile management, Real-time notifications all working
 
-### Recent Updates (v0.5.0)
-- ✅ Supplier profile management page
-- ✅ Shipowner profile management page
-- ✅ Admin user management with delete functionality
-- ✅ Real-time notifications dropdown in navbar
-- ✅ Unread notification badges with count
-- ✅ Notification type-specific icons and colors
-- ✅ Mark notifications as read functionality
-- ✅ Sidebar navigation links for profile pages
-- ✅ User deletion confirmation dialog
-- ✅ Enhanced admin user filtering and display
+### Recent Updates (v0.6.0)
+- ✅ Comprehensive category system (20+ categories with subcategories)
+- ✅ Supplier type differentiation (Product Supplier vs Service Provider)
+- ✅ Category filtering in shipowner supplier search
+- ✅ Category filtering in supplier RFQ browsing
+- ✅ Admin dashboard with category statistics
+- ✅ Admin users page with category display
+- ✅ Updated seed data generator with category assignment
+- ✅ API routes updated for category filtering
+- ✅ Fixed JSON parsing error in messages/tr.json
+- ✅ Registration form with supplier type and category selection
+- ✅ Database schema updated with supplier type and category fields
 
 
 
