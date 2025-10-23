@@ -9,11 +9,12 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Loader2, DollarSign, Clock, MapPin, Building2, CheckCircle } from 'lucide-react';
+import { FileText, Loader2, DollarSign, Clock, MapPin, Building2, CheckCircle, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 interface Quotation {
   id: string;
+  supplierUid: string;
   supplierCompany: string;
   price: number;
   currency: string;
@@ -168,6 +169,18 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
     } finally {
       setProcessing(null);
     }
+  };
+
+  const handleContactSupplier = (supplierUid: string, supplierCompany: string) => {
+    // Trigger floating chat widget to open with this supplier
+    window.dispatchEvent(new CustomEvent('openChat', {
+      detail: {
+        recipientId: supplierUid,
+        recipientName: supplierCompany,
+        relatedEntityId: id,
+        relatedEntityType: 'rfq'
+      }
+    }));
   };
 
   const sortedQuotations = [...quotations].sort((a, b) => a.price - b.price);
@@ -375,8 +388,9 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                           <Button 
                             variant="outline" 
                             className="flex-1"
-                            disabled
+                            onClick={() => handleContactSupplier(quotation.supplierUid, quotation.supplierCompany)}
                           >
+                            <MessageCircle className="mr-2 h-4 w-4" />
                             {locale === 'tr' ? 'İletişime Geç' : 'Contact Supplier'}
                           </Button>
                           <Button 
