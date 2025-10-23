@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, Ship, Package, Shield, Trash2, Eye, Loader2 } from 'lucide-react';
 import { collection, getDocs, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { getCategoryLabel, SupplierType } from '@/types/categories';
 
 interface User {
   uid: string;
@@ -18,6 +19,8 @@ interface User {
   role: 'admin' | 'shipowner' | 'supplier';
   companyName: string;
   createdAt: any;
+  supplierType?: SupplierType;
+  mainCategories?: string[];
 }
 
 export default function UsersListPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -88,6 +91,17 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
       default:
         return role;
     }
+  };
+
+  const getCategoryDisplayName = (categoryId: string) => {
+    return getCategoryLabel(categoryId, locale === 'tr' ? 'tr' : 'en');
+  };
+
+  const getSupplierTypeLabel = (type?: SupplierType) => {
+    if (!type) return '-';
+    return type === 'supplier'
+      ? (locale === 'tr' ? 'Ürün Tedarikçi' : 'Product Supplier')
+      : (locale === 'tr' ? 'Servis Sağlayıcı' : 'Service Provider');
   };
 
   const filteredUsers = filter === 'all' 
@@ -247,6 +261,16 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
                         <th className="text-left p-4 font-medium text-gray-600">
                           {locale === 'tr' ? 'Rol' : 'Role'}
                         </th>
+                        {filter === 'supplier' && (
+                          <>
+                            <th className="text-left p-4 font-medium text-gray-600">
+                              {locale === 'tr' ? 'Tip' : 'Type'}
+                            </th>
+                            <th className="text-left p-4 font-medium text-gray-600">
+                              {locale === 'tr' ? 'Kategoriler' : 'Categories'}
+                            </th>
+                          </>
+                        )}
                         <th className="text-left p-4 font-medium text-gray-600">
                           {locale === 'tr' ? 'Oluşturulma' : 'Created'}
                         </th>
@@ -271,6 +295,31 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
                               </span>
                             </Badge>
                           </td>
+                          {filter === 'supplier' && (
+                            <>
+                              <td className="p-4 text-sm text-gray-600">
+                                {getSupplierTypeLabel(user.supplierType)}
+                              </td>
+                              <td className="p-4">
+                                {user.mainCategories && user.mainCategories.length > 0 ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {user.mainCategories.slice(0, 2).map((catId) => (
+                                      <Badge key={catId} variant="outline" className="text-xs">
+                                        {getCategoryDisplayName(catId)}
+                                      </Badge>
+                                    ))}
+                                    {user.mainCategories.length > 2 && (
+                                      <Badge variant="outline" className="text-xs">
+                                        +{user.mainCategories.length - 2}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                            </>
+                          )}
                           <td className="p-4 text-sm text-gray-600">
                             {user.createdAt?.toDate?.()?.toLocaleDateString() || '-'}
                           </td>
