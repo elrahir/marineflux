@@ -10,12 +10,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Eye, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { getCategoryLabel } from '@/types/categories';
 
 interface RFQ {
   id: string;
   title: string;
   description: string;
-  category: string;
+  mainCategories?: string[];
+  category?: string;
   status: 'open' | 'closed' | 'awarded';
   quotationCount: number;
   deadline: string;
@@ -65,20 +67,8 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
     }
   };
 
-  const getCategoryLabel = (category: string) => {
-    const categories: { [key: string]: { tr: string; en: string } } = {
-      'spare-parts': { tr: 'Yedek Parça', en: 'Spare Parts' },
-      'provisions': { tr: 'İaşe', en: 'Provisions' },
-      'deck-equipment': { tr: 'Güverte Ekipmanı', en: 'Deck Equipment' },
-      'engine-parts': { tr: 'Makine Parçaları', en: 'Engine Parts' },
-      'safety-equipment': { tr: 'Güvenlik Ekipmanı', en: 'Safety Equipment' },
-      'chemicals': { tr: 'Kimyasallar', en: 'Chemicals' },
-      'navigation': { tr: 'Navigasyon', en: 'Navigation' },
-      'electrical': { tr: 'Elektrik', en: 'Electrical' },
-      'services': { tr: 'Hizmetler', en: 'Services' },
-      'other': { tr: 'Diğer', en: 'Other' },
-    };
-    return categories[category]?.[locale as 'tr' | 'en'] || category;
+  const getCategoryDisplayName = (categoryId: string) => {
+    return getCategoryLabel(categoryId, locale === 'tr' ? 'tr' : 'en');
   };
 
   const handleSort = (column: string) => {
@@ -127,8 +117,10 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
         bValue = new Date(b.deadline).getTime();
         break;
       case 'category':
-        aValue = getCategoryLabel(a.category);
-        bValue = getCategoryLabel(b.category);
+        const aCat = a.mainCategories?.[0] || a.category || '';
+        const bCat = b.mainCategories?.[0] || b.category || '';
+        aValue = getCategoryDisplayName(aCat);
+        bValue = getCategoryDisplayName(bCat);
         break;
       case 'title':
         aValue = a.title;
@@ -230,7 +222,7 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">
                   {locale === 'tr' ? 'RFQ Listesi' : 'RFQ List'}
-                </CardTitle>
+              </CardTitle>
                 <div className="flex gap-2">
                   <Button
                     variant={filter === 'all' ? 'default' : 'outline'}
@@ -355,75 +347,78 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
                         </td>
                       </tr>
                     ) : (
-                      filteredRfqs.map((rfq) => (
-                        <tr 
-                          key={rfq.id} 
-                          className="hover:bg-gray-50 transition-colors cursor-pointer"
-                          onClick={() => window.location.href = `/${locale}/shipowner/rfq/${rfq.id}`}
-                        >
-                          <td className="py-3 px-4 text-gray-900">
-                            {rfq.vessel ? (
-                              <div>
-                                <div className="font-medium">{rfq.vessel.name}</div>
-                                <div className="text-xs text-gray-500">{rfq.vessel.type}</div>
-                </div>
-              ) : (
-                              <span className="text-gray-400 text-xs">-</span>
-                            )}
-                          </td>
-                          <td className="py-3 px-4 text-gray-700">
-                            {new Date(rfq.createdAt).toLocaleDateString(locale, { 
-                              month: 'short', 
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
-                              {getCategoryLabel(rfq.category)}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="font-medium text-gray-900">{rfq.title}</div>
-                            <div className="text-xs text-gray-500 line-clamp-1">{rfq.description}</div>
-                          </td>
-                          <td className="py-3 px-4 text-gray-700">
-                            {new Date(rfq.deadline).toLocaleDateString(locale, { 
-                              month: 'short', 
-                              day: 'numeric'
-                            })}
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold text-xs">
-                              {rfq.quotationCount}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            {rfq.status === 'open' && (
-                              <Badge className="bg-green-50 text-green-700 border border-green-200">
-                                {locale === 'tr' ? 'Açık' : 'Open'}
-                              </Badge>
-                            )}
-                            {rfq.status === 'closed' && (
-                              <Badge className="bg-gray-50 text-gray-700 border border-gray-200">
-                                {locale === 'tr' ? 'Kapalı' : 'Closed'}
-                              </Badge>
-                            )}
-                            {rfq.status === 'awarded' && (
-                              <Badge className="bg-purple-50 text-purple-700 border border-purple-200">
-                                {locale === 'tr' ? 'Verildi' : 'Awarded'}
-                              </Badge>
-                            )}
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <Link href={`/${locale}/shipowner/rfq/${rfq.id}`} onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Eye className="h-4 w-4" />
+                      filteredRfqs.map((rfq) => {
+                        const mainCategoryId = rfq.mainCategories?.[0] || rfq.category || '';
+                        return (
+                          <tr 
+                            key={rfq.id} 
+                            className="hover:bg-gray-50 transition-colors cursor-pointer"
+                            onClick={() => window.location.href = `/${locale}/shipowner/rfq/${rfq.id}`}
+                          >
+                            <td className="py-3 px-4 text-gray-900">
+                              {rfq.vessel ? (
+                                <div>
+                                  <div className="font-medium">{rfq.vessel.name}</div>
+                                  <div className="text-xs text-gray-500">{rfq.vessel.type}</div>
+                                </div>
+                              ) : (
+                                <span className="text-gray-400 text-xs">-</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-gray-700">
+                              {new Date(rfq.createdAt).toLocaleDateString(locale, { 
+                                month: 'short', 
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                                {mainCategoryId ? getCategoryDisplayName(mainCategoryId) : '-'}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-medium text-gray-900">{rfq.title}</div>
+                              <div className="text-xs text-gray-500 line-clamp-1">{rfq.description}</div>
+                            </td>
+                            <td className="py-3 px-4 text-gray-700">
+                              {new Date(rfq.deadline).toLocaleDateString(locale, { 
+                                month: 'short', 
+                                day: 'numeric'
+                              })}
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold text-xs">
+                                {rfq.quotationCount}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              {rfq.status === 'open' && (
+                                <Badge className="bg-green-50 text-green-700 border border-green-200">
+                                  {locale === 'tr' ? 'Açık' : 'Open'}
+                                </Badge>
+                              )}
+                              {rfq.status === 'closed' && (
+                                <Badge className="bg-gray-50 text-gray-700 border border-gray-200">
+                                  {locale === 'tr' ? 'Kapalı' : 'Closed'}
+                                </Badge>
+                              )}
+                              {rfq.status === 'awarded' && (
+                                <Badge className="bg-purple-50 text-purple-700 border border-purple-200">
+                                  {locale === 'tr' ? 'Verildi' : 'Awarded'}
+                                </Badge>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <Link href={`/${locale}/shipowner/rfq/${rfq.id}`} onClick={(e) => e.stopPropagation()}>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
-                          </td>
-                        </tr>
-                      ))
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>

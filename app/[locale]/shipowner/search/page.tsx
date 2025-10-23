@@ -9,18 +9,34 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Star, MapPin, Package, CheckCircle, Building2, Mail } from 'lucide-react';
+import { 
+  SUPPLIER_MAIN_CATEGORIES, 
+  SERVICE_PROVIDER_MAIN_CATEGORIES, 
+  getSubcategories, 
+  getCategoryLabel,
+  SupplierType 
+} from '@/types/categories';
 
 interface Supplier {
   id: string;
+  uid: string;
   companyName: string;
-  serviceTypes: string[];
+  email: string;
+  supplierType?: SupplierType;
+  mainCategories?: string[];
+  subcategories?: string[];
+  serviceTypes?: string[]; // For backward compatibility
   rating: number;
   reviewCount: number;
   totalOrders: number;
   isVerified: boolean;
   description?: string;
   location?: string;
-  contactEmail?: string;
+  phone?: string;
+  country?: string;
+  city?: string;
+  address?: string;
+  website?: string;
 }
 
 export default function SupplierSearchPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -30,22 +46,22 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [supplierTypeFilter, setSupplierTypeFilter] = useState<'all' | SupplierType>('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [subcategoryFilter, setSubcategoryFilter] = useState('all');
   const [minRating, setMinRating] = useState(0);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
 
-  const categories = [
-    { value: 'all', label: locale === 'tr' ? 'Tüm Kategoriler' : 'All Categories' },
-    { value: 'spare-parts', label: locale === 'tr' ? 'Yedek Parça' : 'Spare Parts' },
-    { value: 'provisions', label: locale === 'tr' ? 'İaşe' : 'Provisions' },
-    { value: 'deck-equipment', label: locale === 'tr' ? 'Güverte Ekipmanı' : 'Deck Equipment' },
-    { value: 'engine-parts', label: locale === 'tr' ? 'Makine Parçaları' : 'Engine Parts' },
-    { value: 'safety-equipment', label: locale === 'tr' ? 'Güvenlik Ekipmanı' : 'Safety Equipment' },
-    { value: 'chemicals', label: locale === 'tr' ? 'Kimyasallar' : 'Chemicals' },
-    { value: 'navigation', label: locale === 'tr' ? 'Navigasyon' : 'Navigation' },
-    { value: 'electrical', label: locale === 'tr' ? 'Elektrik' : 'Electrical' },
-    { value: 'services', label: locale === 'tr' ? 'Hizmetler' : 'Services' },
-  ];
+  // Get categories based on selected supplier type
+  const currentCategories = supplierTypeFilter === 'all' 
+    ? [...SUPPLIER_MAIN_CATEGORIES, ...SERVICE_PROVIDER_MAIN_CATEGORIES]
+    : supplierTypeFilter === 'supplier'
+    ? SUPPLIER_MAIN_CATEGORIES
+    : SERVICE_PROVIDER_MAIN_CATEGORIES;
+
+  const currentSubcategories = categoryFilter && categoryFilter !== 'all' 
+    ? getSubcategories(categoryFilter, supplierTypeFilter === 'service-provider' ? 'service-provider' : 'supplier')
+    : [];
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -53,14 +69,21 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchQuery, categoryFilter, minRating, verifiedOnly]);
+  }, [searchQuery, supplierTypeFilter, categoryFilter, subcategoryFilter, minRating, verifiedOnly]);
+
+  // Reset subcategory when main category changes
+  useEffect(() => {
+    setSubcategoryFilter('all');
+  }, [categoryFilter]);
 
   const fetchSuppliers = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
         q: searchQuery,
+        type: supplierTypeFilter,
         category: categoryFilter,
+        subcategory: subcategoryFilter,
         minRating: minRating.toString(),
         verified: verifiedOnly.toString(),
       });
@@ -95,6 +118,10 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
     );
   };
 
+  const getCategoryDisplayName = (categoryId: string) => {
+    return getCategoryLabel(categoryId, locale === 'tr' ? 'tr' : 'en');
+  };
+
   return (
     <ProtectedRoute allowedRoles={['shipowner']} locale={locale}>
       <DashboardLayout locale={locale} userType="shipowner">
@@ -106,8 +133,8 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
             </h1>
             <p className="text-gray-600 mt-2">
               {locale === 'tr' 
-                ? 'Güvenilir tedarikçiler bulun ve iş ortaklığı kurun'
-                : 'Find trusted suppliers and establish partnerships'}
+                ? 'Güvenilir tedarikçiler ve servis sağlayıcılar bulun'
+                : 'Find trusted suppliers and service providers'}
             </p>
           </div>
 
@@ -132,8 +159,24 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
               </div>
 
               {/* Filters Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Category Filter */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Supplier Type Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {locale === 'tr' ? 'Tedarikçi Tipi' : 'Supplier Type'}
+                  </label>
+                  <select
+                    value={supplierTypeFilter}
+                    onChange={(e) => setSupplierTypeFilter(e.target.value as any)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="all">{locale === 'tr' ? 'Tüm Tipler' : 'All Types'}</option>
+                    <option value="supplier">{locale === 'tr' ? 'Tedarikçiler' : 'Suppliers'}</option>
+                    <option value="service-provider">{locale === 'tr' ? 'Servis Sağlayıcılar' : 'Service Providers'}</option>
+                  </select>
+                </div>
+
+                {/* Main Category Filter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {locale === 'tr' ? 'Kategori' : 'Category'}
@@ -143,9 +186,30 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
                     onChange={(e) => setCategoryFilter(e.target.value)}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    {categories.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.label}
+                    <option value="all">{locale === 'tr' ? 'Tüm Kategoriler' : 'All Categories'}</option>
+                    {currentCategories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {getCategoryDisplayName(cat.id)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Subcategory Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {locale === 'tr' ? 'Alt Kategori' : 'Subcategory'}
+                  </label>
+                  <select
+                    value={subcategoryFilter}
+                    onChange={(e) => setSubcategoryFilter(e.target.value)}
+                    disabled={categoryFilter === 'all' || currentSubcategories.length === 0}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                  >
+                    <option value="all">{locale === 'tr' ? 'Tüm Alt Kategoriler' : 'All Subcategories'}</option>
+                    {currentSubcategories.map((subcat) => (
+                      <option key={subcat.id} value={subcat.id}>
+                        {locale === 'tr' ? subcat.labelTr : subcat.labelEn}
                       </option>
                     ))}
                   </select>
@@ -167,21 +231,21 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
                     <option value="4.5">4.5+ ⭐</option>
                   </select>
                 </div>
+              </div>
 
-                {/* Verified Only */}
-                <div className="flex items-end">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={verifiedOnly}
-                      onChange={(e) => setVerifiedOnly(e.target.checked)}
-                      className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      {locale === 'tr' ? 'Sadece Onaylı Tedarikçiler' : 'Verified Only'}
-                    </span>
-                  </label>
-                </div>
+              {/* Verified Only Checkbox */}
+              <div className="flex items-center">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={verifiedOnly}
+                    onChange={(e) => setVerifiedOnly(e.target.checked)}
+                    className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    {locale === 'tr' ? 'Sadece Onaylı Tedarikçiler' : 'Verified Only'}
+                  </span>
+                </label>
               </div>
             </CardContent>
           </Card>
@@ -235,6 +299,16 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
                             )}
                           </div>
 
+                          {supplier.supplierType && (
+                            <div className="mb-2">
+                              <Badge variant="secondary" className="text-xs">
+                                {supplier.supplierType === 'supplier' 
+                                  ? (locale === 'tr' ? 'Tedarikçi' : 'Supplier')
+                                  : (locale === 'tr' ? 'Servis Sağlayıcı' : 'Service Provider')}
+                              </Badge>
+                            </div>
+                          )}
+
                           <div className="flex items-center gap-3 mb-3">
                             <div className="flex items-center gap-1">
                               {renderStars(supplier.rating)}
@@ -250,26 +324,32 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
                             </p>
                           )}
 
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {supplier.serviceTypes.slice(0, 3).map((type, idx) => (
-                              <Badge key={idx} variant="outline" className="text-xs">
-                                <Package className="h-3 w-3 mr-1" />
-                                {categories.find(c => c.value === type)?.label || type}
-                              </Badge>
-                            ))}
-                            {supplier.serviceTypes.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{supplier.serviceTypes.length - 3} {locale === 'tr' ? 'daha' : 'more'}
-                              </Badge>
-                            )}
-                          </div>
+                          {/* Display Main Categories */}
+                          {supplier.mainCategories && supplier.mainCategories.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              {supplier.mainCategories.slice(0, 3).map((catId, idx) => (
+                                <Badge key={idx} variant="outline" className="text-xs">
+                                  <Package className="h-3 w-3 mr-1" />
+                                  {getCategoryDisplayName(catId)}
+                                </Badge>
+                              ))}
+                              {supplier.mainCategories.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{supplier.mainCategories.length - 3} {locale === 'tr' ? 'daha' : 'more'}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
 
                           <div className="flex items-center gap-4 text-sm text-gray-600">
-                            {supplier.location && (
+                            {supplier.city && (
                               <div className="flex items-center gap-1">
                                 <MapPin className="h-4 w-4" />
-                                {supplier.location}
+                                {supplier.city}
                               </div>
+                            )}
+                            {supplier.country && (
+                              <span>{supplier.country}</span>
                             )}
                             <div>
                               {supplier.totalOrders} {locale === 'tr' ? 'sipariş' : 'orders'}

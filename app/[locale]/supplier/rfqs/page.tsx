@@ -11,13 +11,21 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { 
+  SUPPLIER_MAIN_CATEGORIES, 
+  SERVICE_PROVIDER_MAIN_CATEGORIES, 
+  getSubcategories, 
+  getCategoryLabel 
+} from '@/types/categories';
 
 interface RFQ {
   id: string;
   shipownerUid: string;
   title: string;
   description: string;
-  category: string;
+  mainCategories?: string[];
+  subcategories?: string[];
+  category?: string; // For backward compatibility
   vessel?: {
     name: string;
     type: string;
@@ -38,11 +46,23 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [subcategoryFilter, setSubcategoryFilter] = useState<string>('all');
   const [sortColumn, setSortColumn] = useState<string>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
+  // Combine all categories (suppliers + service providers)
+  const allCategories = [...SUPPLIER_MAIN_CATEGORIES, ...SERVICE_PROVIDER_MAIN_CATEGORIES];
+  const currentSubcategories = categoryFilter && categoryFilter !== 'all' 
+    ? getSubcategories(categoryFilter, 'supplier')
+    : [];
+
   useEffect(() => {
     fetchRfqs();
+  }, [categoryFilter]);
+
+  // Reset subcategory when main category changes
+  useEffect(() => {
+    setSubcategoryFilter('all');
   }, [categoryFilter]);
 
   const fetchRfqs = async () => {
@@ -67,20 +87,8 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
     }
   };
 
-  const getCategoryLabel = (category: string) => {
-    const categories: { [key: string]: { tr: string; en: string } } = {
-      'spare-parts': { tr: 'Yedek Parça', en: 'Spare Parts' },
-      'provisions': { tr: 'İaşe', en: 'Provisions' },
-      'deck-equipment': { tr: 'Güverte Ekipmanı', en: 'Deck Equipment' },
-      'engine-parts': { tr: 'Makine Parçaları', en: 'Engine Parts' },
-      'safety-equipment': { tr: 'Güvenlik Ekipmanı', en: 'Safety Equipment' },
-      'chemicals': { tr: 'Kimyasallar', en: 'Chemicals' },
-      'navigation': { tr: 'Navigasyon', en: 'Navigation' },
-      'electrical': { tr: 'Elektrik', en: 'Electrical' },
-      'services': { tr: 'Hizmetler', en: 'Services' },
-      'other': { tr: 'Diğer', en: 'Other' },
-    };
-    return categories[category]?.[locale as 'tr' | 'en'] || category;
+  const getCategoryDisplayName = (categoryId: string) => {
+    return getCategoryLabel(categoryId, locale === 'tr' ? 'tr' : 'en');
   };
 
   const handleSort = (column: string) => {
@@ -122,8 +130,11 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
         bValue = b.vessel?.name || '';
         break;
       case 'category':
-        aValue = getCategoryLabel(a.category);
-        bValue = getCategoryLabel(b.category);
+        // Get first main category for display
+        const aCat = a.mainCategories?.[0] || a.category || '';
+        const bCat = b.mainCategories?.[0] || b.category || '';
+        aValue = getCategoryDisplayName(aCat);
+        bValue = getCategoryDisplayName(bCat);
         break;
       case 'title':
         aValue = a.title;
@@ -168,14 +179,14 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <div>
+          <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {locale === 'tr' ? 'RFQ Fırsatları' : 'RFQ Opportunities'}
-              </h1>
+            </h1>
               <p className="text-sm text-gray-600 mt-1">
                 {locale === 'tr' ? 'Teklif verebileceğiniz açık talepler' : 'Open requests you can quote on'}
-              </p>
-            </div>
+            </p>
+          </div>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -244,40 +255,36 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">
                   {locale === 'tr' ? 'RFQ Listesi' : 'RFQ List'}
-                </CardTitle>
+              </CardTitle>
                 <div className="flex gap-2">
-                  <Button
-                    variant={categoryFilter === 'all' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCategoryFilter('all')}
-                    className="text-xs"
+                  {/* Main Category Filter */}
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="flex h-9 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    {locale === 'tr' ? 'Tümü' : 'All'}
-                  </Button>
-                  <Button
-                    variant={categoryFilter === 'spare-parts' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCategoryFilter('spare-parts')}
-                    className="text-xs"
+                    <option value="all">{locale === 'tr' ? 'Tüm Kategoriler' : 'All Categories'}</option>
+                    {allCategories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {getCategoryDisplayName(cat.id)}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Subcategory Filter */}
+                  <select
+                    value={subcategoryFilter}
+                    onChange={(e) => setSubcategoryFilter(e.target.value)}
+                    disabled={categoryFilter === 'all' || currentSubcategories.length === 0}
+                    className="flex h-9 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
                   >
-                    {locale === 'tr' ? 'Yedek Parça' : 'Spare Parts'}
-                  </Button>
-                  <Button
-                    variant={categoryFilter === 'provisions' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCategoryFilter('provisions')}
-                    className="text-xs"
-                  >
-                    {locale === 'tr' ? 'İaşe' : 'Provisions'}
-                  </Button>
-                  <Button
-                    variant={categoryFilter === 'engine-parts' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setCategoryFilter('engine-parts')}
-                    className="text-xs"
-                  >
-                    {locale === 'tr' ? 'Makine' : 'Engine'}
-                  </Button>
+                    <option value="all">{locale === 'tr' ? 'Tüm Alt Kategoriler' : 'All Subcategories'}</option>
+                    {currentSubcategories.map((subcat) => (
+                      <option key={subcat.id} value={subcat.id}>
+                        {locale === 'tr' ? subcat.labelTr : subcat.labelEn}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </CardHeader>
@@ -356,13 +363,13 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {loading ? (
+              {loading ? (
                       <tr>
                         <td colSpan={8} className="py-8 text-center text-gray-500">
                           {locale === 'tr' ? 'Yükleniyor...' : 'Loading...'}
                         </td>
                       </tr>
-                    ) : filteredRfqs.length === 0 ? (
+              ) : filteredRfqs.length === 0 ? (
                       <tr>
                         <td colSpan={8} className="py-8 text-center text-gray-500">
                           {locale === 'tr' ? 'RFQ bulunamadı' : 'No RFQs found'}
@@ -374,6 +381,7 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
                           (new Date(rfq.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
                         );
                         const isUrgent = daysUntilDeadline <= 2;
+                        const mainCategoryId = rfq.mainCategories?.[0] || rfq.category || '';
 
                         return (
                           <tr 
@@ -396,7 +404,7 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
                             </td>
                             <td className="py-3 px-4">
                               <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
-                                {getCategoryLabel(rfq.category)}
+                              {mainCategoryId ? getCategoryDisplayName(mainCategoryId) : '-'}
                               </span>
                             </td>
                             <td className="py-3 px-4">
@@ -431,8 +439,8 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
                               <Link href={`/${locale}/supplier/rfqs/${rfq.id}/quote`} onClick={(e) => e.stopPropagation()}>
                                 <Button size="sm" className="text-xs h-7 bg-maritime-600 hover:bg-maritime-700">
                                   {locale === 'tr' ? 'Teklif Ver' : 'Quote'}
-                                </Button>
-                              </Link>
+                          </Button>
+                        </Link>
                             </td>
                           </tr>
                         );
@@ -440,7 +448,7 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
                     )}
                   </tbody>
                 </table>
-              </div>
+                </div>
             </CardContent>
           </Card>
         </div>
