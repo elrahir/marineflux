@@ -16,21 +16,21 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 47.4% 11.2%;
     
-    /* Primary - Maritime Blue (Professional, trustworthy) */
-    --primary: 199 89% 48%;
+    /* Primary - Deep Maritime Navy (Professional, trustworthy) */
+    --primary: 210 68% 33%;
     --primary-foreground: 0 0% 100%;
     
-    /* Secondary - Ocean Cyan */
-    --secondary: 192 100% 42%;
+    /* Secondary - Deep Ocean Teal */
+    --secondary: 189 83% 32%;
     --secondary-foreground: 0 0% 100%;
     
     /* Muted - Light Gray Background */
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
     
-    /* Accent - Highlight Blue */
-    --accent: 199 89% 95%;
-    --accent-foreground: 199 89% 35%;
+    /* Accent - Deep Maritime Accent */
+    --accent: 210 68% 93%;
+    --accent-foreground: 210 68% 28%;
     
     /* Destructive - Red for errors */
     --destructive: 0 84.2% 60.2%;
@@ -39,32 +39,33 @@
     /* Borders - Subtle */
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 199 89% 48%;
+    --ring: 210 68% 33%;
     
     /* Border Radius - Modern, slightly rounded */
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Dark Maritime Theme */
+    --background: 210 68% 6%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 210 68% 8%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 210 68% 8%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --primary: 210 68% 45%;
+    --primary-foreground: 210 68% 98%;
+    --secondary: 189 83% 40%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 210 50% 15%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 210 68% 20%;
+    --accent-foreground: 210 68% 85%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --border: 210 50% 18%;
+    --input: 210 50% 18%;
+    --ring: 210 68% 45%;
   }
 }
 
@@ -88,22 +89,22 @@
     @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
   }
   
-  /* Gradient Backgrounds */
+  /* Gradient Backgrounds - Deep Professional Tones */
   .bg-gradient-maritime {
-    @apply bg-gradient-to-br from-maritime-600 via-maritime-700 to-ocean-800;
+    @apply bg-gradient-to-br from-maritime-700 via-maritime-800 to-maritime-900;
   }
   
   .bg-gradient-ocean {
-    @apply bg-gradient-to-r from-ocean-500 to-maritime-600;
+    @apply bg-gradient-to-r from-ocean-700 to-maritime-700;
   }
   
-  /* Modern Button Styles */
+  /* Modern Button Styles - Deep Maritime */
   .btn-primary-modern {
     @apply bg-maritime-600 hover:bg-maritime-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200;
   }
   
   .btn-secondary-modern {
-    @apply bg-white border-2 border-maritime-600 text-maritime-600 hover:bg-maritime-50 font-semibold py-3 px-6 rounded-lg transition-all duration-200;
+    @apply bg-white border-2 border-maritime-600 text-maritime-700 hover:bg-maritime-50 font-semibold py-3 px-6 rounded-lg transition-all duration-200;
   }
   
   /* Status Badges */
@@ -135,9 +136,9 @@
 }
 
 @layer utilities {
-  /* Text Gradients */
+  /* Text Gradients - Deep Professional */
   .text-gradient-maritime {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-maritime-600 to-ocean-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-maritime-600 to-maritime-800;
   }
   
   /* Smooth Scroll */
@@ -145,9 +146,9 @@
     scroll-behavior: smooth;
   }
   
-  /* Custom Shadows */
+  /* Custom Shadows - Deep Maritime */
   .shadow-maritime {
-    box-shadow: 0 10px 40px -10px rgba(2, 132, 199, 0.3);
+    box-shadow: 0 10px 40px -10px rgba(29, 93, 144, 0.4);
   }
 }
 
