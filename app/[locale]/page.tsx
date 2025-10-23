@@ -35,6 +35,19 @@ export default function LandingPage({ params }: { params: Promise<{ locale: stri
         {/* Hero Section */}
         <HeroSection locale={locale} />
 
+        {/* Platform Tagline Section */}
+        <section className="bg-white border-t border-b border-gray-100 py-6 md:py-8">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <p className="text-base md:text-lg text-gray-700 font-medium">
+                {locale === 'tr'
+                  ? "Türkiye'nin ilk ve tek denizcilik sektörü B2B platformu"
+                  : "Turkey's first and only maritime sector B2B platform"}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Portal Cards Section */}
         <PortalCardsSection locale={locale} />
 
