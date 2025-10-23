@@ -124,17 +124,20 @@ function Navigation({ locale }: { locale: string }) {
   );
 }
 
-// Hero Section with Animated Text & Modern Gradient
+// Hero Section Component
 function HeroSection({ locale }: { locale: string }) {
+  const t = useTranslations();
   const [currentWord, setCurrentWord] = useState(0);
+  
+  // Updated words - maritime-specific Turkish terms
   const words = locale === 'tr' 
-    ? ['DENİZCİLİKLE', 'GEMİYLE', 'FİLOYLA', 'TEDARİKLE', 'EL ALETLERİ', 'SÖRVEY HİZMETLERİ', 'IGÜ', 'BOYA', 'MAKINE YAĞLARI']
-    : ['MARITIME', 'VESSEL', 'FLEET', 'SUPPLY', 'HAND TOOLS', 'SURVEY SERVICES', 'IGÜ', 'PAINT', 'ENGINE OILS'];
+    ? ['yedek parça', 'kimyasal', 'el aletleri', 'kumanya', 'ekipman', 'sörvey hizmetleri', 'sarf malzemeleri', 'yağ', 'teknik servis', 'güvenlik ekipmanları']
+    : ['spare parts', 'chemicals', 'hand tools', 'provisions', 'equipment', 'survey services', 'consumables', 'oil', 'technical service', 'safety equipment'];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentWord((prev) => (prev + 1) % words.length);
-    }, 2000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [words.length]);
 
@@ -148,28 +151,24 @@ function HeroSection({ locale }: { locale: string }) {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-6xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white border-2 border-maritime-600 rounded-full px-6 py-2 mb-6 md:mb-8 shadow-sm">
-            <Ship className="h-4 w-4 text-maritime-600" />
-            <span className="text-xs sm:text-sm font-semibold text-maritime-700">
-              {locale === 'tr' 
-                ? "Türkiye'nin İlk Denizcilik B2B Platformu"
-                : "Turkey's First Maritime B2B Platform"}
-            </span>
-          </div>
-
-          {/* Animated Text */}
-          <div className="mb-8 md:mb-10 lg:mb-12 min-h-[140px] md:min-h-[160px] lg:min-h-[180px] flex items-center justify-center">
-            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 mb-2 md:mb-3">
+          {/* Multi-line Animated Text */}
+          <div className="mb-8 md:mb-10 lg:mb-12 min-h-auto flex items-center justify-center">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight space-y-2 md:space-y-3">
+              <div>
                 <span className="text-gray-900">{locale === 'tr' ? 'İHTİYACIN' : 'YOUR NEED'}</span>
-                <span className="text-gradient-maritime min-w-[140px] sm:min-w-[180px] md:min-w-[240px] lg:min-w-[300px] inline-block transition-all duration-300 text-center">
+              </div>
+              <div>
+                <span className="text-gradient-maritime min-w-full inline-block transition-all duration-500">
                   {words[currentWord]}
                 </span>
+              </div>
+              <div>
                 <span className="text-gray-900">{locale === 'tr' ? 'İSE' : 'IS'}</span>
               </div>
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4">
+              <div>
                 <span className="text-gradient-maritime">MARINEFLUX</span>
+              </div>
+              <div>
                 <span className="text-gray-900">{locale === 'tr' ? 'KULLAN' : 'USE'}</span>
               </div>
             </div>
