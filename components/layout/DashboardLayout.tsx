@@ -272,6 +272,11 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
         }`}
       >
         <nav className="flex flex-col h-full">
+          {/* Sidebar Logo */}
+          <div className="px-4 py-4 border-b border-slate-700">
+            <span className="text-lg font-bold text-white">MarineFlux</span>
+          </div>
+
           <div className="flex-1 px-4 py-6 space-y-1">
             {navigationItems.map((item) => (
               <Link
