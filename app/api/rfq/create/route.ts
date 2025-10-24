@@ -90,11 +90,15 @@ export async function POST(request: NextRequest) {
       // Filter suppliers client-side by categories
       suppliersSnapshot.forEach((doc) => {
         const supplierData = doc.data();
-        const categories = supplierData.categories || [];
+        // Check both 'categories' and 'mainCategories' fields for compatibility
+        const categories = supplierData.categories || supplierData.mainCategories || [];
+        
+        console.log(`Checking supplier ${doc.id}: categories=${JSON.stringify(categories)}, rfqCategory=${mainCategory || category}`);
         
         // Check if supplier handles this category
         if (categories.includes(mainCategory || category)) {
           supplierIds.push(doc.id);
+          console.log(`✅ Match found for supplier ${doc.id}`);
         }
       });
 
