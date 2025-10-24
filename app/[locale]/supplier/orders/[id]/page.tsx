@@ -280,7 +280,7 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
       'pending_supplier_approval': { status: 'pending_payment', label: { tr: 'Onayla', en: 'Approve Order' } },
       'pending_payment': { status: 'pending_payment', label: { tr: 'Ödeme Bekleniyor', en: 'Awaiting Payment' } },
       'in_progress': { status: 'shipped', label: { tr: 'Kargoya Ver', en: 'Mark as Shipped' } },
-      'shipped': { status: 'shipped', label: { tr: 'Teslim Edildi', en: 'Delivered' } },
+      // 'shipped': satıcı teslim edildi butonunu görmemeli - alıcı onaylayacak
     };
     return statusFlow[currentStatus] || null;
   };
