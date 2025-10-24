@@ -82,9 +82,9 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
 
     const q = query(
       collection(db, 'notifications'),
-      where('uid', '==', user.uid),
+      where('userId', '==', user.uid),
       orderBy('createdAt', 'desc'),
-      limit(10)
+      limit(50)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -97,6 +97,8 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
       });
       setNotifications(notifData);
       setUnreadNotifications(unread);
+    }, (error) => {
+      console.error('Error listening to notifications:', error);
     });
 
     return () => unsubscribe();
