@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
-import { collection, addDoc, Timestamp, doc, getDoc, query, where, getDocs } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,17 +82,20 @@ export async function POST(request: NextRequest) {
     console.log('RFQ created successfully with ID:', docRef.id);
 
     // Send notifications to relevant suppliers
-    const suppliersQuery = query(
-      collection(db, 'suppliers'),
-      where('categories', 'array-contains', mainCategory || category)
-    );
-
     try {
-      const suppliersSnapshot = await getDocs(suppliersQuery);
+      // Get all suppliers (no index required)
+      const suppliersSnapshot = await getDocs(collection(db, 'suppliers'));
       const supplierIds: string[] = [];
       
+      // Filter suppliers client-side by categories
       suppliersSnapshot.forEach((doc) => {
-        supplierIds.push(doc.id);
+        const supplierData = doc.data();
+        const categories = supplierData.categories || [];
+        
+        // Check if supplier handles this category
+        if (categories.includes(mainCategory || category)) {
+          supplierIds.push(doc.id);
+        }
       });
 
       console.log(`Found ${supplierIds.length} suppliers for category ${mainCategory || category}`);
