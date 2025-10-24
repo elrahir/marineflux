@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
-import { doc, getDoc, updateDoc, Timestamp, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, Timestamp, arrayUnion, addDoc, collection } from 'firebase/firestore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -109,21 +109,18 @@ export async function POST(request: NextRequest) {
     console.log('📢 Sending notification to:', notificationUserId, 'for status:', status);
 
     try {
-      const notifResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: notificationUserId,
-          type: 'order',
-          title: notifData.tr,
-          message: `${notifData.icon} Sipariş '${order.title}' durumu güncellendi: ${notifData.tr}`,
-          link: `/tr/shipowner/orders/${orderId}`,
-          orderId,
-        }),
+      // Direct Firestore write instead of API call
+      await addDoc(collection(db, 'notifications'), {
+        userId: notificationUserId,
+        type: 'order',
+        title: notifData.tr,
+        message: `${notifData.icon} Sipariş '${order.title}' durumu güncellendi: ${notifData.tr}`,
+        link: `/tr/shipowner/orders/${orderId}`,
+        orderId,
+        read: false,
+        createdAt: Timestamp.now(),
       });
-      
-      const notifData2 = await notifResponse.json();
-      console.log('✅ Notification sent:', notifData2.success ? 'Success' : 'Failed', notifData2);
+      console.log('✅ Notification sent: Success');
     } catch (error) {
       console.error('❌ Error sending notification:', error);
       // Don't fail the request if notification fails

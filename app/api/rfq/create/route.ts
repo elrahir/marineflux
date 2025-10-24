@@ -109,20 +109,18 @@ export async function POST(request: NextRequest) {
         console.log(`📬 Sending RFQ notifications to ${supplierIds.length} suppliers`);
         for (const supplierId of supplierIds) {
           try {
-            const notifResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                userId: supplierId,
-                type: 'rfq',
-                title: '📋 Yeni RFQ Teklifini Bekleniyor',
-                message: `${userDoc.data().companyName} şirketi '${title}' için yeni bir RFQ oluşturdu. Detayları görmek ve teklif vermek için tıklayın.`,
-                link: `/tr/supplier/rfqs/${docRef.id}/quote`,
-                rfqId: docRef.id,
-              }),
+            // Direct Firestore write instead of API call
+            await addDoc(collection(db, 'notifications'), {
+              userId: supplierId,
+              type: 'rfq',
+              title: '📋 Yeni RFQ Teklifini Bekleniyor',
+              message: `${userDoc.data().companyName} şirketi '${title}' için yeni bir RFQ oluşturdu. Detayları görmek ve teklif vermek için tıklayın.`,
+              link: `/tr/supplier/rfqs/${docRef.id}/quote`,
+              rfqId: docRef.id,
+              read: false,
+              createdAt: Timestamp.now(),
             });
-            const notifData = await notifResponse.json();
-            console.log(`✅ Notification sent to ${supplierId}:`, notifData.success ? 'Success' : 'Failed');
+            console.log(`✅ Notification sent to ${supplierId}: Success`);
           } catch (error) {
             console.error(`❌ Error sending notification to supplier ${supplierId}:`, error);
           }

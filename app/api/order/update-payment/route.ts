@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
-import { doc, updateDoc, getDoc, Timestamp, arrayUnion } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, Timestamp, arrayUnion, addDoc, collection } from 'firebase/firestore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,20 +73,20 @@ export async function POST(request: NextRequest) {
     const paymentNotif = paymentNotifications[paymentStatus] || { tr: 'Ödeme Güncellendi', en: 'Payment Updated', icon: '💳' };
 
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: notificationUserId,
-          type: 'payment',
-          title: paymentNotif.tr,
-          message: `${paymentNotif.icon} Sipariş '${orderData.title}' ödeme durumu: ${paymentNotif.tr}`,
-          link: `/tr/shipowner/orders/${orderId}`,
-          orderId,
-        }),
+      // Direct Firestore write instead of API call
+      await addDoc(collection(db, 'notifications'), {
+        userId: notificationUserId,
+        type: 'payment',
+        title: paymentNotif.tr,
+        message: `${paymentNotif.icon} Sipariş '${orderData.title}' ödeme durumu: ${paymentNotif.tr}`,
+        link: `/tr/shipowner/orders/${orderId}`,
+        orderId,
+        read: false,
+        createdAt: Timestamp.now(),
       });
+      console.log('✅ Payment notification sent: Success');
     } catch (error) {
-      console.error('Error sending payment notification:', error);
+      console.error('❌ Error sending payment notification:', error);
     }
 
     console.log('Order payment status updated:', {
