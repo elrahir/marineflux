@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
-import { collection, addDoc, Timestamp, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, doc, getDoc, query, where, getDocs } from 'firebase/firestore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -80,6 +80,48 @@ export async function POST(request: NextRequest) {
     const docRef = await addDoc(collection(db, 'rfqs'), rfqData);
     
     console.log('RFQ created successfully with ID:', docRef.id);
+
+    // Send notifications to relevant suppliers
+    const suppliersQuery = query(
+      collection(db, 'suppliers'),
+      where('categories', 'array-contains', mainCategory || category)
+    );
+
+    try {
+      const suppliersSnapshot = await getDocs(suppliersQuery);
+      const supplierIds: string[] = [];
+      
+      suppliersSnapshot.forEach((doc) => {
+        supplierIds.push(doc.id);
+      });
+
+      console.log(`Found ${supplierIds.length} suppliers for category ${mainCategory || category}`);
+
+      // Send notification to each supplier
+      if (supplierIds.length > 0) {
+        for (const supplierId of supplierIds) {
+          try {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: supplierId,
+                type: 'rfq',
+                title: '📋 Yeni RFQ Teklifini Bekleniyor',
+                message: `${userDoc.data().companyName} şirketi '${title}' için yeni bir RFQ oluşturdu. Detayları görmek ve teklif vermek için tıklayın.`,
+                link: `/tr/supplier/rfqs/${docRef.id}/quote`,
+                rfqId: docRef.id,
+              }),
+            });
+          } catch (error) {
+            console.error(`Error sending notification to supplier ${supplierId}:`, error);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error sending RFQ notifications:', error);
+      // Don't fail the request if notifications fail
+    }
 
     return NextResponse.json({
       success: true,
