@@ -62,6 +62,7 @@ export async function PUT(request: NextRequest) {
       certifications,
       paymentTerms,
       deliveryAreas,
+      categories,
     } = await request.json();
 
     if (!uid) {
@@ -94,6 +95,7 @@ export async function PUT(request: NextRequest) {
       certifications: certifications || [],
       paymentTerms: paymentTerms || '',
       deliveryAreas: deliveryAreas || [],
+      categories: categories || [],
       updatedAt: Timestamp.now(),
     };
 
