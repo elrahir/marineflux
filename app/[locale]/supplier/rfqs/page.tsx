@@ -23,9 +23,10 @@ interface RFQ {
   shipownerUid: string;
   title: string;
   description: string;
-  mainCategories?: string[];
-  subcategories?: string[];
-  category?: string; // For backward compatibility
+  supplierType: 'supplier' | 'service-provider';
+  mainCategory: string;
+  subcategory?: string;
+  category?: string; // Backward compatibility
   vessel?: {
     name: string;
     type: string;
@@ -53,12 +54,14 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
   // Combine all categories (suppliers + service providers)
   const allCategories = [...SUPPLIER_MAIN_CATEGORIES, ...SERVICE_PROVIDER_MAIN_CATEGORIES];
   const currentSubcategories = categoryFilter && categoryFilter !== 'all' 
-    ? getSubcategories(categoryFilter, 'supplier')
+    ? getSubcategories(categoryFilter)
     : [];
 
   useEffect(() => {
-    fetchRfqs();
-  }, [categoryFilter]);
+    if (user?.uid) {
+      fetchRfqs();
+    }
+  }, [categoryFilter, user?.uid]);
 
   // Reset subcategory when main category changes
   useEffect(() => {
@@ -66,10 +69,12 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
   }, [categoryFilter]);
 
   const fetchRfqs = async () => {
+    if (!user?.uid) return;
+    
     try {
       setLoading(true);
       const categoryParam = categoryFilter !== 'all' ? `&category=${categoryFilter}` : '';
-      const response = await fetch(`/api/rfq/list?status=open${categoryParam}`);
+      const response = await fetch(`/api/rfq/list?status=open&uid=${user.uid}&role=supplier${categoryParam}`);
       
       if (!response.ok) {
         console.error('API Error:', response.status, response.statusText);
@@ -131,8 +136,8 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
         break;
       case 'category':
         // Get first main category for display
-        const aCat = a.mainCategories?.[0] || a.category || '';
-        const bCat = b.mainCategories?.[0] || b.category || '';
+        const aCat = a.mainCategory || a.category || '';
+        const bCat = b.mainCategory || b.category || '';
         aValue = getCategoryDisplayName(aCat);
         bValue = getCategoryDisplayName(bCat);
         break;
@@ -381,7 +386,7 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
                           (new Date(rfq.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
                         );
                         const isUrgent = daysUntilDeadline <= 2;
-                        const mainCategoryId = rfq.mainCategories?.[0] || rfq.category || '';
+                        const mainCategoryId = rfq.mainCategory || rfq.category || '';
 
                         return (
                           <tr 

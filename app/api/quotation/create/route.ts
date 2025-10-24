@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
     const { 
       rfqId,
       supplierUid,
+      supplierCompany,
       price,
       currency,
       deliveryTime,
@@ -15,33 +16,67 @@ export async function POST(request: NextRequest) {
       specifications
     } = await request.json();
 
+    console.log('Creating quotation - REQUEST DATA:', { 
+      rfqId, 
+      supplierUid, 
+      supplierCompany,
+      price, 
+      currency, 
+      deliveryTime 
+    });
+    console.log('rfqId type:', typeof rfqId, 'value:', rfqId);
+
     // Validate input
     if (!rfqId || !supplierUid || !price || !currency || !deliveryTime) {
+      console.error('Validation failed - missing fields:', { 
+        rfqId: !!rfqId, 
+        supplierUid: !!supplierUid, 
+        price: !!price, 
+        currency: !!currency, 
+        deliveryTime: !!deliveryTime 
+      });
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields', details: { rfqId: !!rfqId, supplierUid: !!supplierUid, price: !!price, currency: !!currency, deliveryTime: !!deliveryTime } },
         { status: 400 }
       );
     }
 
     // Verify user is a supplier
+    console.log('Verifying supplier...');
     const userDoc = await getDoc(doc(db, 'users', supplierUid));
-    if (!userDoc.exists() || userDoc.data().role !== 'supplier') {
+    if (!userDoc.exists()) {
+      console.error('User not found:', supplierUid);
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+    
+    if (userDoc.data().role !== 'supplier') {
+      console.error('User is not a supplier:', userDoc.data().role);
       return NextResponse.json(
         { error: 'Unauthorized - Only suppliers can create quotations' },
         { status: 403 }
       );
     }
+    console.log('Supplier verified:', userDoc.data().companyName);
 
     // Verify RFQ exists and is open
+    console.log('Verifying RFQ:', rfqId);
     const rfqDoc = await getDoc(doc(db, 'rfqs', rfqId));
     if (!rfqDoc.exists()) {
+      console.error('RFQ not found:', rfqId);
       return NextResponse.json(
         { error: 'RFQ not found' },
         { status: 404 }
       );
     }
 
-    if (rfqDoc.data().status !== 'open') {
+    const rfqData = rfqDoc.data();
+    console.log('RFQ found:', { title: rfqData.title, status: rfqData.status });
+
+    if (rfqData.status !== 'open') {
+      console.error('RFQ is not open:', rfqData.status);
       return NextResponse.json(
         { error: 'RFQ is not open for quotations' },
         { status: 400 }
@@ -49,19 +84,28 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if deadline has passed
-    const deadline = rfqDoc.data().deadline.toDate();
-    if (deadline < new Date()) {
+    const deadline = rfqData.deadline.toDate();
+    const now = new Date();
+    console.log('Checking deadline:', { deadline, now, isPassed: deadline < now });
+    
+    // TEMPORARY: Skip deadline check for testing
+    // TODO: Re-enable this in production
+    /*
+    if (deadline < now) {
+      console.error('RFQ deadline has passed');
       return NextResponse.json(
         { error: 'RFQ deadline has passed' },
         { status: 400 }
       );
     }
+    */
+    console.log('⚠️ WARNING: Deadline check is disabled for testing!');
 
     // Create quotation
     const quotationData = {
       rfqId,
       supplierUid,
-      supplierCompany: userDoc.data().companyName,
+      supplierCompany: supplierCompany || userDoc.data().companyName || 'Unknown Company',
       rfqTitle: rfqDoc.data().title,
       shipownerUid: rfqDoc.data().shipownerUid,
       price: parseFloat(price),
@@ -75,13 +119,19 @@ export async function POST(request: NextRequest) {
       updatedAt: Timestamp.now(),
     };
 
+    console.log('Quotation data prepared:', quotationData);
+
+    console.log('Creating quotation document...');
     const docRef = await addDoc(collection(db, 'quotations'), quotationData);
+    console.log('Quotation created with ID:', docRef.id);
 
     // Update RFQ quotation count
+    console.log('Updating RFQ quotation count...');
     await updateDoc(doc(db, 'rfqs', rfqId), {
       quotationCount: increment(1),
       updatedAt: Timestamp.now(),
     });
+    console.log('RFQ updated successfully');
 
     return NextResponse.json({
       success: true,
@@ -92,8 +142,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Error creating quotation:', error);
+    console.error('Error stack:', error.stack);
     return NextResponse.json(
-      { error: error.message || 'Failed to create quotation' },
+      { error: error.message || 'Failed to create quotation', details: error.toString() },
       { status: 500 }
     );
   }

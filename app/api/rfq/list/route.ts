@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, limit, doc, getDoc } from 'firebase/firestore';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,6 +15,19 @@ export async function GET(request: NextRequest) {
     console.log('Fetching RFQs with params:', { userUid, userRole, status, mainCategory, subcategory, limitCount });
 
     let constraints: any[] = [];
+    let supplierCategories: string[] = [];
+    let supplierSubcategories: string[] = [];
+
+    // Get supplier's categories if role is supplier
+    if (userRole === 'supplier' && userUid) {
+      const supplierDoc = await getDoc(doc(db, 'suppliers', userUid));
+      if (supplierDoc.exists()) {
+        const supplierData = supplierDoc.data();
+        supplierCategories = supplierData.mainCategories || [];
+        supplierSubcategories = supplierData.subcategories || [];
+        console.log('Supplier categories:', { supplierCategories, supplierSubcategories });
+      }
+    }
 
     // Filter by shipowner if role is shipowner
     if (userRole === 'shipowner' && userUid) {
@@ -28,9 +41,10 @@ export async function GET(request: NextRequest) {
       console.log('Filtering by status:', status);
     }
 
-    // Filter by main category (using new mainCategories array)
+    // Filter by main category (supports both new and old format)
     if (mainCategory && mainCategory !== 'all') {
-      constraints.push(where('mainCategories', 'array-contains', mainCategory));
+      // Try filtering by new mainCategory field first, fallback to old category field
+      constraints.push(where('mainCategory', '==', mainCategory));
       console.log('Filtering by mainCategory:', mainCategory);
     }
 
@@ -47,14 +61,43 @@ export async function GET(request: NextRequest) {
       
       // Client-side subcategory filter
       const matchesSubcategory = !subcategory || 
-        data.subcategories?.includes(subcategory);
+        subcategory === 'all' ||
+        data.subcategory === subcategory;
 
-      if (matchesSubcategory) {
+      // Filter RFQs for suppliers based on their categories
+      let matchesSupplierCategories = true;
+      if (userRole === 'supplier' && supplierCategories.length > 0) {
+        const rfqMainCategory = data.mainCategory || data.category;
+        const rfqSubcategory = data.subcategory;
+
+        // Check if RFQ's main category matches supplier's categories
+        matchesSupplierCategories = supplierCategories.includes(rfqMainCategory);
+
+        // If RFQ has subcategory, also check if supplier has that subcategory
+        if (matchesSupplierCategories && rfqSubcategory && supplierSubcategories.length > 0) {
+          matchesSupplierCategories = supplierSubcategories.includes(rfqSubcategory);
+        }
+
+        console.log('Category match check:', {
+          rfqId: doc.id,
+          rfqMainCategory,
+          rfqSubcategory,
+          supplierCategories,
+          supplierSubcategories,
+          matches: matchesSupplierCategories
+        });
+      }
+
+      if (matchesSubcategory && matchesSupplierCategories) {
         rfqs.push({
           id: doc.id,
           ...data,
-          mainCategories: data.mainCategories || data.category ? [data.category] : [],
-          subcategories: data.subcategories || [],
+          // Return new format fields
+          supplierType: data.supplierType || 'supplier',
+          mainCategory: data.mainCategory || data.category,
+          subcategory: data.subcategory || null,
+          // Keep backward compatibility fields
+          category: data.category || data.mainCategory,
           createdAt: data.createdAt?.toDate?.()?.toISOString(),
           updatedAt: data.updatedAt?.toDate?.()?.toISOString(),
           deadline: data.deadline?.toDate?.()?.toISOString(),

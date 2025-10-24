@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { FileText, Package, DollarSign, Star, TrendingUp, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 interface RFQ {
   id: string;
@@ -23,18 +24,23 @@ interface RFQ {
 export default function SupplierDashboard({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
   const t = useTranslations();
+  const { user } = useAuth();
   
   const [rfqs, setRfqs] = useState<RFQ[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (user?.uid) {
+      fetchDashboardData();
+    }
+  }, [user?.uid]);
 
   const fetchDashboardData = async () => {
+    if (!user?.uid) return;
+    
     try {
-      // Tedarikçiler için açık RFQ'ları getir
-      const response = await fetch('/api/rfq/list?status=open&limit=100');
+      // Tedarikçiler için kendi kategorilerindeki açık RFQ'ları getir
+      const response = await fetch(`/api/rfq/list?status=open&uid=${user.uid}&role=supplier&limit=100`);
       const data = await response.json();
       
       if (data.success) {

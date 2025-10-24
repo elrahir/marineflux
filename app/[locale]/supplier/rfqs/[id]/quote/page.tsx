@@ -45,12 +45,16 @@ export default function SubmitQuotePage({ params }: { params: Promise<{ locale: 
   });
 
   useEffect(() => {
-    fetchRfqDetails();
-  }, [id]);
+    if (user?.uid) {
+      fetchRfqDetails();
+    }
+  }, [id, user?.uid]);
 
   const fetchRfqDetails = async () => {
+    if (!user?.uid) return;
+    
     try {
-      const response = await fetch(`/api/rfq/list?status=open`);
+      const response = await fetch(`/api/rfq/list?status=open&uid=${user.uid}&role=supplier`);
       const data = await response.json();
       
       if (data.success) {
@@ -80,20 +84,28 @@ export default function SubmitQuotePage({ params }: { params: Promise<{ locale: 
         throw new Error(locale === 'tr' ? 'Lütfen zorunlu alanları doldurun' : 'Please fill in required fields');
       }
 
+      console.log('🔍 DEBUG - Submitting quotation for RFQ ID:', id);
+      console.log('🔍 DEBUG - RFQ ID type:', typeof id);
+      console.log('🔍 DEBUG - Current RFQ object:', rfq);
+
+      const quotationData = {
+        rfqId: id,
+        supplierUid: user.uid,
+        supplierCompany: userData.companyName || 'Unknown Company',
+        price: parseFloat(formData.price),
+        currency: formData.currency,
+        deliveryTime: formData.deliveryTime,
+        deliveryLocation: formData.deliveryLocation,
+        specifications: formData.specifications,
+        notes: formData.notes,
+      };
+
+      console.log('🔍 DEBUG - Quotation data being sent:', quotationData);
+
       const response = await fetch('/api/quotation/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          rfqId: id,
-          supplierUid: user.uid,
-          supplierCompany: userData.companyName || 'Unknown Company',
-          price: parseFloat(formData.price),
-          currency: formData.currency,
-          deliveryTime: formData.deliveryTime,
-          deliveryLocation: formData.deliveryLocation,
-          specifications: formData.specifications,
-          notes: formData.notes,
-        }),
+        body: JSON.stringify(quotationData),
       });
 
       const data = await response.json();

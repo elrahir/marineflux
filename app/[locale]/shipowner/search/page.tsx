@@ -60,7 +60,7 @@ export default function SupplierSearchPage({ params }: { params: Promise<{ local
     : SERVICE_PROVIDER_MAIN_CATEGORIES;
 
   const currentSubcategories = categoryFilter && categoryFilter !== 'all' 
-    ? getSubcategories(categoryFilter, supplierTypeFilter === 'service-provider' ? 'service-provider' : 'supplier')
+    ? getSubcategories(categoryFilter)
     : [];
 
   useEffect(() => {
