@@ -5,22 +5,24 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Search,
-  Mail,
-  FileText,
-  Shield,
   ArrowRight,
-  Menu,
-  X,
   Clock,
-  Package,
-  Zap,
   TrendingUp,
-  Globe,
   CheckCircle,
   Users,
 } from 'lucide-react';
 import { useState, useEffect, use } from 'react';
+import {
+  SearchIcon,
+  GlobeIcon,
+  PackageIcon,
+  CheckCircleIcon,
+  ShieldIcon,
+  MailIcon,
+  ArrowRightIcon,
+  MenuIcon,
+  CloseIcon,
+} from '@/components/icons/CustomIcons';
 
 export default function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
@@ -66,7 +68,7 @@ function Navigation({ locale }: { locale: string }) {
             {/* Search Bar */}
             <div className="relative hidden lg:block">
               <div className="flex items-center border-2 border-gray-200 rounded-lg px-4 py-2.5 w-80 bg-gray-50 hover:border-maritime-300 transition-colors">
-                <Search className="h-4 w-4 text-gray-400 mr-2" />
+                <SearchIcon className="h-4 w-4 text-gray-400 mr-2" />
                 <input
                   type="text"
                   placeholder={locale === 'tr' ? 'Ürün veya hizmet ara...' : 'Search products or services...'}
@@ -79,7 +81,7 @@ function Navigation({ locale }: { locale: string }) {
             {/* Language Switcher */}
             <Link href={locale === 'tr' ? '/en' : '/tr'}>
               <Button variant="ghost" size="lg" className="text-gray-600 hover:text-maritime-700">
-                <Globe className="h-4 w-4 mr-2" />
+                <GlobeIcon className="h-4 w-4 mr-2" />
                 {locale === 'tr' ? 'EN' : 'TR'}
               </Button>
             </Link>
@@ -97,7 +99,7 @@ function Navigation({ locale }: { locale: string }) {
             className="md:hidden p-2 rounded-lg hover:bg-gray-100"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
+            {mobileMenuOpen ? <CloseIcon className="h-6 w-6 text-gray-700" /> : <MenuIcon className="h-6 w-6 text-gray-700" />}
           </button>
         </div>
 
@@ -106,7 +108,7 @@ function Navigation({ locale }: { locale: string }) {
           <div className="md:hidden py-4 space-y-3 border-t">
             <Link href={locale === 'tr' ? '/en' : '/tr'} className="block">
               <Button variant="ghost" size="lg" className="w-full justify-start">
-                <Globe className="h-4 w-4 mr-2" />
+                <GlobeIcon className="h-4 w-4 mr-2" />
                 {locale === 'tr' ? 'English' : 'Türkçe'}
               </Button>
             </Link>
@@ -193,7 +195,7 @@ function HeroSection({ locale }: { locale: string }) {
             <Link href={`/${locale}/login`}>
               <Button size="lg" className="bg-maritime-600 hover:bg-maritime-700 text-white px-6 sm:px-8 py-5 md:py-6 text-base md:text-lg shadow-maritime">
                 {locale === 'tr' ? 'Hemen Başla' : 'Get Started'}
-                <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+                <ArrowRightIcon className="ml-2 h-4 w-4 md:h-5 md:w-5" />
               </Button>
             </Link>
             <Button size="lg" variant="outline" className="border-2 border-maritime-600 text-maritime-600 hover:bg-maritime-50 px-6 sm:px-8 py-5 md:py-6 text-base md:text-lg">
@@ -252,7 +254,7 @@ function PortalCardsSection({ locale }: { locale: string }) {
               <div className="absolute top-0 right-0 w-32 h-32 bg-maritime-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
               <CardHeader className="space-y-4 p-8 relative">
                 <div className="w-16 h-16 bg-maritime-50 rounded-xl flex items-center justify-center group-hover:bg-maritime-100 transition-colors">
-                  <Package className="h-8 w-8 text-maritime-600" />
+                  <PackageIcon className="h-8 w-8 text-maritime-600" />
                 </div>
                 <CardTitle className="text-2xl md:text-3xl font-bold text-gray-900">
                   {locale === 'tr' ? 'Gemi Sahipleri' : 'Shipowners'}
@@ -270,7 +272,7 @@ function PortalCardsSection({ locale }: { locale: string }) {
                     locale === 'tr' ? 'Doğrudan İletişim' : 'Direct Communication'
                   ].map((feature, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-gray-700">
-                      <CheckCircle className="h-5 w-5 text-maritime-600 flex-shrink-0" />
+                      <CheckCircleIcon className="h-5 w-5 text-maritime-600 flex-shrink-0" />
                       <span className="text-sm md:text-base">{feature}</span>
                     </li>
                   ))}
@@ -281,7 +283,7 @@ function PortalCardsSection({ locale }: { locale: string }) {
                   <Link href={`/${locale}/register`}>
                     <Button size="lg" className="w-full bg-maritime-600 hover:bg-maritime-700 text-white shadow-md">
                       {locale === 'tr' ? 'Gemi Sahibi Olarak Başla' : 'Start as Shipowner'}
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <ArrowRightIcon className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
                   <Link href={`/${locale}/login?type=shipowner`}>
@@ -301,7 +303,7 @@ function PortalCardsSection({ locale }: { locale: string }) {
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
               <CardHeader className="space-y-4 p-8 relative">
                 <div className="w-16 h-16 bg-emerald-50 rounded-xl flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-                  <Package className="h-8 w-8 text-emerald-700" />
+                  <PackageIcon className="h-8 w-8 text-emerald-700" />
                 </div>
                 <CardTitle className="text-2xl md:text-3xl font-bold text-gray-900">
                   {locale === 'tr' ? 'Tedarikçiler' : 'Suppliers'}
@@ -319,7 +321,7 @@ function PortalCardsSection({ locale }: { locale: string }) {
                     locale === 'tr' ? 'Global Pazar Erişimi' : 'Global Market Access'
                   ].map((feature, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-gray-700">
-                      <CheckCircle className="h-5 w-5 text-emerald-700 flex-shrink-0" />
+                      <CheckCircleIcon className="h-5 w-5 text-emerald-700 flex-shrink-0" />
                       <span className="text-sm md:text-base">{feature}</span>
                     </li>
                   ))}
@@ -330,7 +332,7 @@ function PortalCardsSection({ locale }: { locale: string }) {
                   <Link href={`/${locale}/register`}>
                     <Button size="lg" className="w-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-md">
                       {locale === 'tr' ? 'Tedarikçi Olarak Başla' : 'Start as Supplier'}
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <ArrowRightIcon className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
                   <Link href={`/${locale}/login?type=supplier`}>
@@ -352,7 +354,7 @@ function PortalCardsSection({ locale }: { locale: string }) {
 function WhyMarineFluxSection({ locale }: { locale: string }) {
   const features = [
     {
-      icon: Globe,
+      icon: GlobeIcon,
       title: locale === 'tr' ? 'Küresel Ağ' : 'Global Network',
       description: locale === 'tr'
         ? 'Denizcilik sektöründe dünya çapındaki tedarikçiler ve alıcılarla anında bağlantı kurun.'
@@ -361,7 +363,7 @@ function WhyMarineFluxSection({ locale }: { locale: string }) {
       bgColor: 'bg-blue-50',
     },
     {
-      icon: Zap,
+      icon: Clock,
       title: locale === 'tr' ? 'Hızlı Süreçler' : 'Fast Processes',
       description: locale === 'tr'
         ? 'RFQ oluşturmadan teklif almaya, sipariş sürecine kadar her şey dijital ve hızlı.'
@@ -370,7 +372,7 @@ function WhyMarineFluxSection({ locale }: { locale: string }) {
       bgColor: 'bg-yellow-50',
     },
     {
-      icon: Shield,
+      icon: ShieldIcon,
       title: locale === 'tr' ? 'Güvenli Platform' : 'Secure Platform',
       description: locale === 'tr'
         ? 'Verileriniz ve işlemleriniz en üst düzey güvenlik standartlarıyla korunur.'
@@ -397,7 +399,7 @@ function WhyMarineFluxSection({ locale }: { locale: string }) {
       bgColor: 'bg-orange-50',
     },
     {
-      icon: Package,
+      icon: PackageIcon,
       title: locale === 'tr' ? 'Geniş Ürün Yelpazesi' : 'Wide Product Range',
       description: locale === 'tr'
         ? 'Yedek parçadan ekipmana, hizmetten kimyasallara kadar her kategoride binlerce ürün.'
@@ -466,7 +468,7 @@ function Footer({ locale }: { locale: string }) {
           {/* Company Info */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Package className="h-8 w-8 text-white" />
+              <PackageIcon className="h-8 w-8 text-white" />
               <div className="text-2xl font-bold text-white">MARINEFLUX</div>
             </div>
             <p className="text-base text-gray-200 mb-6 max-w-md leading-relaxed">
@@ -495,19 +497,19 @@ function Footer({ locale }: { locale: string }) {
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href={`/${locale}/about`} className="text-gray-200 hover:text-white transition-colors flex items-center gap-2">
-                  <ArrowRight className="h-3 w-3" />
+                  <ArrowRightIcon className="h-3 w-3" />
                   {locale === 'tr' ? 'Hakkımızda' : 'About Us'}
                 </Link>
               </li>
               <li>
                 <Link href={`/${locale}/login`} className="text-gray-200 hover:text-white transition-colors flex items-center gap-2">
-                  <ArrowRight className="h-3 w-3" />
+                  <ArrowRightIcon className="h-3 w-3" />
                   {locale === 'tr' ? 'Giriş Yap' : 'Login'}
                 </Link>
               </li>
               <li>
                 <Link href={`/${locale}/contact`} className="text-gray-200 hover:text-white transition-colors flex items-center gap-2">
-                  <ArrowRight className="h-3 w-3" />
+                  <ArrowRightIcon className="h-3 w-3" />
                   {locale === 'tr' ? 'İletişim' : 'Contact'}
                 </Link>
               </li>
@@ -521,18 +523,18 @@ function Footer({ locale }: { locale: string }) {
             </h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2 text-gray-200">
-                <Mail className="h-4 w-4 flex-shrink-0" />
+                <MailIcon className="h-4 w-4 flex-shrink-0" />
                 <span>info@marineflux.com</span>
               </li>
               <li>
                 <Link href={`/${locale}/terms`} className="text-gray-200 hover:text-white transition-colors flex items-center gap-2">
-                  <Shield className="h-4 w-4 flex-shrink-0" />
+                  <ShieldIcon className="h-4 w-4 flex-shrink-0" />
                   {locale === 'tr' ? 'Hizmet Şartları' : 'Terms of Service'}
                 </Link>
               </li>
               <li>
                 <Link href={`/${locale}/privacy`} className="text-gray-200 hover:text-white transition-colors flex items-center gap-2">
-                  <Shield className="h-4 w-4 flex-shrink-0" />
+                  <ShieldIcon className="h-4 w-4 flex-shrink-0" />
                   {locale === 'tr' ? 'Gizlilik Politikası' : 'Privacy Policy'}
                 </Link>
               </li>
