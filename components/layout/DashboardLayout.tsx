@@ -151,6 +151,13 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
                 <Anchor className="h-8 w-8 text-slate-700" />
                 <span className="text-xl font-bold text-gray-900">MarineFlux</span>
               </Link>
+
+              {/* Sidebar Logo for Large Screens */}
+              <div className="hidden lg:flex items-center ml-4 pl-4 border-l border-gray-200">
+                <span className="text-sm font-bold text-white bg-gradient-to-b from-slate-900 to-slate-800 px-3 py-1 rounded">
+                  MARINEFLUX
+                </span>
+              </div>
             </div>
 
             {/* Right Side Items */}
@@ -272,11 +279,6 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
         }`}
       >
         <nav className="flex flex-col h-full">
-          {/* Sidebar Logo */}
-          <div className="px-4 py-4 border-b border-slate-700">
-            <span className="text-xl font-bold text-blue-600 tracking-wide">MARINEFLUX</span>
-          </div>
-
           <div className="flex-1 px-4 py-6 space-y-1">
             {navigationItems.map((item) => (
               <Link
