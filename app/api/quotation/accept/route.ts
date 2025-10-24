@@ -109,6 +109,23 @@ export async function POST(request: NextRequest) {
       updatedAt: Timestamp.now(),
     });
 
+    // Send notification to supplier
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        userId: quotation.supplierUid,
+        type: 'order',
+        title: '📦 Yeni Sipariş Alındı',
+        message: `${quotation.shipownerCompany} şirketi sizin '${quotation.rfqTitle}' teklifinizi kabul etti. Sipariş detaylarını görmek için tıklayın.`,
+        link: `/tr/supplier/orders/${orderRef.id}`,
+        orderId: orderRef.id,
+        read: false,
+        createdAt: Timestamp.now(),
+      });
+      console.log('✅ Order notification sent to supplier:', quotation.supplierUid);
+    } catch (error) {
+      console.error('❌ Error sending order notification:', error);
+    }
+
     // Reject other pending quotations for this RFQ
     // (This would ideally be done in a Cloud Function for better performance)
 
