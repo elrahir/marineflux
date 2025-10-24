@@ -51,7 +51,7 @@ export default function SupplierPaymentsPage({ params }: { params: Promise<{ loc
           .map((o: any) => ({
             id: o.id,
             orderId: o.id,
-            orderTitle: o.rfqTitle,
+            orderTitle: o.title || o.rfqTitle || 'N/A',
             shipownerCompany: o.shipownerCompany,
             amount: o.amount,
             currency: o.currency,
@@ -276,7 +276,7 @@ export default function SupplierPaymentsPage({ params }: { params: Promise<{ loc
                       {filteredPayments.map((payment) => (
                         <tr key={payment.id} className="border-b hover:bg-gray-50">
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                            {payment.orderTitle.substring(0, 30)}...
+                            {(payment.orderTitle || 'N/A').substring(0, 30)}{(payment.orderTitle?.length || 0) > 30 ? '...' : ''}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-600">
                             {payment.shipownerCompany}
