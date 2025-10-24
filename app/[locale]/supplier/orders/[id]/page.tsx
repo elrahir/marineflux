@@ -354,12 +354,6 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
                 {getPaymentStatusBadge(order.paymentStatus)}
               </div>
               <div className="flex gap-2">
-                {order.status === 'pending_payment' && (
-                  <div className="text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded">
-                    {locale === 'tr' ? '⏳ Müşteri ödeme bekleniyor' : '⏳ Awaiting customer payment'}
-                  </div>
-                )}
-                {console.log('DEBUG: Checking payment status -', order.paymentStatus, 'condition:', order.paymentStatus === 'payment_awaiting_confirmation')}
                 {(order.paymentStatus === 'payment_awaiting_confirmation' || order.paymentStatus === 'paid_pending_confirmation') && (
                   <Button 
                     size="sm" 
