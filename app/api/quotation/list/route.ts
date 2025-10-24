@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, limit, doc, getDoc } from 'firebase/firestore';
 
 export async function GET(request: NextRequest) {
   try {
@@ -50,24 +50,47 @@ export async function GET(request: NextRequest) {
     const querySnapshot = await getDocs(q);
     const quotations: any[] = [];
 
-    querySnapshot.forEach((doc) => {
+    // Fetch supplier ratings for each quotation
+    for (const doc of querySnapshot.docs) {
       const data = doc.data();
+      
+      // Satıcı bilgilerini çek
+      let supplierRating = 0;
+      let supplierReviewCount = 0;
+      
+      if (data.supplierUid) {
+        try {
+          const supplierDoc = await getDoc(doc(db, 'users', data.supplierUid));
+          if (supplierDoc.exists()) {
+            const supplierData = supplierDoc.data();
+            supplierRating = supplierData.rating || 0;
+            supplierReviewCount = supplierData.reviewCount || 0;
+          }
+        } catch (error) {
+          console.error(`Error fetching supplier data for ${data.supplierUid}:`, error);
+        }
+      }
+      
       console.log('Quotation found:', {
         id: doc.id,
         rfqId: data.rfqId,
         supplierCompany: data.supplierCompany,
         price: data.price,
         status: data.status,
+        supplierRating,
+        supplierReviewCount,
         createdAt: data.createdAt?.toDate?.()?.toISOString()
       });
       
       quotations.push({
         id: doc.id,
         ...data,
+        supplierRating,
+        supplierReviewCount,
         createdAt: data.createdAt?.toDate?.()?.toISOString(),
         updatedAt: data.updatedAt?.toDate?.()?.toISOString(),
       });
-    });
+    }
 
     console.log(`Found ${quotations.length} quotations total`);
 

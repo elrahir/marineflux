@@ -9,7 +9,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Loader2, DollarSign, Clock, MapPin, Building2, CheckCircle, MessageCircle } from 'lucide-react';
+import { FileText, Loader2, DollarSign, Clock, MapPin, Building2, CheckCircle, MessageCircle, Star } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 interface Quotation {
@@ -24,6 +24,8 @@ interface Quotation {
   specifications: string;
   status: 'pending' | 'accepted' | 'rejected';
   createdAt: string;
+  supplierRating?: number;
+  supplierReviewCount?: number;
 }
 
 export default function RFQQuotationsPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
@@ -335,6 +337,31 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                           <Building2 className="h-5 w-5 text-maritime-600" />
                           <h3 className="text-xl font-bold text-gray-900">{quotation.supplierCompany}</h3>
                         </div>
+                        
+                        {/* Supplier Rating */}
+                        {(quotation.supplierRating !== undefined && quotation.supplierRating > 0) && (
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`h-4 w-4 ${
+                                    star <= Math.round(quotation.supplierRating || 0)
+                                      ? 'fill-yellow-400 text-yellow-400'
+                                      : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm font-semibold text-gray-700">
+                              {quotation.supplierRating?.toFixed(1)}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              ({quotation.supplierReviewCount || 0} {locale === 'tr' ? 'değerlendirme' : 'reviews'})
+                            </span>
+                          </div>
+                        )}
+                        
                         {getStatusBadge(quotation.status)}
                       </CardHeader>
 
