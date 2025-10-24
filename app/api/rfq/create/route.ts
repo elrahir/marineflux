@@ -102,9 +102,10 @@ export async function POST(request: NextRequest) {
 
       // Send notification to each supplier
       if (supplierIds.length > 0) {
+        console.log(`📬 Sending RFQ notifications to ${supplierIds.length} suppliers`);
         for (const supplierId of supplierIds) {
           try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
+            const notifResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -116,10 +117,14 @@ export async function POST(request: NextRequest) {
                 rfqId: docRef.id,
               }),
             });
+            const notifData = await notifResponse.json();
+            console.log(`✅ Notification sent to ${supplierId}:`, notifData.success ? 'Success' : 'Failed');
           } catch (error) {
-            console.error(`Error sending notification to supplier ${supplierId}:`, error);
+            console.error(`❌ Error sending notification to supplier ${supplierId}:`, error);
           }
         }
+      } else {
+        console.log('⚠️ No suppliers found for this category');
       }
     } catch (error) {
       console.error('Error sending RFQ notifications:', error);

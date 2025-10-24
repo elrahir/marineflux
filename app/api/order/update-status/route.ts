@@ -106,8 +106,10 @@ export async function POST(request: NextRequest) {
 
     const notifData = statusNotifications[status] || { tr: 'Durum Güncellendi', en: 'Status Updated', icon: '📢' };
 
+    console.log('📢 Sending notification to:', notificationUserId, 'for status:', status);
+
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
+      const notifResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -119,8 +121,11 @@ export async function POST(request: NextRequest) {
           orderId,
         }),
       });
+      
+      const notifData2 = await notifResponse.json();
+      console.log('✅ Notification sent:', notifData2.success ? 'Success' : 'Failed', notifData2);
     } catch (error) {
-      console.error('Error sending notification:', error);
+      console.error('❌ Error sending notification:', error);
       // Don't fail the request if notification fails
     }
 
