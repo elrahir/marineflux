@@ -90,6 +90,40 @@ export async function POST(request: NextRequest) {
       updatedAt: Timestamp.now(),
     });
 
+    // Send notification to the other party
+    const notificationUserId = userUid === order.shipownerUid ? order.supplierUid : order.shipownerUid;
+    const userType = userUid === order.shipownerUid ? 'Gemi Sahibi' : 'Satıcı';
+    
+    const statusNotifications: { [key: string]: { tr: string; en: string; icon: string } } = {
+      'pending_supplier_approval': { tr: 'Sipariş Onay Bekleniyor', en: 'Order Awaiting Approval', icon: '⏳' },
+      'pending_payment': { tr: 'Ödeme Bekleniyor', en: 'Payment Pending', icon: '💰' },
+      'in_progress': { tr: 'Hazırlığa Başlandı', en: 'Preparation Started', icon: '📦' },
+      'shipped': { tr: 'Kargoya Verildi', en: 'Shipped', icon: '🚚' },
+      'delivered': { tr: 'Teslim Alındı', en: 'Delivered', icon: '✅' },
+      'completed': { tr: 'Tamamlandı', en: 'Completed', icon: '🎉' },
+      'cancelled': { tr: 'İptal Edildi', en: 'Cancelled', icon: '❌' },
+    };
+
+    const notifData = statusNotifications[status] || { tr: 'Durum Güncellendi', en: 'Status Updated', icon: '📢' };
+
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: notificationUserId,
+          type: 'order',
+          title: notifData.tr,
+          message: `${notifData.icon} Sipariş '${order.title}' durumu güncellendi: ${notifData.tr}`,
+          link: `/tr/shipowner/orders/${orderId}`,
+          orderId,
+        }),
+      });
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      // Don't fail the request if notification fails
+    }
+
     return NextResponse.json({
       success: true,
       order: {

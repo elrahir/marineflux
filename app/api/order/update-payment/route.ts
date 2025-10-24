@@ -63,6 +63,32 @@ export async function POST(request: NextRequest) {
       updatedAt: Timestamp.now(),
     });
 
+    // Send notification to the other party
+    const notificationUserId = shipownerUid ? orderData.supplierUid : orderData.shipownerUid;
+    const paymentNotifications: { [key: string]: { tr: string; en: string; icon: string } } = {
+      'payment_awaiting_confirmation': { tr: 'Ödeme Yapıldı - Onay Bekleniyor', en: 'Payment Made - Awaiting Confirmation', icon: '💰' },
+      'paid': { tr: 'Ödeme Onaylandı', en: 'Payment Confirmed', icon: '✅' },
+    };
+
+    const paymentNotif = paymentNotifications[paymentStatus] || { tr: 'Ödeme Güncellendi', en: 'Payment Updated', icon: '💳' };
+
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/notification/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: notificationUserId,
+          type: 'payment',
+          title: paymentNotif.tr,
+          message: `${paymentNotif.icon} Sipariş '${orderData.title}' ödeme durumu: ${paymentNotif.tr}`,
+          link: `/tr/shipowner/orders/${orderId}`,
+          orderId,
+        }),
+      });
+    } catch (error) {
+      console.error('Error sending payment notification:', error);
+    }
+
     console.log('Order payment status updated:', {
       orderId,
       paymentStatus,
