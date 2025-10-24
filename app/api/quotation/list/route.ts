@@ -51,8 +51,8 @@ export async function GET(request: NextRequest) {
     const quotations: any[] = [];
 
     // Fetch supplier ratings for each quotation
-    for (const doc of querySnapshot.docs) {
-      const data = doc.data();
+    for (const quotationDoc of querySnapshot.docs) {
+      const data = quotationDoc.data();
       
       // Satıcı bilgilerini çek
       let supplierRating = 0;
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       }
       
       console.log('Quotation found:', {
-        id: doc.id,
+        id: quotationDoc.id,
         rfqId: data.rfqId,
         supplierCompany: data.supplierCompany,
         price: data.price,
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       });
       
       quotations.push({
-        id: doc.id,
+        id: quotationDoc.id,
         ...data,
         supplierRating,
         supplierReviewCount,
