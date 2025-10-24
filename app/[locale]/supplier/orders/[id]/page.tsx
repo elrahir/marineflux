@@ -234,6 +234,14 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
             {locale === 'tr' ? 'Ödeme Onayı Bekleniyor' : 'Awaiting Confirmation'}
           </Badge>
         );
+      case 'paid_pending_confirmation':
+        // Backward compatibility - old status name
+        return (
+          <Badge className="bg-blue-100 text-blue-800">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            {locale === 'tr' ? 'Ödeme Onayı Bekleniyor' : 'Awaiting Confirmation'}
+          </Badge>
+        );
       case 'paid':
         return (
           <Badge className="bg-teal-100 text-teal-800">
@@ -352,7 +360,7 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
                   </div>
                 )}
                 {console.log('DEBUG: Checking payment status -', order.paymentStatus, 'condition:', order.paymentStatus === 'payment_awaiting_confirmation')}
-                {order.paymentStatus === 'payment_awaiting_confirmation' && (
+                {(order.paymentStatus === 'payment_awaiting_confirmation' || order.paymentStatus === 'paid_pending_confirmation') && (
                   <Button 
                     size="sm" 
                     onClick={handleConfirmPayment}
