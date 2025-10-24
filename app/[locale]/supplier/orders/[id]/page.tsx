@@ -97,6 +97,7 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
 
       const orderData = data.orders.find((o: Order) => o.id === id);
       if (orderData) {
+        console.log('Order loaded - paymentStatus:', orderData.paymentStatus, 'status:', orderData.status);
         setOrder(orderData);
       } else {
         setError(locale === 'tr' ? 'Sipariş bulunamadı.' : 'Order not found.');
@@ -350,6 +351,7 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
                     {locale === 'tr' ? '⏳ Müşteri ödeme bekleniyor' : '⏳ Awaiting customer payment'}
                   </div>
                 )}
+                {console.log('DEBUG: Checking payment status -', order.paymentStatus, 'condition:', order.paymentStatus === 'payment_awaiting_confirmation')}
                 {order.paymentStatus === 'payment_awaiting_confirmation' && (
                   <Button 
                     size="sm" 
