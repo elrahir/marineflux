@@ -60,11 +60,19 @@ export async function GET(request: NextRequest) {
       
       if (data.supplierUid) {
         try {
-          const supplierDoc = await getDoc(doc(db, 'users', data.supplierUid));
+          // Satıcı verilerini suppliers collection'ndan çek
+          const supplierDoc = await getDoc(doc(db, 'suppliers', data.supplierUid));
           if (supplierDoc.exists()) {
             const supplierData = supplierDoc.data();
             supplierRating = supplierData.rating || 0;
             supplierReviewCount = supplierData.reviewCount || 0;
+            console.log(`✓ Supplier data found for ${data.supplierUid}:`, {
+              rating: supplierRating,
+              reviewCount: supplierReviewCount,
+              allData: supplierData
+            });
+          } else {
+            console.log(`✗ Supplier document not found in suppliers collection for UID: ${data.supplierUid}`);
           }
         } catch (error) {
           console.error(`Error fetching supplier data for ${data.supplierUid}:`, error);
