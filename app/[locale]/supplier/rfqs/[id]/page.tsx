@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Send
 } from 'lucide-react';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 interface RFQ {
   id: string;
@@ -41,18 +42,23 @@ interface RFQ {
 export default function SupplierRFQDetailPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale, id } = use(params);
   const t = useTranslations();
+  const { user } = useAuth();
   
   const [rfq, setRfq] = useState<RFQ | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasSubmittedQuote, setHasSubmittedQuote] = useState(false);
 
   useEffect(() => {
-    fetchRfqDetails();
-  }, [id]);
+    if (user?.uid) {
+      fetchRfqDetails();
+    }
+  }, [id, user?.uid]);
 
   const fetchRfqDetails = async () => {
+    if (!user?.uid) return;
+    
     try {
-      const response = await fetch(`/api/rfq/list?status=open`);
+      const response = await fetch(`/api/rfq/list?status=open&uid=${user.uid}&role=supplier`);
       const data = await response.json();
       
       if (data.success) {

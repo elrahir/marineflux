@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
     // Filter by RFQ
     if (rfqId) {
       constraints.push(where('rfqId', '==', rfqId));
+      console.log('Filtering by rfqId:', rfqId);
     }
 
     // Filter by supplier
@@ -51,6 +52,15 @@ export async function GET(request: NextRequest) {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
+      console.log('Quotation found:', {
+        id: doc.id,
+        rfqId: data.rfqId,
+        supplierCompany: data.supplierCompany,
+        price: data.price,
+        status: data.status,
+        createdAt: data.createdAt?.toDate?.()?.toISOString()
+      });
+      
       quotations.push({
         id: doc.id,
         ...data,
@@ -59,7 +69,7 @@ export async function GET(request: NextRequest) {
       });
     });
 
-    console.log(`Found ${quotations.length} quotations`);
+    console.log(`Found ${quotations.length} quotations total`);
 
     return NextResponse.json({
       success: true,

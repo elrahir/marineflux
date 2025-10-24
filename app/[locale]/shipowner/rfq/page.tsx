@@ -16,8 +16,10 @@ interface RFQ {
   id: string;
   title: string;
   description: string;
-  mainCategories?: string[];
-  category?: string;
+  supplierType: 'supplier' | 'service-provider';
+  mainCategory: string;
+  subcategory?: string;
+  category?: string; // Backward compatibility
   status: 'open' | 'closed' | 'awarded';
   quotationCount: number;
   deadline: string;
@@ -117,8 +119,8 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
         bValue = new Date(b.deadline).getTime();
         break;
       case 'category':
-        const aCat = a.mainCategories?.[0] || a.category || '';
-        const bCat = b.mainCategories?.[0] || b.category || '';
+        const aCat = a.mainCategory || a.category || '';
+        const bCat = b.mainCategory || b.category || '';
         aValue = getCategoryDisplayName(aCat);
         bValue = getCategoryDisplayName(bCat);
         break;
@@ -348,7 +350,7 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
                       </tr>
                     ) : (
                       filteredRfqs.map((rfq) => {
-                        const mainCategoryId = rfq.mainCategories?.[0] || rfq.category || '';
+                        const mainCategoryId = rfq.mainCategory || rfq.category || '';
                         return (
                           <tr 
                             key={rfq.id} 

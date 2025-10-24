@@ -23,12 +23,16 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { getCategoryLabel as getCategoryName } from '@/types/categories';
 
 interface RFQ {
   id: string;
   title: string;
   description: string;
-  category: string;
+  supplierType: 'supplier' | 'service-provider';
+  mainCategory: string;
+  subcategory?: string;
+  category?: string; // Backward compatibility
   vessel?: {
     name: string;
     type: string;
@@ -108,22 +112,6 @@ export default function RFQDetailPage({ params }: { params: Promise<{ locale: st
     }
   };
 
-  const getCategoryLabel = (category: string) => {
-    const categories: { [key: string]: { tr: string; en: string } } = {
-      'spare-parts': { tr: 'Yedek Parça', en: 'Spare Parts' },
-      'provisions': { tr: 'İaşe', en: 'Provisions' },
-      'deck-equipment': { tr: 'Güverte Ekipmanı', en: 'Deck Equipment' },
-      'engine-parts': { tr: 'Makine Parçaları', en: 'Engine Parts' },
-      'safety-equipment': { tr: 'Güvenlik Ekipmanı', en: 'Safety Equipment' },
-      'chemicals': { tr: 'Kimyasallar', en: 'Chemicals' },
-      'navigation': { tr: 'Navigasyon', en: 'Navigation' },
-      'electrical': { tr: 'Elektrik', en: 'Electrical' },
-      'services': { tr: 'Hizmetler', en: 'Services' },
-      'other': { tr: 'Diğer', en: 'Other' },
-    };
-    
-    return categories[category]?.[locale as 'tr' | 'en'] || category;
-  };
 
   const isDeadlinePassed = (deadline: string) => {
     return new Date(deadline) < new Date();
@@ -250,7 +238,14 @@ export default function RFQDetailPage({ params }: { params: Promise<{ locale: st
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-medium">{getCategoryLabel(rfq.category)}</div>
+                <div className="text-lg font-medium">
+                  {getCategoryName(rfq.mainCategory || rfq.category || '', locale === 'tr' ? 'tr' : 'en')}
+                  {rfq.subcategory && (
+                    <span className="text-sm text-gray-500 block mt-1">
+                      {getCategoryName(rfq.subcategory, locale === 'tr' ? 'tr' : 'en')}
+                    </span>
+                  )}
+                </div>
               </CardContent>
             </Card>
 

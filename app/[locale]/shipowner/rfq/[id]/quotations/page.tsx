@@ -64,8 +64,12 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
 
   const fetchQuotations = async () => {
     try {
+      console.log('Fetching quotations for RFQ:', id);
       const response = await fetch(`/api/quotation/list?rfqId=${id}`);
       const data = await response.json();
+      
+      console.log('Quotations response:', data);
+      console.log('Number of quotations received:', data.quotations?.length || 0);
       
       if (data.success) {
         setQuotations(data.quotations);
@@ -280,158 +284,205 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
             </Card>
           </div>
 
-          {/* Quotations List */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
+          {/* Quotations Comparison Grid */}
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 {locale === 'tr' ? 'Teklif Karşılaştırması' : 'Quotation Comparison'}
-              </CardTitle>
-              <CardDescription>
+              </h2>
+              <p className="text-gray-600">
                 {locale === 'tr' 
-                  ? 'Gelen teklifleri karşılaştırın ve en uygununu seçin'
-                  : 'Compare quotations and select the best one'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {quotations.length === 0 ? (
-                <div className="text-center py-12">
+                  ? 'Gelen teklifleri yan yana karşılaştırın ve en uygununu seçin'
+                  : 'Compare quotations side-by-side and select the best one'}
+              </p>
+            </div>
+
+            {quotations.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-12">
                   <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500">
                     {locale === 'tr' ? 'Henüz teklif alınmadı' : 'No quotations received yet'}
                   </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {sortedQuotations.map((quotation) => (
-                    <div 
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {sortedQuotations.map((quotation, index) => (
+                    <Card 
                       key={quotation.id} 
-                      className={`border rounded-lg p-6 ${
+                      className={`relative overflow-hidden transition-all hover:shadow-lg ${
                         quotation.price === lowestPrice 
-                          ? 'ring-2 ring-green-500 bg-green-50/30' 
+                          ? 'ring-2 ring-green-500 shadow-green-100' 
                           : ''
                       }`}
                     >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <Building2 className="h-5 w-5 text-gray-600" />
-                            <h3 className="text-lg font-semibold">{quotation.supplierCompany}</h3>
-                            {getStatusBadge(quotation.status)}
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleContactSupplier(quotation.supplierUid, quotation.supplierCompany)}
-                            >
-                              <MessageCircle className="mr-1 h-4 w-4" />
-                              {locale === 'tr' ? 'Mesaj' : 'Message'}
-                            </Button>
-                            {quotation.price === lowestPrice && (
-                              <Badge className="bg-green-100 text-green-800">
-                                {locale === 'tr' ? '💰 En Uygun Fiyat' : '💰 Best Price'}
-                              </Badge>
-                            )}
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div>
-                              <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-                                <DollarSign className="h-4 w-4" />
-                                {locale === 'tr' ? 'Fiyat' : 'Price'}
-                              </div>
-                              <div className="text-xl font-bold text-primary">
-                                {quotation.price.toLocaleString()} {quotation.currency}
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-                                <Clock className="h-4 w-4" />
-                                {locale === 'tr' ? 'Teslimat Süresi' : 'Delivery Time'}
-                              </div>
-                              <div className="font-medium">{quotation.deliveryTime}</div>
-                            </div>
-                            
-                            {quotation.deliveryLocation && (
-                              <div>
-                                <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-                                  <MapPin className="h-4 w-4" />
-                                  {locale === 'tr' ? 'Teslimat Yeri' : 'Delivery Location'}
-                                </div>
-                                <div className="font-medium">{quotation.deliveryLocation}</div>
-                              </div>
-                            )}
-                          </div>
-
-                          {quotation.specifications && (
-                            <div className="mb-3">
-                              <p className="text-sm font-medium text-gray-700 mb-1">
-                                {locale === 'tr' ? 'Teknik Özellikler:' : 'Technical Specifications:'}
-                              </p>
-                              <p className="text-sm text-gray-600">{quotation.specifications}</p>
-                            </div>
-                          )}
-
-                          {quotation.notes && (
-                            <div className="mb-3">
-                              <p className="text-sm font-medium text-gray-700 mb-1">
-                                {locale === 'tr' ? 'Notlar ve Şartlar:' : 'Notes and Terms:'}
-                              </p>
-                              <p className="text-sm text-gray-600">{quotation.notes}</p>
-                            </div>
-                          )}
-
-                          <div className="text-xs text-gray-500">
-                            {locale === 'tr' ? 'Gönderilme:' : 'Submitted:'} {new Date(quotation.createdAt).toLocaleString(locale)}
-                          </div>
+                      {/* Best Offer Badge */}
+                      {quotation.price === lowestPrice && (
+                        <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
+                          {locale === 'tr' ? '🏆 EN İYİ TEKLİF' : '🏆 BEST OFFER'}
                         </div>
+                      )}
+
+                      {/* Rank Badge */}
+                      <div className="absolute top-4 left-4 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center font-bold text-gray-600">
+                        #{index + 1}
                       </div>
-                      
-                      {quotation.status === 'pending' && (
-                        <div className="flex gap-2">
-                          <Button 
-                            className="flex-1 bg-green-600 hover:bg-green-700"
-                            onClick={() => handleAcceptQuotation(quotation.id)}
-                            disabled={processing === quotation.id}
-                          >
-                            {processing === quotation.id ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <CheckCircle className="mr-2 h-4 w-4" />
+
+                      <CardHeader className="pt-16 pb-4">
+                        {/* Company Name */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <Building2 className="h-5 w-5 text-maritime-600" />
+                          <h3 className="text-xl font-bold text-gray-900">{quotation.supplierCompany}</h3>
+                        </div>
+                        {getStatusBadge(quotation.status)}
+                      </CardHeader>
+
+                      <CardContent className="space-y-6">
+                        {/* Price - Most Important */}
+                        <div className={`rounded-lg p-4 text-center ${
+                          quotation.price === lowestPrice 
+                            ? 'bg-green-50 border-2 border-green-500' 
+                            : 'bg-maritime-50 border-2 border-maritime-200'
+                        }`}>
+                          <div className="text-sm text-gray-600 mb-1">
+                            {locale === 'tr' ? 'Toplam Fiyat' : 'Total Price'}
+                          </div>
+                          <div className={`text-3xl font-bold ${
+                            quotation.price === lowestPrice ? 'text-green-600' : 'text-maritime-700'
+                          }`}>
+                            {quotation.price.toLocaleString()}
+                            <span className="text-lg ml-1">{quotation.currency}</span>
+                          </div>
+                          {/* Price Difference from Lowest */}
+                          {quotation.price !== lowestPrice && (
+                            <div className="text-xs text-red-600 mt-1">
+                              +{((quotation.price - lowestPrice) / lowestPrice * 100).toFixed(1)}% 
+                              <span className="ml-1">
+                                ({(quotation.price - lowestPrice).toLocaleString()} {quotation.currency} {locale === 'tr' ? 'fazla' : 'more'})
+                              </span>
+                            </div>
+                          )}
+                          {quotation.price === lowestPrice && (
+                            <div className="text-xs text-green-600 font-semibold mt-1">
+                              {locale === 'tr' ? '✓ En düşük fiyat' : '✓ Lowest price'}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Key Metrics */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <Clock className="h-4 w-4" />
+                              {locale === 'tr' ? 'Teslimat Süresi' : 'Delivery Time'}
+                            </div>
+                            <div className="font-semibold text-gray-900">
+                              {quotation.deliveryTime} {locale === 'tr' ? 'gün' : 'days'}
+                            </div>
+                          </div>
+
+                          {quotation.deliveryLocation && (
+                            <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <MapPin className="h-4 w-4" />
+                                {locale === 'tr' ? 'Teslimat Yeri' : 'Delivery Location'}
+                              </div>
+                              <div className="font-semibold text-gray-900 text-right text-sm">
+                                {quotation.deliveryLocation}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Specifications & Notes */}
+                        {(quotation.specifications || quotation.notes) && (
+                          <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                            {quotation.specifications && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-700 mb-1">
+                                  {locale === 'tr' ? 'Teknik Özellikler' : 'Specifications'}
+                                </p>
+                                <p className="text-xs text-gray-600 line-clamp-2">{quotation.specifications}</p>
+                              </div>
                             )}
-                            {locale === 'tr' ? 'Teklifi Kabul Et' : 'Accept Quote'}
-                          </Button>
-                          <Button 
-                            variant="destructive"
-                            onClick={() => handleRejectQuotation(quotation.id)}
-                            disabled={processing === quotation.id}
-                          >
-                            {locale === 'tr' ? 'Reddet' : 'Reject'}
-                          </Button>
+
+                            {quotation.notes && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-700 mb-1">
+                                  {locale === 'tr' ? 'Notlar' : 'Notes'}
+                                </p>
+                                <p className="text-xs text-gray-600 line-clamp-2">{quotation.notes}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Submission Date */}
+                        <div className="text-xs text-gray-500 text-center pt-2 border-t">
+                          {locale === 'tr' ? 'Gönderilme:' : 'Submitted:'} {new Date(quotation.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </div>
-                      )}
-                      
-                      {quotation.status === 'accepted' && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                          <span className="text-sm text-green-800 font-medium">
-                            {locale === 'tr' ? 'Bu teklif kabul edildi ve sipariş oluşturuldu' : 'This quote was accepted and order created'}
-                          </span>
+
+                        {/* Action Buttons */}
+                        <div className="space-y-2 pt-4">
+                          {quotation.status === 'pending' && (
+                            <>
+                              <Button 
+                                className="w-full bg-green-600 hover:bg-green-700"
+                                onClick={() => handleAcceptQuotation(quotation.id)}
+                                disabled={processing === quotation.id}
+                              >
+                                {processing === quotation.id ? (
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                )}
+                                {locale === 'tr' ? 'Kabul Et' : 'Accept'}
+                              </Button>
+                              <div className="grid grid-cols-2 gap-2">
+                                <Button 
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleContactSupplier(quotation.supplierUid, quotation.supplierCompany)}
+                                >
+                                  <MessageCircle className="mr-1 h-4 w-4" />
+                                  {locale === 'tr' ? 'Mesaj' : 'Message'}
+                                </Button>
+                                <Button 
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleRejectQuotation(quotation.id)}
+                                  disabled={processing === quotation.id}
+                                >
+                                  {locale === 'tr' ? 'Reddet' : 'Reject'}
+                                </Button>
+                              </div>
+                            </>
+                          )}
+                          
+                          {quotation.status === 'accepted' && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                              <span className="text-xs text-green-800 font-medium">
+                                {locale === 'tr' ? 'Kabul edildi' : 'Accepted'}
+                              </span>
+                            </div>
+                          )}
+                          
+                          {quotation.status === 'rejected' && (
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+                              <span className="text-xs text-gray-600">
+                                {locale === 'tr' ? 'Reddedildi' : 'Rejected'}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                      
-                      {quotation.status === 'rejected' && (
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                          <span className="text-sm text-gray-600">
-                            {locale === 'tr' ? 'Bu teklif reddedildi' : 'This quote was rejected'}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
         </div>
       </DashboardLayout>
     </ProtectedRoute>

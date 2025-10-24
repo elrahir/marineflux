@@ -8,16 +8,27 @@ export async function POST(request: NextRequest) {
       shipownerUid, 
       title, 
       description, 
-      category, 
+      supplierType,
+      mainCategory,
+      subcategory,
+      category, // Backward compatibility
       vessel,
       deadline,
       attachments = []
     } = await request.json();
 
-    // Validate input
-    if (!shipownerUid || !title || !description || !category || !deadline) {
+    // Validate input (support both old and new format)
+    if (!shipownerUid || !title || !description || !deadline) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Validate new category system
+    if (!category && !mainCategory) {
+      return NextResponse.json(
+        { error: 'Main category is required' },
         { status: 400 }
       );
     }
@@ -43,13 +54,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create RFQ
+    // Create RFQ with new category system
     const rfqData = {
       shipownerUid,
       shipownerCompany: userDoc.data().companyName,
       title,
       description,
-      category,
+      // New category system
+      supplierType: supplierType || 'supplier',
+      mainCategory: mainCategory || category, // Fallback to old category if new system not used
+      subcategory: subcategory || null,
+      // Old category field for backward compatibility
+      category: category || mainCategory,
       vessel: vessel || null,
       deadline: deadlineTimestamp,
       status: 'open',

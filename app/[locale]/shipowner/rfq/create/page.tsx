@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
@@ -11,6 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FileText, Loader2, Ship } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { 
+  SUPPLIER_MAIN_CATEGORIES, 
+  SERVICE_PROVIDER_MAIN_CATEGORIES,
+  getSubcategories,
+  hasSubcategories,
+  type SupplierType
+} from '@/types/categories';
 
 export default function CreateRFQPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
@@ -25,25 +32,32 @@ export default function CreateRFQPage({ params }: { params: Promise<{ locale: st
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'spare-parts',
+    supplierType: 'supplier' as SupplierType,
+    mainCategory: '',
+    subcategory: '',
     vesselName: '',
     vesselType: '',
     vesselIMO: '',
     deadline: '',
   });
 
-  const categories = [
-    { value: 'spare-parts', label: locale === 'tr' ? 'Yedek Parça' : 'Spare Parts' },
-    { value: 'provisions', label: locale === 'tr' ? 'İaşe' : 'Provisions' },
-    { value: 'deck-equipment', label: locale === 'tr' ? 'Güverte Ekipmanı' : 'Deck Equipment' },
-    { value: 'engine-parts', label: locale === 'tr' ? 'Makine Parçaları' : 'Engine Parts' },
-    { value: 'safety-equipment', label: locale === 'tr' ? 'Güvenlik Ekipmanı' : 'Safety Equipment' },
-    { value: 'chemicals', label: locale === 'tr' ? 'Kimyasallar' : 'Chemicals' },
-    { value: 'navigation', label: locale === 'tr' ? 'Navigasyon' : 'Navigation' },
-    { value: 'electrical', label: locale === 'tr' ? 'Elektrik' : 'Electrical' },
-    { value: 'services', label: locale === 'tr' ? 'Hizmetler' : 'Services' },
-    { value: 'other', label: locale === 'tr' ? 'Diğer' : 'Other' },
-  ];
+  // Get main categories based on supplier type
+  const mainCategories = useMemo(() => {
+    return formData.supplierType === 'supplier' 
+      ? SUPPLIER_MAIN_CATEGORIES 
+      : SERVICE_PROVIDER_MAIN_CATEGORIES;
+  }, [formData.supplierType]);
+
+  // Get subcategories if the selected main category has them
+  const subcategories = useMemo(() => {
+    if (!formData.mainCategory) return [];
+    return getSubcategories(formData.mainCategory);
+  }, [formData.mainCategory]);
+
+  // Show subcategory selector if available
+  const showSubcategories = useMemo(() => {
+    return formData.mainCategory && hasSubcategories(formData.mainCategory);
+  }, [formData.mainCategory]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +85,9 @@ export default function CreateRFQPage({ params }: { params: Promise<{ locale: st
           shipownerUid: user.uid,
           title: formData.title,
           description: formData.description,
-          category: formData.category,
+          supplierType: formData.supplierType,
+          mainCategory: formData.mainCategory,
+          subcategory: formData.subcategory || null,
           vessel,
           deadline: formData.deadline,
         }),
@@ -142,25 +158,95 @@ export default function CreateRFQPage({ params }: { params: Promise<{ locale: st
                   />
                 </div>
 
-                {/* Category */}
+                {/* Supplier Type Selection */}
                 <div className="space-y-2">
-                  <Label htmlFor="category">
-                    {locale === 'tr' ? 'Kategori' : 'Category'} *
+                  <Label htmlFor="supplierType">
+                    {locale === 'tr' ? 'Tedarikçi Tipi' : 'Supplier Type'} *
                   </Label>
                   <select
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    id="supplierType"
+                    value={formData.supplierType}
+                    onChange={(e) => {
+                      const newSupplierType = e.target.value as SupplierType;
+                      setFormData({ 
+                        ...formData, 
+                        supplierType: newSupplierType,
+                        mainCategory: '', // Reset category when type changes
+                        subcategory: ''
+                      });
+                    }}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     disabled={loading}
                   >
-                    {categories.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.label}
+                    <option value="supplier">
+                      {locale === 'tr' ? 'Tedarikçi (Ürün)' : 'Supplier (Products)'}
+                    </option>
+                    <option value="service-provider">
+                      {locale === 'tr' ? 'Servis Sağlayıcı (Hizmet)' : 'Service Provider (Services)'}
+                    </option>
+                  </select>
+                  <p className="text-sm text-gray-500">
+                    {locale === 'tr' 
+                      ? 'Ürün mü yoksa hizmet mi arıyorsunuz?'
+                      : 'Are you looking for products or services?'}
+                  </p>
+                </div>
+
+                {/* Main Category Selection */}
+                <div className="space-y-2">
+                  <Label htmlFor="mainCategory">
+                    {locale === 'tr' ? 'Ana Kategori' : 'Main Category'} *
+                  </Label>
+                  <select
+                    id="mainCategory"
+                    value={formData.mainCategory}
+                    onChange={(e) => {
+                      setFormData({ 
+                        ...formData, 
+                        mainCategory: e.target.value,
+                        subcategory: '' // Reset subcategory when main category changes
+                      });
+                    }}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    disabled={loading}
+                    required
+                  >
+                    <option value="">
+                      {locale === 'tr' ? '-- Kategori Seçin --' : '-- Select Category --'}
+                    </option>
+                    {mainCategories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {locale === 'tr' ? cat.labelTr : cat.labelEn}
                       </option>
                     ))}
                   </select>
                 </div>
+
+                {/* Subcategory Selection (if available) */}
+                {showSubcategories && (
+                  <div className="space-y-2">
+                    <Label htmlFor="subcategory">
+                      {locale === 'tr' ? 'Alt Kategori' : 'Subcategory'} *
+                    </Label>
+                    <select
+                      id="subcategory"
+                      value={formData.subcategory}
+                      onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      disabled={loading}
+                      required
+                    >
+                      <option value="">
+                        {locale === 'tr' ? '-- Alt Kategori Seçin --' : '-- Select Subcategory --'}
+                      </option>
+                      {subcategories.map((subcat) => (
+                        <option key={subcat.id} value={subcat.id}>
+                          {locale === 'tr' ? subcat.labelTr : subcat.labelEn}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Description */}
                 <div className="space-y-2">

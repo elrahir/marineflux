@@ -14,7 +14,9 @@ export interface RFQ {
   shipownerUid: string;
   title: string;
   description: string;
-  category: string;
+  supplierType: 'supplier' | 'service-provider'; // Tedarikçi mi / Servis Sağlayıcı mı
+  mainCategory: string; // Ana kategori ID
+  subcategory?: string; // Alt kategori ID (opsiyonel, sadece LSA, Maintenance, Surveys için)
   vessel: VesselInfo;
   deadline: Timestamp;
   status: RFQStatus;
@@ -25,6 +27,9 @@ export interface RFQ {
   shipownerCompany?: string;
   attachments?: string[];
   quotationCount?: number;
+  
+  // Backward compatibility (deprecated)
+  category?: string;
 }
 
 export interface Quotation {
