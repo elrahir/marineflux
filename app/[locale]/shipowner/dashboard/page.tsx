@@ -123,7 +123,7 @@ export default function ShipownerDashboard({ params }: { params: Promise<{ local
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{loading ? '...' : stats.awardedRfqs}</div>
-                <p className="text-xs text-green-600 mt-1">
+                <p className="text-xs text-teal-600 mt-1">
                   {locale === 'tr' ? 'Sipariş verildi' : 'Orders placed'}
                 </p>
               </CardContent>
@@ -217,7 +217,7 @@ export default function ShipownerDashboard({ params }: { params: Promise<{ local
                         </p>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           rfq.status === 'open' 
-                            ? 'bg-green-100 text-green-800' 
+                            ? 'bg-teal-100 text-teal-800' 
                             : rfq.status === 'closed'
                             ? 'bg-gray-100 text-gray-800'
                             : 'bg-blue-100 text-blue-800'

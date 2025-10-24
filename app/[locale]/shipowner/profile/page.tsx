@@ -190,7 +190,7 @@ export default function ShipownerProfilePage({ params }: { params: Promise<{ loc
                 }
               }}
               variant={isEditing ? 'outline' : 'default'}
-              className={isEditing ? 'text-red-600 border-red-300' : ''}
+              className={isEditing ? 'text-amber-600 border-amber-300' : ''}
             >
               {isEditing ? (
                 <>
@@ -208,7 +208,7 @@ export default function ShipownerProfilePage({ params }: { params: Promise<{ loc
 
           {/* Success Message */}
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+            <div className="bg-teal-50 border border-teal-200 text-teal-700 px-4 py-3 rounded-lg flex items-center">
               <Check className="h-5 w-5 mr-2" />
               {locale === 'tr' ? 'Profil başarıyla güncellendi' : 'Profile updated successfully'}
             </div>
@@ -216,7 +216,7 @@ export default function ShipownerProfilePage({ params }: { params: Promise<{ loc
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}

@@ -32,8 +32,8 @@
     --accent: 210 68% 93%;
     --accent-foreground: 210 68% 28%;
     
-    /* Destructive - Red for errors */
-    --destructive: 0 84.2% 60.2%;
+    /* Destructive - Black for reject/cancel */
+    --destructive: 0 0% 0%;
     --destructive-foreground: 0 0% 100%;
     
     /* Borders - Subtle */
@@ -61,7 +61,7 @@
     --muted-foreground: 215 20.2% 65.1%;
     --accent: 210 68% 20%;
     --accent-foreground: 210 68% 85%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 0% 15%;
     --destructive-foreground: 210 40% 98%;
     --border: 210 50% 18%;
     --input: 210 50% 18%;
@@ -109,7 +109,7 @@
   
   /* Status Badges */
   .badge-success {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-800;
   }
   
   .badge-warning {

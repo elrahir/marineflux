@@ -55,6 +55,11 @@ interface Order {
     type: string;
     imo?: string;
   };
+  timeline?: {
+    status: string;
+    description?: string;
+    timestamp: string;
+  }[];
 }
 
 export default function SupplierOrderDetailPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
@@ -115,6 +120,7 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
         body: JSON.stringify({
           orderId: order.id,
           status: newStatus,
+          userUid: user?.uid,
         }),
       });
 
@@ -133,6 +139,62 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
     }
   };
 
+  const handleConfirmPayment = async () => {
+    if (!order) return;
+
+    const confirmed = confirm(
+      locale === 'tr'
+        ? 'Ödemeyi onaylamak istediğinize emin misiniz?'
+        : 'Are you sure you want to confirm the payment?'
+    );
+
+    if (!confirmed) return;
+
+    setUpdating(true);
+    try {
+      // Update payment status to paid and order status to in_progress
+      const response = await fetch('/api/order/update-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          paymentStatus: 'paid',
+          supplierUid: user?.uid,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to confirm payment');
+      }
+
+      // Update order status to in_progress
+      const statusResponse = await fetch('/api/order/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          status: 'in_progress',
+          userUid: user?.uid,
+        }),
+      });
+
+      const statusData = await statusResponse.json();
+      if (!statusResponse.ok) {
+        throw new Error(statusData.error || 'Failed to update status');
+      }
+
+      // Refresh order data
+      await fetchOrderDetails();
+      alert(locale === 'tr' ? '✓ Ödeme onaylandı! Siparişi hazırlamaya başlayabilirsiniz.' : '✓ Payment confirmed! You can start preparing the order.');
+    } catch (err: any) {
+      console.error('Error confirming payment:', err);
+      alert(err.message || (locale === 'tr' ? 'Ödeme onaylanırken hata oluştu' : 'Error confirming payment'));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig: {[key: string]: { color: string; icon: any; label: { tr: string; en: string } }} = {
       'pending': { color: 'bg-yellow-100 text-yellow-800', icon: Clock, label: { tr: 'Beklemede', en: 'Pending' } },
@@ -140,8 +202,8 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
       'in_progress': { color: 'bg-purple-100 text-purple-800', icon: Package, label: { tr: 'Hazırlanıyor', en: 'In Progress' } },
       'shipped': { color: 'bg-indigo-100 text-indigo-800', icon: Truck, label: { tr: 'Kargoda', en: 'Shipped' } },
       'delivered': { color: 'bg-teal-100 text-teal-800', icon: CheckCircle, label: { tr: 'Teslim Edildi', en: 'Delivered' } },
-      'completed': { color: 'bg-green-100 text-green-800', icon: CheckCircle, label: { tr: 'Tamamlandı', en: 'Completed' } },
-      'cancelled': { color: 'bg-red-100 text-red-800', icon: XCircle, label: { tr: 'İptal Edildi', en: 'Cancelled' } },
+      'completed': { color: 'bg-teal-100 text-teal-800', icon: CheckCircle, label: { tr: 'Tamamlandı', en: 'Completed' } },
+      'cancelled': { color: 'bg-amber-100 text-amber-800', icon: XCircle, label: { tr: 'İptal Edildi', en: 'Cancelled' } },
     };
 
     const config = statusConfig[status] || statusConfig['pending'];
@@ -164,10 +226,16 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
             {locale === 'tr' ? 'Ödeme Bekliyor' : 'Payment Pending'}
           </Badge>
         );
+      case 'payment_awaiting_confirmation':
+        return (
+          <Badge className="bg-blue-100 text-blue-800">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            {locale === 'tr' ? 'Ödeme Onayı Bekleniyor' : 'Awaiting Confirmation'}
+          </Badge>
+        );
       case 'paid':
         return (
-          <Badge className="bg-green-100 text-green-800">
-            <CheckCircle className="h-3 w-3 mr-1" />
+          <Badge className="bg-teal-100 text-teal-800">
             {locale === 'tr' ? 'Ödendi' : 'Paid'}
           </Badge>
         );
@@ -200,10 +268,10 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
 
   const getNextStatus = (currentStatus: string): { status: string; label: { tr: string; en: string } } | null => {
     const statusFlow: {[key: string]: { status: string; label: { tr: string; en: string } }} = {
-      'pending': { status: 'confirmed', label: { tr: 'Onayla', en: 'Confirm' } },
-      'confirmed': { status: 'in_progress', label: { tr: 'Hazırlığa Başla', en: 'Start Preparation' } },
+      'pending_supplier_approval': { status: 'pending_payment', label: { tr: 'Onayla', en: 'Approve Order' } },
+      'pending_payment': { status: 'pending_payment', label: { tr: 'Ödeme Bekleniyor', en: 'Awaiting Payment' } },
       'in_progress': { status: 'shipped', label: { tr: 'Kargoya Ver', en: 'Mark as Shipped' } },
-      'shipped': { status: 'delivered', label: { tr: 'Teslim Edildi', en: 'Mark as Delivered' } },
+      'shipped': { status: 'shipped', label: { tr: 'Teslim Edildi', en: 'Delivered' } },
     };
     return statusFlow[currentStatus] || null;
   };
@@ -225,8 +293,8 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
       <ProtectedRoute allowedRoles={['supplier']} locale={locale}>
         <DashboardLayout locale={locale} userType="supplier">
           <div className="text-center py-12">
-            <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <p className="text-lg text-red-600 mb-4">{error}</p>
+            <XCircle className="h-12 w-12 text-amber-500 mx-auto mb-4" />
+            <p className="text-lg text-amber-600 mb-4">{error}</p>
             <Link href={`/${locale}/supplier/orders`}>
               <Button>{locale === 'tr' ? 'Siparişlere Dön' : 'Back to Orders'}</Button>
             </Link>
@@ -277,7 +345,32 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
                 {getPaymentStatusBadge(order.paymentStatus)}
               </div>
               <div className="flex gap-2">
-                {nextStatus && order.status !== 'delivered' && order.status !== 'completed' && order.status !== 'cancelled' && (
+                {order.status === 'pending_payment' && (
+                  <div className="text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded">
+                    {locale === 'tr' ? '⏳ Müşteri ödeme bekleniyor' : '⏳ Awaiting customer payment'}
+                  </div>
+                )}
+                {order.paymentStatus === 'payment_awaiting_confirmation' && (
+                  <Button 
+                    size="sm" 
+                    onClick={handleConfirmPayment}
+                    disabled={updating}
+                    className="bg-teal-600 hover:bg-teal-700"
+                  >
+                    {updating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {locale === 'tr' ? 'Onaylanıyor...' : 'Confirming...'}
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        {locale === 'tr' ? 'Ödemeyi Onayla' : 'Confirm Payment'}
+                      </>
+                    )}
+                  </Button>
+                )}
+                {nextStatus && order.status !== 'delivered' && order.status !== 'completed' && order.status !== 'cancelled' && order.status !== 'pending_payment' && (
                   <Button 
                     size="sm" 
                     onClick={() => updateOrderStatus(nextStatus.status)}
@@ -442,29 +535,58 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold">{locale === 'tr' ? 'Sipariş Alındı' : 'Order Received'}</p>
-                    <p className="text-sm text-gray-600">
-                      {new Date(order.createdAt).toLocaleString(locale)}
-                    </p>
-                  </div>
-                </div>
+                {order.timeline && order.timeline.length > 0 ? (
+                  order.timeline.map((event: any, index: number) => {
+                    const getStatusColor = (status: string) => {
+                      const colors: {[key: string]: string} = {
+                        'pending_supplier_approval': 'bg-yellow-100 text-yellow-600',
+                        'pending_payment': 'bg-orange-100 text-orange-600',
+                        'payment_awaiting_confirmation': 'bg-blue-100 text-blue-600',
+                        'paid': 'bg-teal-100 text-teal-600',
+                        'in_progress': 'bg-purple-100 text-purple-600',
+                        'shipped': 'bg-indigo-100 text-indigo-600',
+                        'delivered': 'bg-green-100 text-green-600',
+                      };
+                      return colors[status] || 'bg-gray-100 text-gray-600';
+                    };
 
-                {order.updatedAt && (
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Clock className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold">{locale === 'tr' ? 'Son Güncelleme' : 'Last Updated'}</p>
-                      <p className="text-sm text-gray-600">
-                        {new Date(order.updatedAt).toLocaleString(locale)}
-                      </p>
-                    </div>
+                    const getStatusLabel = (status: string) => {
+                      const labels: {[key: string]: {tr: string; en: string}} = {
+                        // New system statuses
+                        'pending_supplier_approval': { tr: 'Sipariş oluşturuldu', en: 'Order created' },
+                        'pending_payment': { tr: 'Satıcı tarafından onaylandı', en: 'Supplier approved' },
+                        'payment_awaiting_confirmation': { tr: 'Ödeme yapıldı', en: 'Payment made' },
+                        'paid': { tr: 'Ödeme onaylandı', en: 'Payment confirmed' },
+                        // Old system statuses (backward compatibility)
+                        'pending': { tr: 'Sipariş oluşturuldu', en: 'Order created' },
+                        'confirmed': { tr: 'Satıcı tarafından onaylandı', en: 'Supplier approved' },
+                        'paid_pending_confirmation': { tr: 'Ödeme yapıldı', en: 'Payment made' }, // Old name for compatibility
+                        'in_progress': { tr: 'Hazırlığa başlandı', en: 'Preparation started' },
+                        'shipped': { tr: 'Kargolandı', en: 'Shipped' },
+                        'delivered': { tr: 'Teslim alındı', en: 'Delivered' },
+                      };
+                      return labels[status]?.[locale as 'tr' | 'en'] || status;
+                    };
+
+                    const colorClass = getStatusColor(event.status);
+
+                    return (
+                      <div key={index} className="flex items-start gap-4">
+                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${colorClass}`}>
+                          <CheckCircle className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold">{getStatusLabel(event.status)}</p>
+                          <p className="text-sm text-gray-600">
+                            {new Date(event.timestamp?.toDate?.() || event.timestamp).toLocaleString(locale)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    {locale === 'tr' ? 'Geçmiş bulunamadı' : 'No timeline events'}
                   </div>
                 )}
               </div>

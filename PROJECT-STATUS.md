@@ -307,5 +307,35 @@ Status: Phase 2 Complete - Category system, Admin features, Profile management, 
 - ✅ Registration form with supplier type and category selection
 - ✅ Database schema updated with supplier type and category fields
 
+### Recent Updates (v0.7.0)
+- ✅ Quotation list API extended with supplier ratings and review counts
+- ✅ Supplier ratings displayed on quotation cards
+- ✅ Compact quotation card design (responsive grid: 2-5 columns)
+- ✅ Info icon with tooltip for specs/notes on quotation cards
+- ✅ Color palette update: Green → Teal (professional), Red → Black (reject action)
+- ✅ CSS destructive variable updated to black
+- ✅ All UI components updated with new color scheme
+- ✅ Responsive design optimized for compact card layout
+
+## 🚧 Recently Completed Tasks
+
+1. **Quotation Card Enhancements**
+   - ✅ Supplier rating display (stars + score + review count)
+   - ✅ Compact layout with 4-5 column grid on large screens
+   - ✅ Info icon tooltip for specifications and notes
+   - ✅ Optimized spacing and font sizes
+
+2. **Professional Color Palette**
+   - ✅ Green → Teal (#0d8799) for success states
+   - ✅ Red → Black for reject/destructive actions
+   - ✅ Applied across all pages and components
+   - ✅ Both light and dark mode support
+
+---
+
+Last Updated: 2025-10-24
+Version: 0.7.0 (UI Polish - Compact quotation cards, supplier ratings, professional color palette)
+Status: Phase 2 Complete + UI Polish - Ready for Phase 3 (Advanced features)
+
 
 

@@ -221,7 +221,7 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
               </CardContent>
             </Card>
 
-            <Card className="border-l-4 border-l-green-500">
+            <Card className="border-l-4 border-l-teal-500">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -230,7 +230,7 @@ export default function SupplierRFQsPage({ params }: { params: Promise<{ locale:
                     </p>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{stats.newToday}</p>
                   </div>
-                  <div className="text-green-600 text-xs font-semibold">
+                  <div className="text-teal-600 text-xs font-semibold">
                     {locale === 'tr' ? 'Yeni' : 'New'}
                   </div>
                 </div>

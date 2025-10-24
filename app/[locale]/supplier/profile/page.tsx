@@ -45,6 +45,18 @@ interface SupplierProfile {
   updatedAt?: any;
 }
 
+interface Review {
+  id: string;
+  orderId: string;
+  shipownerUid: string;
+  supplierUid: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  shipownerCompany?: string;
+  orderTitle?: string;
+}
+
 export default function SupplierProfilePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
   const t = useTranslations();
@@ -56,6 +68,9 @@ export default function SupplierProfilePage({ params }: { params: Promise<{ loca
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   const [formData, setFormData] = useState<SupplierProfile>({
     companyName: '',
@@ -108,6 +123,37 @@ export default function SupplierProfilePage({ params }: { params: Promise<{ loca
       setLoading(false);
     }
   };
+
+  const fetchReviews = async () => {
+    if (!user?.uid) return;
+    
+    try {
+      setReviewsLoading(true);
+      console.log('Fetching reviews for supplier:', user.uid);
+      const response = await fetch(`/api/review/list?supplierUid=${user.uid}`);
+      const data = await response.json();
+
+      console.log('Reviews response:', data);
+
+      if (data.success) {
+        console.log('Reviews loaded:', data.reviews.length);
+        setReviews(data.reviews);
+      } else {
+        console.error('Failed to fetch reviews:', data.error);
+      }
+    } catch (err: any) {
+      console.error('Error fetching reviews:', err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  // Fetch profile and reviews
+  useEffect(() => {
+    if (!user?.uid) return;
+    fetchProfile();
+    fetchReviews();
+  }, [user?.uid]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -194,7 +240,7 @@ export default function SupplierProfilePage({ params }: { params: Promise<{ loca
                 }
               }}
               variant={isEditing ? 'outline' : 'default'}
-              className={isEditing ? 'text-red-600 border-red-300' : ''}
+              className={isEditing ? 'text-amber-600 border-amber-300' : ''}
             >
               {isEditing ? (
                 <>
@@ -212,7 +258,7 @@ export default function SupplierProfilePage({ params }: { params: Promise<{ loca
 
           {/* Success Message */}
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+            <div className="bg-teal-50 border border-teal-200 text-teal-700 px-4 py-3 rounded-lg flex items-center">
               <Check className="h-5 w-5 mr-2" />
               {locale === 'tr' ? 'Profil başarıyla güncellendi' : 'Profile updated successfully'}
             </div>
@@ -220,7 +266,7 @@ export default function SupplierProfilePage({ params }: { params: Promise<{ loca
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
@@ -428,6 +474,62 @@ export default function SupplierProfilePage({ params }: { params: Promise<{ loca
               </CardContent>
             </Card>
           )}
+
+          {/* Customer Reviews */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-emerald-600" />
+                {locale === 'tr' ? 'Müşteri Yorumları' : 'Customer Reviews'}
+              </CardTitle>
+              <CardDescription>
+                {locale === 'tr' 
+                  ? `${reviews.length} yorum` 
+                  : `${reviews.length} reviews`}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {reviewsLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+                </div>
+              ) : reviews.length === 0 ? (
+                <p className="text-gray-600 text-center py-8">
+                  {locale === 'tr' ? 'Henüz yorum yok' : 'No reviews yet'}
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="border-b pb-4 last:border-b-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <div className="flex gap-1 mb-1">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < review.rating
+                                    ? 'fill-yellow-400 text-yellow-400'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            {review.shipownerCompany} • {locale === 'tr' ? 'Sipariş:' : 'Order:'} {review.orderTitle}
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {new Date(review.createdAt).toLocaleDateString(locale)}
+                        </p>
+                      </div>
+                      <p className="text-gray-700">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Save Button */}
           {isEditing && (

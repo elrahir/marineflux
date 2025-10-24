@@ -74,7 +74,7 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
       case 'shipowner':
         return 'bg-blue-100 text-blue-800';
       case 'supplier':
-        return 'bg-green-100 text-green-800';
+        return 'bg-teal-100 text-teal-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -210,7 +210,7 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
             </Card>
 
             <Card 
-              className={`cursor-pointer transition-all ${filter === 'supplier' ? 'ring-2 ring-green-500' : ''}`}
+              className={`cursor-pointer transition-all ${filter === 'supplier' ? 'ring-2 ring-teal-500' : ''}`}
               onClick={() => setFilter('supplier')}
             >
               <CardHeader className="pb-2">
@@ -219,7 +219,7 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.supplier}</div>
+                <div className="text-2xl font-bold text-teal-600">{stats.supplier}</div>
               </CardContent>
             </Card>
           </div>
@@ -337,7 +337,7 @@ export default function UsersListPage({ params }: { params: Promise<{ locale: st
                                 size="sm"
                                 disabled={deleting === user.uid}
                                 onClick={() => handleDeleteUser(user.uid, user.email)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                               >
                                 {deleting === user.uid ? (
                                   <Loader2 className="h-4 w-4 animate-spin" />

@@ -173,15 +173,15 @@ export default function CreateUserPage({ params }: { params: Promise<{ locale: s
 
                 {/* Error Message */}
                 {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                    <p className="text-sm text-red-600">{error}</p>
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+                    <p className="text-sm text-amber-600">{error}</p>
                   </div>
                 )}
 
                 {/* Success Message */}
                 {success && (
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                    <p className="text-sm text-green-600">
+                  <div className="p-3 bg-teal-50 border border-teal-200 rounded-md">
+                    <p className="text-sm text-teal-600">
                       {locale === 'tr' 
                         ? '✓ Kullanıcı başarıyla oluşturuldu! Yönlendiriliyorsunuz...'
                         : '✓ User created successfully! Redirecting...'}

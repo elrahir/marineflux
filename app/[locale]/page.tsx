@@ -377,8 +377,8 @@ function WhyMarineFluxSection({ locale }: { locale: string }) {
       description: locale === 'tr'
         ? 'Verileriniz ve işlemleriniz en üst düzey güvenlik standartlarıyla korunur.'
         : 'Your data and transactions are protected with the highest security standards.',
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
+      color: 'text-teal-600',
+      bgColor: 'bg-teal-50',
     },
     {
       icon: TrendingUp,
@@ -386,8 +386,8 @@ function WhyMarineFluxSection({ locale }: { locale: string }) {
       description: locale === 'tr'
         ? 'Tedarikçiler için yeni müşteriler, alıcılar için rekabetçi fiyatlar ve geniş ürün yelpazesi.'
         : 'New customers for suppliers, competitive prices and wide product range for buyers.',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
+      color: 'text-teal-600',
+      bgColor: 'bg-teal-50',
     },
     {
       icon: Users,

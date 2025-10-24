@@ -349,14 +349,14 @@ export default function SubmitQuotePage({ params }: { params: Promise<{ locale: 
 
                 {/* Error Message */}
                 {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
+                  <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-4">
                     <p className="text-sm font-medium">{error}</p>
                   </div>
                 )}
 
                 {/* Success Message */}
                 {success && (
-                  <div className="bg-green-50 border border-green-200 text-green-800 rounded-lg p-4">
+                  <div className="bg-teal-50 border border-teal-200 text-teal-800 rounded-lg p-4">
                     <p className="text-sm font-medium">
                       {locale === 'tr' 
                         ? '✓ Teklifiniz başarıyla gönderildi! Yönlendiriliyorsunuz...'

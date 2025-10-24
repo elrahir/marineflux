@@ -169,7 +169,7 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
 
           {/* Stats Row - Compact */}
           <div className="grid grid-cols-3 gap-4">
-            <Card className="border-l-4 border-l-green-500">
+            <Card className="border-l-4 border-l-teal-500">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -178,7 +178,7 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
                     </p>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{stats.open}</p>
                   </div>
-                  <div className="text-green-600 text-xs font-semibold">
+                  <div className="text-teal-600 text-xs font-semibold">
                     {locale === 'tr' ? 'Aktif' : 'Active'}
                   </div>
                 </div>
@@ -396,7 +396,7 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
                             </td>
                             <td className="py-3 px-4 text-center">
                               {rfq.status === 'open' && (
-                                <Badge className="bg-green-50 text-green-700 border border-green-200">
+                                <Badge className="bg-teal-50 text-teal-700 border border-teal-200">
                                   {locale === 'tr' ? 'Açık' : 'Open'}
                                 </Badge>
                               )}

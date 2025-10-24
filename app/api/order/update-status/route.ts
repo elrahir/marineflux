@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate status
-    const validStatuses = ['pending', 'confirmed', 'in_progress', 'shipped', 'delivered', 'completed', 'cancelled'];
+    const validStatuses = ['pending_supplier_approval', 'pending_payment', 'pending_shipowner_confirmation', 'in_progress', 'shipped', 'delivered', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
         { error: 'Invalid status' },
@@ -45,6 +45,34 @@ export async function POST(request: NextRequest) {
         { error: 'Unauthorized - You are not part of this order' },
         { status: 403 }
       );
+    }
+
+    // Supplier approval logic - only supplier can approve from pending_supplier_approval
+    if (order.status === 'pending_supplier_approval' && status === 'pending_payment') {
+      if (order.supplierUid !== userUid) {
+        return NextResponse.json(
+          { error: 'Only the supplier can approve this order' },
+          { status: 403 }
+        );
+      }
+    }
+
+    // Payment confirmation logic - only shipowner can confirm payment
+    if (status === 'pending_shipowner_confirmation' && order.shipownerUid !== userUid) {
+      return NextResponse.json(
+        { error: 'Only the shipowner can confirm payment' },
+        { status: 403 }
+      );
+    }
+
+    // After payment confirmation, move to in_progress
+    if (order.status === 'pending_shipowner_confirmation' && status === 'in_progress') {
+      if (order.shipownerUid !== userUid) {
+        return NextResponse.json(
+          { error: 'Only the shipowner can proceed to in progress' },
+          { status: 403 }
+        );
+      }
     }
 
     // Create timeline event

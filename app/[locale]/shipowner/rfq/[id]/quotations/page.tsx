@@ -9,7 +9,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Loader2, DollarSign, Clock, MapPin, Building2, CheckCircle, MessageCircle, Star } from 'lucide-react';
+import { FileText, Loader2, DollarSign, Clock, MapPin, Building2, CheckCircle, MessageCircle, Star, Info } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
 
 interface Quotation {
@@ -94,14 +94,14 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
         );
       case 'accepted':
         return (
-          <Badge className="bg-green-100 text-green-800">
+          <Badge className="bg-teal-100 text-teal-800">
             <CheckCircle className="h-3 w-3 mr-1" />
             {locale === 'tr' ? 'Kabul Edildi' : 'Accepted'}
           </Badge>
         );
       case 'rejected':
         return (
-          <Badge className="bg-red-100 text-red-800">
+          <Badge className="bg-amber-100 text-amber-800">
             {locale === 'tr' ? 'Reddedildi' : 'Rejected'}
           </Badge>
         );
@@ -253,7 +253,7 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-teal-600">
                   {lowestPrice ? `${lowestPrice.toLocaleString()} ${sortedQuotations[0].currency}` : '-'}
                 </div>
               </CardContent>
@@ -309,43 +309,63 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
                 {sortedQuotations.map((quotation, index) => (
                     <Card 
                       key={quotation.id} 
                       className={`relative overflow-hidden transition-all hover:shadow-lg ${
                         quotation.price === lowestPrice 
-                          ? 'ring-2 ring-green-500 shadow-green-100' 
+                          ? 'ring-2 ring-teal-500 shadow-teal-100' 
                           : ''
                       }`}
                     >
                       {/* Best Offer Badge */}
                       {quotation.price === lowestPrice && (
-                        <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
-                          {locale === 'tr' ? '🏆 EN İYİ TEKLİF' : '🏆 BEST OFFER'}
+                        <div className="absolute top-0 right-0 bg-teal-500 text-white px-2 py-0.5 text-xs font-bold rounded-bl">
+                          {locale === 'tr' ? '🏆 EN İYİ' : '🏆 BEST'}
                         </div>
                       )}
 
                       {/* Rank Badge */}
-                      <div className="absolute top-4 left-4 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center font-bold text-gray-600">
+                      <div className="absolute top-2 left-2 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center font-bold text-xs text-gray-600">
                         #{index + 1}
                       </div>
 
-                      <CardHeader className="pt-16 pb-4">
+                      {/* Info Icon with Tooltip */}
+                      {(quotation.specifications || quotation.notes) && (
+                        <div className="absolute top-2 right-2 group">
+                          <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                          <div className="absolute right-0 top-6 w-48 bg-gray-900 text-white text-xs rounded-lg p-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 shadow-lg whitespace-normal">
+                            {quotation.specifications && (
+                              <div className="mb-2 pb-2 border-b border-gray-700">
+                                <p className="font-semibold text-xs mb-1">{locale === 'tr' ? 'Teknik Özellikler' : 'Specifications'}</p>
+                                <p className="text-xs text-gray-200">{quotation.specifications}</p>
+                              </div>
+                            )}
+                            {quotation.notes && (
+                              <div>
+                                <p className="font-semibold text-xs mb-1">{locale === 'tr' ? 'Notlar' : 'Notes'}</p>
+                                <p className="text-xs text-gray-200">{quotation.notes}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <CardHeader className="pt-10 pb-2">
                         {/* Company Name */}
-                        <div className="flex items-center gap-2 mb-3">
-                          <Building2 className="h-5 w-5 text-maritime-600" />
-                          <h3 className="text-xl font-bold text-gray-900">{quotation.supplierCompany}</h3>
+                        <div className="flex items-center gap-1 mb-1">
+                          <h3 className="text-sm font-bold text-gray-900 truncate">{quotation.supplierCompany}</h3>
                         </div>
                         
                         {/* Supplier Rating */}
                         {(quotation.supplierRating !== undefined && quotation.supplierRating > 0) && (
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 mb-1">
+                            <div className="flex items-center gap-0.5">
                               {[1, 2, 3, 4, 5].map((star) => (
                                 <Star
                                   key={star}
-                                  className={`h-4 w-4 ${
+                                  className={`h-3 w-3 ${
                                     star <= Math.round(quotation.supplierRating || 0)
                                       ? 'fill-yellow-400 text-yellow-400'
                                       : 'text-gray-300'
@@ -353,11 +373,8 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                                 />
                               ))}
                             </div>
-                            <span className="text-sm font-semibold text-gray-700">
+                            <span className="text-xs font-semibold text-gray-700">
                               {quotation.supplierRating?.toFixed(1)}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              ({quotation.supplierReviewCount || 0} {locale === 'tr' ? 'değerlendirme' : 'reviews'})
                             </span>
                           </div>
                         )}
@@ -365,141 +382,110 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                         {getStatusBadge(quotation.status)}
                       </CardHeader>
 
-                      <CardContent className="space-y-6">
+                      <CardContent className="space-y-2 p-3">
                         {/* Price - Most Important */}
-                        <div className={`rounded-lg p-4 text-center ${
+                        <div className={`rounded p-2 text-center text-xs ${
                           quotation.price === lowestPrice 
-                            ? 'bg-green-50 border-2 border-green-500' 
-                            : 'bg-maritime-50 border-2 border-maritime-200'
+                            ? 'bg-teal-50 border border-teal-500' 
+                            : 'bg-maritime-50 border border-maritime-200'
                         }`}>
-                          <div className="text-sm text-gray-600 mb-1">
-                            {locale === 'tr' ? 'Toplam Fiyat' : 'Total Price'}
+                          <div className="text-gray-600">
+                            {locale === 'tr' ? 'Fiyat' : 'Price'}
                           </div>
-                          <div className={`text-3xl font-bold ${
-                            quotation.price === lowestPrice ? 'text-green-600' : 'text-maritime-700'
+                          <div className={`text-lg font-bold ${
+                            quotation.price === lowestPrice ? 'text-teal-600' : 'text-maritime-700'
                           }`}>
                             {quotation.price.toLocaleString()}
-                            <span className="text-lg ml-1">{quotation.currency}</span>
+                            <span className="text-xs ml-1">{quotation.currency}</span>
                           </div>
                           {/* Price Difference from Lowest */}
                           {quotation.price !== lowestPrice && (
-                            <div className="text-xs text-red-600 mt-1">
-                              +{((quotation.price - lowestPrice) / lowestPrice * 100).toFixed(1)}% 
-                              <span className="ml-1">
-                                ({(quotation.price - lowestPrice).toLocaleString()} {quotation.currency} {locale === 'tr' ? 'fazla' : 'more'})
-                              </span>
-                            </div>
-                          )}
-                          {quotation.price === lowestPrice && (
-                            <div className="text-xs text-green-600 font-semibold mt-1">
-                              {locale === 'tr' ? '✓ En düşük fiyat' : '✓ Lowest price'}
+                            <div className="text-xs text-amber-600 mt-0.5">
+                              +{((quotation.price - lowestPrice) / lowestPrice * 100).toFixed(0)}%
                             </div>
                           )}
                         </div>
 
                         {/* Key Metrics */}
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Clock className="h-4 w-4" />
-                              {locale === 'tr' ? 'Teslimat Süresi' : 'Delivery Time'}
-                            </div>
-                            <div className="font-semibold text-gray-900">
-                              {quotation.deliveryTime} {locale === 'tr' ? 'gün' : 'days'}
-                            </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-600">
+                              {locale === 'tr' ? 'Teslimat' : 'Delivery'}
+                            </span>
+                            <span className="font-semibold">
+                              {quotation.deliveryTime} {locale === 'tr' ? 'g' : 'd'}
+                            </span>
                           </div>
 
                           {quotation.deliveryLocation && (
-                            <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                              <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <MapPin className="h-4 w-4" />
-                                {locale === 'tr' ? 'Teslimat Yeri' : 'Delivery Location'}
-                              </div>
-                              <div className="font-semibold text-gray-900 text-right text-sm">
-                                {quotation.deliveryLocation}
-                              </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-gray-600">
+                                {locale === 'tr' ? 'Yer' : 'Location'}
+                              </span>
+                              <span className="font-semibold truncate ml-1 text-right">
+                                {quotation.deliveryLocation.split(',')[0]}
+                              </span>
                             </div>
                           )}
                         </div>
 
-                        {/* Specifications & Notes */}
-                        {(quotation.specifications || quotation.notes) && (
-                          <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                            {quotation.specifications && (
-                              <div>
-                                <p className="text-xs font-semibold text-gray-700 mb-1">
-                                  {locale === 'tr' ? 'Teknik Özellikler' : 'Specifications'}
-                                </p>
-                                <p className="text-xs text-gray-600 line-clamp-2">{quotation.specifications}</p>
-                              </div>
-                            )}
-
-                            {quotation.notes && (
-                              <div>
-                                <p className="text-xs font-semibold text-gray-700 mb-1">
-                                  {locale === 'tr' ? 'Notlar' : 'Notes'}
-                                </p>
-                                <p className="text-xs text-gray-600 line-clamp-2">{quotation.notes}</p>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
                         {/* Submission Date */}
-                        <div className="text-xs text-gray-500 text-center pt-2 border-t">
-                          {locale === 'tr' ? 'Gönderilme:' : 'Submitted:'} {new Date(quotation.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        <div className="text-xs text-gray-500 text-center pt-1 border-t">
+                          {new Date(quotation.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="space-y-2 pt-4">
+                        <div className="space-y-1 pt-2">
                           {quotation.status === 'pending' && (
                             <>
                               <Button 
-                                className="w-full bg-green-600 hover:bg-green-700"
+                                className="w-full bg-teal-600 hover:bg-teal-700 h-8 text-xs"
                                 onClick={() => handleAcceptQuotation(quotation.id)}
                                 disabled={processing === quotation.id}
                               >
                                 {processing === quotation.id ? (
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                                 ) : (
-                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  <CheckCircle className="mr-1 h-3 w-3" />
                                 )}
-                                {locale === 'tr' ? 'Kabul Et' : 'Accept'}
+                                {locale === 'tr' ? 'Kabul' : 'Accept'}
                               </Button>
-                              <div className="grid grid-cols-2 gap-2">
+                              <div className="grid grid-cols-2 gap-1">
                                 <Button 
                                   variant="outline"
                                   size="sm"
+                                  className="h-7 text-xs"
                                   onClick={() => handleContactSupplier(quotation.supplierUid, quotation.supplierCompany)}
                                 >
-                                  <MessageCircle className="mr-1 h-4 w-4" />
-                                  {locale === 'tr' ? 'Mesaj' : 'Message'}
+                                  <MessageCircle className="mr-0.5 h-3 w-3" />
+                                  {locale === 'tr' ? 'Mesaj' : 'Msg'}
                                 </Button>
                                 <Button 
                                   variant="destructive"
                                   size="sm"
+                                  className="h-7 text-xs"
                                   onClick={() => handleRejectQuotation(quotation.id)}
                                   disabled={processing === quotation.id}
                                 >
-                                  {locale === 'tr' ? 'Reddet' : 'Reject'}
+                                  {locale === 'tr' ? 'Red' : 'Reject'}
                                 </Button>
                               </div>
                             </>
                           )}
                           
                           {quotation.status === 'accepted' && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-green-600" />
-                              <span className="text-xs text-green-800 font-medium">
-                                {locale === 'tr' ? 'Kabul edildi' : 'Accepted'}
+                            <div className="bg-teal-50 border border-teal-200 rounded p-1 flex items-center gap-1">
+                              <CheckCircle className="h-3 w-3 text-teal-600" />
+                              <span className="text-xs text-teal-800 font-medium">
+                                {locale === 'tr' ? 'Kabul' : 'Accepted'}
                               </span>
                             </div>
                           )}
                           
                           {quotation.status === 'rejected' && (
-                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
+                            <div className="bg-gray-50 border border-gray-200 rounded p-1 text-center">
                               <span className="text-xs text-gray-600">
-                                {locale === 'tr' ? 'Reddedildi' : 'Rejected'}
+                                {locale === 'tr' ? 'Red' : 'Rejected'}
                               </span>
                             </div>
                           )}

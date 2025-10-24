@@ -88,7 +88,7 @@ export default function RFQDetailPage({ params }: { params: Promise<{ locale: st
     switch (status) {
       case 'open':
         return (
-          <Badge className="bg-green-100 text-green-800">
+          <Badge className="bg-teal-100 text-teal-800">
             <Clock className="h-3 w-3 mr-1" />
             {locale === 'tr' ? 'Açık' : 'Open'}
           </Badge>
@@ -256,7 +256,7 @@ export default function RFQDetailPage({ params }: { params: Promise<{ locale: st
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={`text-lg font-medium ${isDeadlinePassed(rfq.deadline) ? 'text-red-600' : ''}`}>
+                <div className={`text-lg font-medium ${isDeadlinePassed(rfq.deadline) ? 'text-amber-600' : ''}`}>
                   {new Date(rfq.deadline).toLocaleDateString(locale)}
                 </div>
               </CardContent>
@@ -362,8 +362,8 @@ export default function RFQDetailPage({ params }: { params: Promise<{ locale: st
                   </Link>
 
                   {rfq.status === 'open' && !isDeadlinePassed(rfq.deadline) && (
-                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <p className="text-sm text-green-800">
+                    <div className="p-3 bg-teal-50 border border-teal-200 rounded-lg">
+                      <p className="text-sm text-teal-800">
                         {locale === 'tr' 
                           ? 'RFQ hala açık ve teklif alıyor'
                           : 'RFQ is still open and accepting quotes'}
@@ -424,7 +424,7 @@ export default function RFQDetailPage({ params }: { params: Promise<{ locale: st
                     {rfq.quotationCount > 0 && (
                       <div className="flex gap-3">
                         <div className="flex flex-col items-center">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2" />
+                          <div className="w-2 h-2 bg-teal-500 rounded-full mt-2" />
                           <div className="w-0.5 h-full bg-gray-200" />
                         </div>
                         <div className="flex-1 pb-4">
@@ -441,12 +441,12 @@ export default function RFQDetailPage({ params }: { params: Promise<{ locale: st
                     <div className="flex gap-3">
                       <div className="flex flex-col items-center">
                         <div className={`w-2 h-2 rounded-full mt-2 ${
-                          isDeadlinePassed(rfq.deadline) ? 'bg-red-500' : 'bg-gray-300'
+                          isDeadlinePassed(rfq.deadline) ? 'bg-amber-500' : 'bg-gray-300'
                         }`} />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{locale === 'tr' ? 'Son Tarih' : 'Deadline'}</p>
-                        <p className={`text-sm ${isDeadlinePassed(rfq.deadline) ? 'text-red-600' : 'text-gray-600'}`}>
+                        <p className={`text-sm ${isDeadlinePassed(rfq.deadline) ? 'text-amber-600' : 'text-gray-600'}`}>
                           {new Date(rfq.deadline).toLocaleString(locale)}
                         </p>
                       </div>

@@ -175,10 +175,10 @@ export default function RegisterPage({ params }: { params: Promise<{ locale: str
         {/* Step Indicator */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center gap-4">
-            <div className={`flex items-center gap-2 ${step === 'type' ? 'text-maritime-600' : 'text-green-600'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                step === 'type' ? 'bg-maritime-600' : 'bg-green-600'
-              } text-white font-semibold`}>
+            <div className={`flex items-center gap-2 ${step === 'type' ? 'text-maritime-600' : 'text-teal-600'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
+                step === 'type' ? 'bg-maritime-600' : 'bg-teal-600'
+              }`}>
                 {step === 'details' ? <CheckCircle className="h-5 w-5" /> : '1'}
               </div>
               <span className="font-medium text-sm">
@@ -720,7 +720,7 @@ export default function RegisterPage({ params }: { params: Promise<{ locale: str
 
                 {/* Error Message */}
                 {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-lg text-sm">
                     {error}
                   </div>
                 )}

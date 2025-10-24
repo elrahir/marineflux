@@ -67,8 +67,8 @@ export default function SupplierOrdersPage({ params }: { params: Promise<{ local
       'in_progress': { color: 'bg-purple-100 text-purple-800', icon: Package, label: { tr: 'Hazırlanıyor', en: 'In Progress' } },
       'shipped': { color: 'bg-indigo-100 text-indigo-800', icon: Truck, label: { tr: 'Kargoda', en: 'Shipped' } },
       'delivered': { color: 'bg-teal-100 text-teal-800', icon: CheckCircle, label: { tr: 'Teslim Edildi', en: 'Delivered' } },
-      'completed': { color: 'bg-green-100 text-green-800', icon: CheckCircle, label: { tr: 'Tamamlandı', en: 'Completed' } },
-      'cancelled': { color: 'bg-red-100 text-red-800', icon: XCircle, label: { tr: 'İptal Edildi', en: 'Cancelled' } },
+      'completed': { color: 'bg-teal-100 text-teal-800', icon: CheckCircle, label: { tr: 'Tamamlandı', en: 'Completed' } },
+      'cancelled': { color: 'bg-amber-100 text-amber-800', icon: XCircle, label: { tr: 'İptal Edildi', en: 'Cancelled' } },
     };
 
     const config = statusConfig[status] || statusConfig['pending'];
@@ -138,7 +138,7 @@ export default function SupplierOrdersPage({ params }: { params: Promise<{ local
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+                <div className="text-2xl font-bold text-teal-600">{stats.completed}</div>
               </CardContent>
             </Card>
 

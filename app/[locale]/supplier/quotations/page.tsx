@@ -68,14 +68,14 @@ export default function SupplierQuotationsPage({ params }: { params: Promise<{ l
         );
       case 'accepted':
         return (
-          <Badge className="bg-green-100 text-green-800">
+          <Badge className="bg-teal-100 text-teal-800">
             <CheckCircle className="h-3 w-3 mr-1" />
             {locale === 'tr' ? 'Kabul Edildi' : 'Accepted'}
           </Badge>
         );
       case 'rejected':
         return (
-          <Badge className="bg-red-100 text-red-800">
+          <Badge className="bg-amber-100 text-amber-800">
             <XCircle className="h-3 w-3 mr-1" />
             {locale === 'tr' ? 'Reddedildi' : 'Rejected'}
           </Badge>
@@ -141,7 +141,7 @@ export default function SupplierQuotationsPage({ params }: { params: Promise<{ l
             </Card>
 
             <Card 
-              className={`cursor-pointer transition-all ${filter === 'accepted' ? 'ring-2 ring-green-500' : ''}`}
+              className={`cursor-pointer transition-all ${filter === 'accepted' ? 'ring-2 ring-teal-500' : ''}`}
               onClick={() => setFilter('accepted')}
             >
               <CardHeader className="pb-2">
@@ -150,12 +150,12 @@ export default function SupplierQuotationsPage({ params }: { params: Promise<{ l
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.accepted}</div>
+                <div className="text-2xl font-bold text-teal-600">{stats.accepted}</div>
               </CardContent>
             </Card>
 
             <Card 
-              className={`cursor-pointer transition-all ${filter === 'rejected' ? 'ring-2 ring-red-500' : ''}`}
+              className={`cursor-pointer transition-all ${filter === 'rejected' ? 'ring-2 ring-amber-500' : ''}`}
               onClick={() => setFilter('rejected')}
             >
               <CardHeader className="pb-2">
@@ -164,7 +164,7 @@ export default function SupplierQuotationsPage({ params }: { params: Promise<{ l
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">{stats.rejected}</div>
+                <div className="text-2xl font-bold text-amber-600">{stats.rejected}</div>
               </CardContent>
             </Card>
           </div>

@@ -188,13 +188,13 @@ export default function AdminDashboard({ params }: { params: Promise<{ locale: s
                       <span className="text-sm font-medium text-gray-700">
                         {locale === 'tr' ? 'Ürün Tedarikçileri' : 'Product Suppliers'}
                       </span>
-                      <span className="text-lg font-bold text-blue-600">
+                      <span className="text-lg font-bold text-teal-600">
                         {loading ? '...' : stats.productSuppliers}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-teal-600 h-2 rounded-full transition-all duration-300"
                         style={{
                           width: stats.suppliers > 0 
                             ? `${(stats.productSuppliers / stats.suppliers) * 100}%` 
@@ -208,13 +208,13 @@ export default function AdminDashboard({ params }: { params: Promise<{ locale: s
                       <span className="text-sm font-medium text-gray-700">
                         {locale === 'tr' ? 'Servis Sağlayıcılar' : 'Service Providers'}
                       </span>
-                      <span className="text-lg font-bold text-green-600">
+                      <span className="text-lg font-bold text-teal-600">
                         {loading ? '...' : stats.serviceProviders}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
-                        className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-teal-600 h-2 rounded-full transition-all duration-300"
                         style={{
                           width: stats.suppliers > 0 
                             ? `${(stats.serviceProviders / stats.suppliers) * 100}%` 

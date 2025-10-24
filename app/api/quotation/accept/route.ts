@@ -78,12 +78,12 @@ export async function POST(request: NextRequest) {
       vessel: rfq.vessel || null,
       specifications: quotation.specifications || '',
       notes: quotation.notes || '',
-      status: 'pending',
+      status: 'pending_supplier_approval',
       paymentStatus: 'pending',
       timeline: [
         {
-          status: 'pending',
-          description: 'Order created',
+          status: 'pending_supplier_approval',
+          description: 'Order created - Awaiting supplier approval',
           timestamp: Timestamp.now(),
           actor: 'shipowner',
         }

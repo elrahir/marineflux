@@ -296,7 +296,7 @@ export default function SeedDataPage({ params }: { params: Promise<{ locale: str
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{SUPPLIER_COUNT}</div>
+                <div className="text-2xl font-bold text-teal-600">{SUPPLIER_COUNT}</div>
               </CardContent>
             </Card>
 
@@ -308,7 +308,7 @@ export default function SeedDataPage({ params }: { params: Promise<{ locale: str
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.success}</div>
+                <div className="text-2xl font-bold text-teal-600">{stats.success}</div>
               </CardContent>
             </Card>
 
@@ -320,7 +320,7 @@ export default function SeedDataPage({ params }: { params: Promise<{ locale: str
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
+                <div className="text-2xl font-bold text-amber-600">{stats.failed}</div>
               </CardContent>
             </Card>
           </div>
