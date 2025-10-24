@@ -136,20 +136,20 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation */}
-      <header className="bg-white border-b border-gray-200 fixed w-full top-0 z-10">
+      <header className="bg-gradient-to-r from-teal-900 via-teal-800 to-teal-700 border-b border-teal-600 fixed w-full top-0 z-10 shadow-md">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Mobile Menu Toggle */}
             <div className="flex items-center">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden mr-2 p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+                className="lg:hidden mr-2 p-2 rounded-md text-teal-100 hover:text-white hover:bg-teal-700 transition-colors"
               >
                 {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
               <Link href={`/${locale}`} className="flex items-center gap-2">
-                <Anchor className="h-8 w-8 text-primary" />
-                <span className="text-xl font-bold text-gray-900">MarineFlux</span>
+                <Anchor className="h-8 w-8 text-amber-300" />
+                <span className="text-xl font-bold text-white">MarineFlux</span>
               </Link>
             </div>
 
@@ -159,12 +159,12 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative"
+                className="relative text-teal-50 hover:bg-teal-700"
                 onClick={() => setChatOpen(true)}
               >
                 <MessageCircle className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs rounded-full">
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-amber-400 text-teal-900 text-xs rounded-full font-bold">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </Badge>
                 )}
@@ -175,12 +175,12 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="relative"
+                  className="relative text-teal-50 hover:bg-teal-700"
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
                 >
                   <Bell className="h-5 w-5" />
                   {unreadNotifications > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-blue-500 text-white text-xs rounded-full">
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-amber-400 text-teal-900 text-xs rounded-full font-bold">
                       {unreadNotifications > 9 ? '9+' : unreadNotifications}
                     </Badge>
                   )}
@@ -253,10 +253,10 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
 
               <div className="flex items-center gap-3">
                 <div className="hidden sm:block text-right">
-                  <p className="text-sm font-medium text-gray-900">{userData?.companyName}</p>
-                  <p className="text-xs text-gray-500 capitalize">{userData?.role}</p>
+                  <p className="text-sm font-medium text-white">{userData?.companyName}</p>
+                  <p className="text-xs text-teal-100 capitalize">{userData?.role}</p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-primary text-white flex items-center justify-center font-semibold">
+                <div className="h-10 w-10 rounded-full bg-amber-400 text-teal-900 flex items-center justify-center font-bold">
                   {userData?.companyName?.charAt(0).toUpperCase()}
                 </div>
               </div>
@@ -267,7 +267,7 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-20 w-64 bg-white border-r border-gray-200 pt-16 transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-20 w-64 bg-gradient-to-b from-teal-900 to-teal-800 pt-16 transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -277,23 +277,23 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-3 px-4 py-3 text-teal-50 rounded-lg hover:bg-teal-700 transition-all duration-200 hover:translate-x-1"
                 onClick={() => setSidebarOpen(false)}
               >
-                <item.icon className="h-5 w-5" />
-                <span>{item.label}</span>
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+                <span className="text-sm font-medium">{item.label}</span>
               </Link>
             ))}
           </div>
 
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-teal-700">
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="w-full justify-start gap-3 text-amber-300 hover:text-amber-200 hover:bg-teal-700 transition-colors"
               onClick={handleLogout}
             >
               <LogOut className="h-5 w-5" />
-              <span>{t('common.logout')}</span>
+              <span className="text-sm font-medium">{t('common.logout')}</span>
             </Button>
           </div>
         </nav>
