@@ -133,6 +133,24 @@ export async function POST(request: NextRequest) {
     });
     console.log('RFQ updated successfully');
 
+    // Send notification to shipowner
+    const shipownerUid = rfqData.shipownerUid;
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        userId: shipownerUid,
+        type: 'quotation',
+        title: '📋 Yeni Teklif Alındı',
+        message: `${supplierCompany} şirketi '${rfqData.title}' RFQ'sı için teklif verdi. Teklifi incelemek için tıklayın.`,
+        link: `/tr/shipowner/rfq/${rfqId}/quotations`,
+        rfqId,
+        read: false,
+        createdAt: Timestamp.now(),
+      });
+      console.log('✅ Quotation notification sent to shipowner:', shipownerUid);
+    } catch (error) {
+      console.error('❌ Error sending quotation notification:', error);
+    }
+
     return NextResponse.json({
       success: true,
       quotation: {
