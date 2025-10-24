@@ -13,7 +13,6 @@ import {
   Menu,
   X,
   Clock,
-  Ship,
   Package,
   Zap,
   TrendingUp,
@@ -59,7 +58,6 @@ function Navigation({ locale }: { locale: string }) {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center gap-2">
-            <Ship className="h-7 w-7 text-maritime-600" />
             <span className="text-2xl font-bold text-gradient-maritime">MARINEFLUX</span>
           </Link>
 
@@ -254,7 +252,7 @@ function PortalCardsSection({ locale }: { locale: string }) {
               <div className="absolute top-0 right-0 w-32 h-32 bg-maritime-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
               <CardHeader className="space-y-4 p-8 relative">
                 <div className="w-16 h-16 bg-maritime-50 rounded-xl flex items-center justify-center group-hover:bg-maritime-100 transition-colors">
-                  <Ship className="h-8 w-8 text-maritime-600" />
+                  <Package className="h-8 w-8 text-maritime-600" />
                 </div>
                 <CardTitle className="text-2xl md:text-3xl font-bold text-gray-900">
                   {locale === 'tr' ? 'Gemi Sahipleri' : 'Shipowners'}
@@ -468,7 +466,7 @@ function Footer({ locale }: { locale: string }) {
           {/* Company Info */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Ship className="h-8 w-8 text-white" />
+              <Package className="h-8 w-8 text-white" />
               <div className="text-2xl font-bold text-white">MARINEFLUX</div>
             </div>
             <p className="text-base text-gray-200 mb-6 max-w-md leading-relaxed">
