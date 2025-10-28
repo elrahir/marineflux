@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Deep Corporate Maritime Theme - Professional B2B Platform */
+    --background: 0 0% 100%;
+    --foreground: 215 25% 12%;
+    
+    /* Cards with strong presence */
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 12%;
+    
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 12%;
+    
+    /* Primary - Deep Corporate Navy (Strong, authoritative) */
+    --primary: 215 45% 21%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - Deep Ocean Blue */
+    --secondary: 195 60% 18%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Muted - Corporate Gray Background */
+    --muted: 215 20% 96%;
+    --muted-foreground: 215 15% 42%;
+    
+    /* Accent - Deep Corporate Accent */
+    --accent: 215 45% 92%;
+    --accent-foreground: 215 45% 18%;
+    
+    /* Destructive - Deep Red for critical actions */
+    --destructive: 0 65% 35%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Borders - Strong Definition */
+    --border: 215 20% 88%;
+    --input: 215 20% 88%;
+    --ring: 215 45% 21%;
+    
+    /* Border Radius - Sharp, professional */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark Maritime Theme */
+    --background: 210 68% 6%;
+    --foreground: 210 40% 98%;
+    --card: 210 68% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 210 68% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 68% 45%;
+    --primary-foreground: 210 68% 98%;
+    --secondary: 189 83% 40%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 50% 15%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 210 68% 20%;
+    --accent-foreground: 210 68% 85%;
+    --destructive: 0 0% 15%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 210 50% 18%;
+    --input: 210 50% 18%;
+    --ring: 210 68% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Modern Card Styles */
+  .card-elevated {
+    @apply bg-white shadow-soft border border-gray-100 rounded-lg;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
+  }
+  
+  /* Gradient Backgrounds - Deep Corporate Tones */
+  .bg-gradient-maritime {
+    @apply bg-gradient-to-br from-maritime-600 via-maritime-700 to-slate-800;
+  }
+  
+  .bg-gradient-ocean {
+    @apply bg-gradient-to-r from-ocean-600 to-maritime-700;
+  }
+  
+  /* Modern Button Styles - Deep Corporate */
+  .btn-primary-modern {
+    @apply bg-maritime-700 hover:bg-maritime-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200;
+  }
+  
+  .btn-secondary-modern {
+    @apply bg-white border-2 border-maritime-700 text-maritime-800 hover:bg-slate-50 font-semibold py-3 px-6 rounded-lg transition-all duration-200;
+  }
+  
+  /* Status Badges */
+  .badge-success {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-800;
+  }
+  
+  .badge-warning {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800;
+  }
+  
+  .badge-info {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800;
+  }
+  
+  /* Modern Input Styles */
+  .input-modern {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-maritime-500 focus:border-transparent transition-all;
+  }
+  
+  /* Section Spacing */
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+  
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@layer utilities {
+  /* Text Gradients - Deep Corporate */
+  .text-gradient-maritime {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-maritime-700 to-slate-800;
+  }
+  
+  /* Smooth Scroll */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom Shadows - Deep Corporate */
+  .shadow-maritime {
+    box-shadow: 0 10px 40px -10px rgba(30, 47, 77, 0.5);
+  }
+  
+  .shadow-ocean {
+    box-shadow: 0 10px 40px -10px rgba(15, 57, 71, 0.5);
+  }
+}
+

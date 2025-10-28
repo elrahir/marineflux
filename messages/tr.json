@@ -1,0 +1,158 @@
+{
+  "common": {
+    "appName": "MarineFlux",
+    "login": "Giriş Yap",
+    "logout": "Çıkış Yap",
+    "email": "E-posta",
+    "password": "Şifre",
+    "search": "Ara",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "close": "Kapat",
+    "submit": "Gönder",
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "success": "Başarılı",
+    "profile": "Profil"
+  },
+  "landing": {
+    "hero": {
+      "title": "Deniz Endüstrisinin Dijital Pazaryeri",
+      "subtitle": "Gemi armatörleri ve tedarikçileri bir araya getiren güvenilir platform",
+      "description": "MarineFlux ile tüm gemi ihtiyaçlarınızı tek platformdan karşılayın. Hızlı, güvenli ve şeffaf.",
+      "ctaShipowner": "Armatör Girişi",
+      "ctaSupplier": "Tedarikçi Girişi"
+    },
+    "features": {
+      "title": "Neden MarineFlux?",
+      "search": {
+        "title": "Akıllı Arama",
+        "description": "İhtiyacınız olan ürün ve hizmeti kolayca bulun, alternatif tedarikçileri karşılaştırın"
+      },
+      "quotation": {
+        "title": "Hızlı Teklif Alma",
+        "description": "Tek bir talepte çok sayıda tedarikçiden teklif alın, en uygununu seçin"
+      },
+      "tracking": {
+        "title": "Sipariş Takibi",
+        "description": "Tüm süreçlerinizi gerçek zamanlı olarak takip edin ve geçmişe dönük inceleyin"
+      },
+      "payment": {
+        "title": "Güvenli Ödeme",
+        "description": "Finans kuruluşu ortaklığı ile güvenli ve kolay ödeme süreçleri"
+      },
+      "rating": {
+        "title": "Şeffaf Değerlendirme",
+        "description": "Tedarikçi puanları ve yorumları ile bilinçli kararlar verin"
+      },
+      "support": {
+        "title": "7/24 Destek",
+        "description": "Deneyimli ekibimiz her zaman yanınızda"
+      }
+    },
+    "stats": {
+      "title": "Rakamlarla MarineFlux",
+      "activeUsers": "Aktif Kullanıcı",
+      "completedOrders": "Tamamlanan Sipariş",
+      "verifiedSuppliers": "Onaylı Tedarikçi",
+      "countriesCovered": "Ülke Kapsama"
+    },
+    "proofOfWork": {
+      "title": "Güvenilen Platform",
+      "successStories": "Başarı Hikayeleri",
+      "partners": "İş Ortaklarımız",
+      "testimonials": "Kullanıcı Yorumları"
+    },
+    "howItWorks": {
+      "title": "Nasıl Çalışır?",
+      "step1": {
+        "title": "Kayıt Olun",
+        "description": "Armatör veya tedarikçi olarak platforma katılın"
+      },
+      "step2": {
+        "title": "İhtiyaç Belirtin",
+        "description": "Armatörler ihtiyaçlarını paylaşır, tedarikçiler tekliflerini oluşturur"
+      },
+      "step3": {
+        "title": "Teklif Karşılaştırın",
+        "description": "En uygun teklifi seçin ve siparişinizi verin"
+      },
+      "step4": {
+        "title": "Takip Edin",
+        "description": "Sürecin tamamını platform üzerinden yönetin"
+      }
+    },
+    "cta": {
+      "title": "Hemen Başlayın",
+      "description": "MarineFlux'a katılın ve deniz endüstrisinde fark yaratın"
+    },
+    "footer": {
+      "about": "Hakkımızda",
+      "contact": "İletişim",
+      "privacy": "Gizlilik Politikası",
+      "terms": "Kullanım Koşulları",
+      "copyright": "© 2024 MarineFlux. Tüm hakları saklıdır."
+    }
+  },
+  "auth": {
+    "loginTitle": "Giriş Yap",
+    "loginDescription": "Hesabınıza giriş yapın",
+    "invalidCredentials": "Geçersiz e-posta veya şifre",
+    "loginSuccess": "Başarıyla giriş yaptınız"
+  },
+  "dashboard": {
+    "welcome": "Hoş Geldiniz",
+    "overview": "Genel Bakış",
+    "statistics": "İstatistikler"
+  },
+  "shipowner": {
+    "dashboard": "Armatör Paneli",
+    "createRfq": "Yeni Teklif Talebi",
+    "myRfqs": "Teklif Taleplerim",
+    "orders": "Siparişlerim",
+    "history": "Geçmiş",
+    "suppliers": "Tedarikçiler"
+  },
+  "supplier": {
+    "dashboard": "Tedarikçi Paneli",
+    "rfqs": "Teklif Talepleri",
+    "myQuotations": "Tekliflerim",
+    "orders": "Siparişler",
+    "payments": "Ödemeler",
+    "profile": "Profil"
+  },
+  "admin": {
+    "dashboard": "Admin Paneli",
+    "users": "Kullanıcı Yönetimi",
+    "shipowners": "Armatörler",
+    "suppliers": "Tedarikçiler",
+    "createUser": "Yeni Kullanıcı Oluştur",
+    "manageUsers": "Kullanıcıları Yönet",
+    "userList": "Kullanıcı Listesi",
+    "totalUsers": "Toplam Kullanıcı"
+  },
+  "status": {
+    "order": {
+      "pending": "Bekleme",
+      "confirmed": "Onaylandı",
+      "in_progress": "Hazırlanıyor",
+      "shipped": "Kargoya Verildi",
+      "delivered": "Teslim Edildi",
+      "completed": "Tamamlandı",
+      "cancelled": "İptal Edildi"
+    },
+    "quotation": {
+      "pending": "Bekleme",
+      "accepted": "Kabul Edildi",
+      "rejected": "Reddedildi"
+    },
+    "payment": {
+      "pending": "Ödeme Bekleniyor",
+      "paid": "Ödeme Tamamlandı",
+      "refunded": "İade Edildi",
+      "payment_awaiting_confirmation": "Ödeme Onayı Bekleniyor"
+    }
+  }
+}

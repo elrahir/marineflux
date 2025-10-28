@@ -1,0 +1,159 @@
+{
+  "common": {
+    "appName": "MarineFlux",
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "search": "Search",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "profile": "Profile"
+  },
+  "landing": {
+    "hero": {
+      "title": "Digital Marketplace for Maritime Industry",
+      "subtitle": "The trusted platform bringing ship owners and suppliers together",
+      "description": "With MarineFlux, manage all your vessel needs from one platform. Fast, secure, and transparent.",
+      "ctaShipowner": "Shipowner Login",
+      "ctaSupplier": "Supplier Login"
+    },
+    "features": {
+      "title": "Why MarineFlux?",
+      "search": {
+        "title": "Smart Search",
+        "description": "Easily find the products and services you need, compare alternative suppliers"
+      },
+      "quotation": {
+        "title": "Quick Quotations",
+        "description": "Get quotes from multiple suppliers with one request, choose the best one"
+      },
+      "tracking": {
+        "title": "Order Tracking",
+        "description": "Track all your processes in real-time and review historical data"
+      },
+      "payment": {
+        "title": "Secure Payment",
+        "description": "Safe and easy payment processes with financial institution partnership"
+      },
+      "rating": {
+        "title": "Transparent Ratings",
+        "description": "Make informed decisions with supplier ratings and reviews"
+      },
+      "support": {
+        "title": "24/7 Support",
+        "description": "Our experienced team is always here for you"
+      }
+    },
+    "stats": {
+      "title": "MarineFlux in Numbers",
+      "activeUsers": "Active Users",
+      "completedOrders": "Completed Orders",
+      "verifiedSuppliers": "Verified Suppliers",
+      "countriesCovered": "Countries Covered"
+    },
+    "proofOfWork": {
+      "title": "Trusted Platform",
+      "successStories": "Success Stories",
+      "partners": "Our Partners",
+      "testimonials": "User Testimonials"
+    },
+    "howItWorks": {
+      "title": "How It Works?",
+      "step1": {
+        "title": "Register",
+        "description": "Join the platform as a shipowner or supplier"
+      },
+      "step2": {
+        "title": "Specify Needs",
+        "description": "Shipowners share their needs, suppliers create their offers"
+      },
+      "step3": {
+        "title": "Compare Quotes",
+        "description": "Select the best offer and place your order"
+      },
+      "step4": {
+        "title": "Track",
+        "description": "Manage the entire process through the platform"
+      }
+    },
+    "cta": {
+      "title": "Get Started Now",
+      "description": "Join MarineFlux and make a difference in the maritime industry"
+    },
+    "footer": {
+      "about": "About Us",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "copyright": "© 2024 MarineFlux. All rights reserved."
+    }
+  },
+  "auth": {
+    "loginTitle": "Login",
+    "loginDescription": "Sign in to your account",
+    "invalidCredentials": "Invalid email or password",
+    "loginSuccess": "Successfully logged in"
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "overview": "Overview",
+    "statistics": "Statistics"
+  },
+  "shipowner": {
+    "dashboard": "Shipowner Dashboard",
+    "createRfq": "Create RFQ",
+    "myRfqs": "My RFQs",
+    "orders": "My Orders",
+    "history": "History",
+    "suppliers": "Suppliers"
+  },
+  "supplier": {
+    "dashboard": "Supplier Dashboard",
+    "rfqs": "RFQs",
+    "myQuotations": "My Quotations",
+    "orders": "Orders",
+    "payments": "Payments",
+    "profile": "Profile"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "users": "User Management",
+    "shipowners": "Shipowners",
+    "suppliers": "Suppliers",
+    "createUser": "Create New User",
+    "manageUsers": "Manage Users",
+    "userList": "User List",
+    "totalUsers": "Total Users"
+  },
+  "status": {
+    "order": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "in_progress": "In Progress",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "quotation": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "payment": {
+      "pending": "Pending Payment",
+      "paid": "Payment Completed",
+      "refunded": "Refunded",
+      "payment_awaiting_confirmation": "Payment Confirmation Pending"
+    }
+  }
+}
+
