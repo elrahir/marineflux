@@ -154,6 +154,22 @@
       "refunded": "Refunded",
       "payment_awaiting_confirmation": "Payment Confirmation Pending"
     }
+  },
+  "proofOfWork": {
+    "shipowner": {
+      "title": "Proof of Work for Shipowners",
+      "subtitle": "Discover how shipowners operate on MarineFlux platform, the advantages they gain, and success stories.",
+      "workflow": "Shipowner Workflow",
+      "benefits": "Advantages for Shipowners",
+      "successStories": "Success Stories"
+    },
+    "supplier": {
+      "title": "Proof of Work for Suppliers",
+      "subtitle": "Discover how suppliers and service providers operate on MarineFlux platform, the advantages they gain, and success stories.",
+      "workflow": "Supplier Workflow",
+      "benefits": "Advantages for Suppliers",
+      "successStories": "Success Stories"
+    }
   }
 }
 

@@ -154,5 +154,33 @@
   .shadow-ocean {
     box-shadow: 0 10px 40px -10px rgba(15, 57, 71, 0.5);
   }
+
+  /* Slow Pulse Animation */
+  .animate-slow-pulse {
+    animation: slow-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Carousel Progress Animation */
+  .animate-carousel-progress {
+    animation: carousel-progress 4s linear forwards;
+  }
+}
+
+@keyframes slow-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes carousel-progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
 }
 

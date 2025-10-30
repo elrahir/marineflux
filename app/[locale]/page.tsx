@@ -66,6 +66,14 @@ function Navigation({ locale }: { locale: string }) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Proof of Work Links */}
+            <Link href={`/${locale}/how-it-works/shipowner`} className="text-gray-600 hover:text-maritime-700 font-medium transition-colors">
+              {locale === 'tr' ? 'Armatörler' : 'Shipowners'}
+            </Link>
+            <Link href={`/${locale}/how-it-works/supplier`} className="text-gray-600 hover:text-maritime-700 font-medium transition-colors">
+              {locale === 'tr' ? 'Tedarikçiler' : 'Suppliers'}
+            </Link>
+
             {/* Search Bar */}
             <div className="relative hidden lg:block">
               <div className="flex items-center border-2 border-gray-200 rounded-lg px-4 py-2.5 w-80 bg-gray-50 hover:border-maritime-300 transition-colors">
@@ -107,6 +115,16 @@ function Navigation({ locale }: { locale: string }) {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-3 border-t">
+            <Link href={`/${locale}/how-it-works/shipowner`} className="block">
+              <Button variant="ghost" size="lg" className="w-full justify-start">
+                {locale === 'tr' ? 'Armatörler' : 'Shipowners'}
+              </Button>
+            </Link>
+            <Link href={`/${locale}/how-it-works/supplier`} className="block">
+              <Button variant="ghost" size="lg" className="w-full justify-start">
+                {locale === 'tr' ? 'Tedarikçiler' : 'Suppliers'}
+              </Button>
+            </Link>
             <Link href={locale === 'tr' ? '/en' : '/tr'} className="block">
               <Button variant="ghost" size="lg" className="w-full justify-start">
                 <GlobeIcon className="h-4 w-4 mr-2" />
@@ -142,94 +160,84 @@ function HeroSection({ locale }: { locale: string }) {
     return () => clearInterval(interval);
   }, [words.length]);
 
+  const scrollToPortals = () => {
+    const portalsSection = document.getElementById('portal-cards-section');
+    if (portalsSection) {
+      portalsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/hero-banner.png"
-          alt={locale === 'tr' ? 'MarineFlux - Denizcilik Tedarik Zinciri' : 'MarineFlux - Maritime Supply Chain'}
-          fill
-          priority
-          className="object-cover object-center"
-          quality={95}
-        />
-        {/* Dark Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-black/50"></div>
-        {/* Additional Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/40"></div>
-      </div>
-
-      {/* Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-3xl mx-auto text-center space-y-6 md:space-y-8 py-12 md:py-16 lg:py-20">
-          {/* Platform Tagline */}
-          <div className="flex items-center justify-center gap-3">
-            <div className="h-1 w-12 bg-gradient-to-r from-maritime-400 to-maritime-600 rounded-full"></div>
-            <p className="text-sm md:text-base text-maritime-300 font-semibold uppercase tracking-wider">
-              {locale === 'tr' ? 'Denizcilik Platformu' : 'Maritime Platform'}
-            </p>
-            <div className="h-1 w-12 bg-gradient-to-r from-maritime-600 to-maritime-400 rounded-full"></div>
-          </div>
-
-          {/* Main Heading */}
-          <div className="space-y-3 md:space-y-4">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight text-white drop-shadow-lg">
-              {locale === 'tr' ? 'İHTİYACIN' : 'YOUR NEED'}
-            </h1>
-            <div className="h-16 md:h-20 lg:h-24 flex items-center justify-center">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-gradient-to-r from-maritime-300 via-maritime-400 to-maritime-500 bg-clip-text transition-all duration-500 line-clamp-1 drop-shadow-lg">
-                {words[currentWord].toUpperCase()}
-              </h2>
-            </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight text-white drop-shadow-lg">
-              {locale === 'tr' ? 'İSE MARINEFLUX KULLAN' : 'IS MARINEFLUX USE'}
-            </h1>
-          </div>
-
-          {/* Subtitle */}
-          <p className="text-base sm:text-lg md:text-xl text-gray-100 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-            {locale === 'tr'
-              ? 'Denizcilik tedarik zincirinin güvenilir dijital platformunda yerinizi alın. Tedarikçiler ve alıcıları bir araya getiriyor, işlemleri hızlandırıyoruz.'
-              : 'Take your place in the trusted digital platform of the maritime supply chain. We bring suppliers and buyers together and accelerate processes.'}
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-4">
-            <Link href={`/${locale}/login`}>
-              <Button size="lg" className="bg-maritime-600 hover:bg-maritime-700 text-white px-6 sm:px-8 py-5 md:py-6 text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 font-semibold">
-                {locale === 'tr' ? 'Hemen Başla' : 'Get Started'}
-                <ArrowRightIcon className="ml-2 h-4 w-4 md:h-5 md:w-5" />
-              </Button>
-            </Link>
-            <Button size="lg" className="border-2 border-white text-white hover:bg-white/10 px-6 sm:px-8 py-5 md:py-6 text-base md:text-lg font-semibold transition-all duration-300">
-              {locale === 'tr' ? 'Nasıl Çalışır?' : 'How It Works'}
-            </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 md:gap-6 pt-6 md:pt-8 border-t border-white/30">
-            <div className="flex flex-col space-y-2">
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-maritime-300">500+</div>
-              <div className="text-xs sm:text-sm text-gray-200">
-                {locale === 'tr' ? 'Tedarikçi' : 'Suppliers'}
-              </div>
-            </div>
-            <div className="flex flex-col space-y-2">
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-maritime-300">1,000+</div>
-              <div className="text-xs sm:text-sm text-gray-200">
-                {locale === 'tr' ? 'Ürün' : 'Products'}
-              </div>
-            </div>
-            <div className="flex flex-col space-y-2">
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-maritime-300">24/7</div>
-              <div className="text-xs sm:text-sm text-gray-200">
-                {locale === 'tr' ? 'Destek' : 'Support'}
-              </div>
-            </div>
-          </div>
+    <section className="relative w-full px-4 sm:px-6 lg:px-8 py-2 md:py-3">
+      <Card className="relative w-full auto border-0 rounded-2xl shadow-2xl overflow-hidden m-0">
+        {/* Background Image Inside Card */}
+        <div className="absolute inset-0 z-0 w-full h-full overflow-hidden">
+          <Image
+            src="/images/hero-banner.png"
+            alt={locale === 'tr' ? 'MarineFlux - Denizcilik Tedarik Zinciri' : 'MarineFlux - Maritime Supply Chain'}
+            fill
+            priority
+            className="object-contain object-center w-full h-full"
+            quality={95}
+          />
+          {/* Dark Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-black/10"></div>
+          {/* Additional Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/15 to-transparent"></div>
         </div>
-      </div>
+
+        {/* Content */}
+        <CardContent className="p-0 relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 min-h-[500px] md:min-h-[600px] flex flex-col items-start justify-start">
+            <div className="max-w-xl text-left w-full space-y-5 md:space-y-6 pt-4 md:pt-6">
+              {/* Main Heading */}
+              <div className="space-y-0">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-white drop-shadow-lg">
+                  {locale === 'tr' ? 'İHTİYACIN' : 'YOUR NEED'}
+                </h1>
+                <div className="min-h-12 md:min-h-16 flex items-center justify-start overflow-visible -my-0.5 md:-my-1">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white transition-all duration-500 drop-shadow-lg">
+                    {locale === 'tr' ? words[currentWord].toLocaleUpperCase('tr-TR') : words[currentWord].toUpperCase()}
+                  </h2>
+                </div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-white drop-shadow-lg -mt-1">
+                  {locale === 'tr' ? 'İSE MARINEFLUX KULLAN' : 'IS MARINEFLUX USE'}
+                </h1>
+              </div>
+
+              {/* Subtitle */}
+              <p className="text-sm sm:text-base md:text-lg text-gray-100 max-w-md leading-relaxed drop-shadow-md">
+                {locale === 'tr'
+                  ? 'Denizcilik tedarik zincirinin güvenilir dijital platformunda yerinizi alın. Tedarikçiler ve alıcıları bir araya getiriyor, işlemleri hızlandırıyoruz.'
+                  : 'Take your place in the trusted digital platform of the maritime supply chain. We bring suppliers and buyers together and accelerate processes.'}
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-start">
+                <Link href={`/${locale}/login`}>
+                  <Button size="lg" className="bg-maritime-600 hover:bg-maritime-700 text-white px-5 sm:px-6 py-3 md:py-4 text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-300 font-semibold">
+                    {locale === 'tr' ? 'Hemen Başla' : 'Get Started'}
+                    <ArrowRightIcon className="ml-2 h-3 w-3 md:h-4 md:w-4" />
+                  </Button>
+                </Link>
+                <Button size="lg" className="border-2 border-white text-white hover:bg-white/10 px-5 sm:px-6 py-3 md:py-4 text-sm md:text-base font-semibold transition-all duration-300">
+                  {locale === 'tr' ? 'Nasıl Çalışır?' : 'How It Works'}
+                </Button>
+              </div>
+
+              {/* Scroll Down Button */}
+              <button
+                onClick={scrollToPortals}
+                className="relative top-4 md:top-6"
+              >
+                <div className="flex flex-col items-center justify-center w-10 h-10 rounded-full border-2 border-white text-white hover:border-maritime-300 hover:text-maritime-300 transition-all duration-300 animate-slow-pulse shadow-lg shadow-white/30">
+                  <ArrowRightIcon className="h-5 w-5 transform rotate-90" />
+                </div>
+              </button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </section>
   );
 }
@@ -237,33 +245,19 @@ function HeroSection({ locale }: { locale: string }) {
 // Portal Cards Section - Modern B2B Design
 function PortalCardsSection({ locale }: { locale: string }) {
   return (
-    <section className="py-20 md:py-28 bg-white">
+    <section id="portal-cards-section" className="py-4 md:py-5 pb-6 md:pb-8 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            {locale === 'tr' ? 'Hangi Roldesiniz?' : 'What\'s Your Role?'}
-          </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-            {locale === 'tr'
-              ? 'Size özel çözümlerle denizcilik tedarik zincirinizi dijitalleştirin'
-              : 'Digitalize your maritime supply chain with tailored solutions'}
-          </p>
-        </div>
-
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 max-w-6xl mx-auto">
           {/* Shipowner Portal */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-maritime-600 to-maritime-700 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
-            <Card className="relative border-2 border-gray-200 hover:border-maritime-600 transition-all duration-300 hover:shadow-2xl rounded-2xl overflow-hidden card-hover">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-maritime-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-blue-950 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <Card className="relative bg-gradient-to-br from-slate-900 to-blue-950 border-0 text-white shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden card-hover">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full -mr-16 -mt-16 opacity-50"></div>
               <CardHeader className="space-y-4 p-8 relative">
-                <div className="w-16 h-16 bg-maritime-50 rounded-xl flex items-center justify-center group-hover:bg-maritime-100 transition-colors">
-                  <PackageIcon className="h-8 w-8 text-maritime-600" />
-                </div>
-                <CardTitle className="text-2xl md:text-3xl font-bold text-gray-900">
+                <CardTitle className="text-2xl md:text-3xl font-bold text-white">
                   {locale === 'tr' ? 'Gemi Sahipleri' : 'Shipowners'}
                 </CardTitle>
-                <CardDescription className="text-base md:text-lg text-gray-600 leading-relaxed">
+                <CardDescription className="text-base md:text-lg text-blue-100 leading-relaxed">
                   {locale === 'tr'
                     ? 'Filonuzun tüm ihtiyaçları için RFQ oluşturun, teklifleri karşılaştırın ve en iyi tedarikçileri bulun. Sipariş sürecinizi tek platformdan yönetin.'
                     : 'Create RFQs for all your fleet needs, compare quotations, and find the best suppliers. Manage your order process from a single platform.'}
@@ -275,44 +269,26 @@ function PortalCardsSection({ locale }: { locale: string }) {
                     locale === 'tr' ? 'Teklifleri Karşılaştır' : 'Compare Quotations',
                     locale === 'tr' ? 'Doğrudan İletişim' : 'Direct Communication'
                   ].map((feature, idx) => (
-                    <li key={idx} className="flex items-center gap-2 text-gray-700">
-                      <CheckCircleIcon className="h-5 w-5 text-maritime-600 flex-shrink-0" />
+                    <li key={idx} className="flex items-center gap-2 text-blue-100">
+                      <CheckCircleIcon className="h-5 w-5 text-blue-300 flex-shrink-0" />
                       <span className="text-sm md:text-base">{feature}</span>
                     </li>
                   ))}
                 </ul>
               </CardHeader>
-              <CardContent className="p-8 pt-0">
-                <div className="space-y-3">
-                  <Link href={`/${locale}/register`}>
-                    <Button size="lg" className="w-full bg-maritime-600 hover:bg-maritime-700 text-white shadow-md">
-                      {locale === 'tr' ? 'Gemi Sahibi Olarak Başla' : 'Start as Shipowner'}
-                      <ArrowRightIcon className="ml-2 h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Link href={`/${locale}/login?type=shipowner`}>
-                    <Button size="lg" variant="outline" className="w-full border-maritime-600 text-maritime-600 hover:bg-maritime-50">
-                      {locale === 'tr' ? 'Zaten hesabım var' : 'I have an account'}
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
             </Card>
           </div>
 
           {/* Supplier Portal */}
           <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-700 to-emerald-800 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
-            <Card className="relative border-2 border-gray-200 hover:border-emerald-600 transition-all duration-300 hover:shadow-2xl rounded-2xl overflow-hidden card-hover">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-blue-950 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <Card className="relative bg-gradient-to-br from-slate-900 to-blue-950 border-0 text-white shadow-md hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden card-hover">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full -mr-16 -mt-16 opacity-50"></div>
               <CardHeader className="space-y-4 p-8 relative">
-                <div className="w-16 h-16 bg-emerald-50 rounded-xl flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-                  <PackageIcon className="h-8 w-8 text-emerald-700" />
-                </div>
-                <CardTitle className="text-2xl md:text-3xl font-bold text-gray-900">
+                <CardTitle className="text-2xl md:text-3xl font-bold text-white">
                   {locale === 'tr' ? 'Tedarikçiler' : 'Suppliers'}
                 </CardTitle>
-                <CardDescription className="text-base md:text-lg text-gray-600 leading-relaxed">
+                <CardDescription className="text-base md:text-lg text-blue-100 leading-relaxed">
                   {locale === 'tr'
                     ? 'Açık RFQ\'lara teklif verin, siparişleri yönetin ve global denizcilik pazarında yerinizi alın. Müşteri portföyünüzü genişletin.'
                     : 'Bid on open RFQs, manage orders, and take your place in the global maritime market. Expand your customer portfolio.'}
@@ -324,28 +300,13 @@ function PortalCardsSection({ locale }: { locale: string }) {
                     locale === 'tr' ? 'Sipariş Yönetimi' : 'Order Management',
                     locale === 'tr' ? 'Global Pazar Erişimi' : 'Global Market Access'
                   ].map((feature, idx) => (
-                    <li key={idx} className="flex items-center gap-2 text-gray-700">
-                      <CheckCircleIcon className="h-5 w-5 text-emerald-700 flex-shrink-0" />
+                    <li key={idx} className="flex items-center gap-2 text-blue-100">
+                      <CheckCircleIcon className="h-5 w-5 text-blue-300 flex-shrink-0" />
                       <span className="text-sm md:text-base">{feature}</span>
                     </li>
                   ))}
                 </ul>
               </CardHeader>
-              <CardContent className="p-8 pt-0">
-                <div className="space-y-3">
-                  <Link href={`/${locale}/register`}>
-                    <Button size="lg" className="w-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-md">
-                      {locale === 'tr' ? 'Tedarikçi Olarak Başla' : 'Start as Supplier'}
-                      <ArrowRightIcon className="ml-2 h-5 w-5" />
-                    </Button>
-                  </Link>
-                  <Link href={`/${locale}/login?type=supplier`}>
-                    <Button size="lg" variant="outline" className="w-full border-emerald-700 text-emerald-700 hover:bg-emerald-50">
-                      {locale === 'tr' ? 'Zaten hesabım var' : 'I have an account'}
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
             </Card>
           </div>
         </div>
@@ -422,25 +383,16 @@ function WhyMarineFluxSection({ locale }: { locale: string }) {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
               {locale === 'tr' ? 'Neden MarineFlux?' : 'Why MarineFlux?'}
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-              {locale === 'tr'
-                ? 'Denizcilik sektöründe tedarik zincirini dijitalleştiren lider B2B platform'
-                : 'The leading B2B platform digitalizing the supply chain in the maritime sector'}
-            </p>
           </div>
 
           {/* Features Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
             {features.map((feature, index) => {
-              const Icon = feature.icon;
               return (
                 <div 
                   key={index} 
-                  className="group p-8 bg-white rounded-2xl border border-gray-200 hover:border-maritime-300 transition-all duration-300 hover:shadow-lg card-hover"
+                  className="group p-8 bg-white rounded-2xl border border-gray-200 shadow-sm hover:border-maritime-300 transition-all duration-300 hover:shadow-lg card-hover"
                 >
-                  <div className={`w-14 h-14 ${feature.bgColor} rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className={`h-7 w-7 ${feature.color}`} />
-                  </div>
                   <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3">
                     {feature.title}
                   </h3>

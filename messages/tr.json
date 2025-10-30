@@ -154,5 +154,21 @@
       "refunded": "İade Edildi",
       "payment_awaiting_confirmation": "Ödeme Onayı Bekleniyor"
     }
+  },
+  "proofOfWork": {
+    "shipowner": {
+      "title": "Gemi Sahipleri İçin Proof of Work",
+      "subtitle": "MarineFlux platformunda armatörlerin iş akışını, elde ettikleri avantajları ve başarı hikayelerini keşfedin.",
+      "workflow": "Armatörlerin İş Akışı",
+      "benefits": "Armatörlerin Elde Ettiği Avantajlar",
+      "successStories": "Başarı Hikayeleri"
+    },
+    "supplier": {
+      "title": "Tedarikçiler İçin Proof of Work",
+      "subtitle": "MarineFlux platformunda tedarikçilerin ve servis sağlayıcıların iş akışını, elde ettikleri avantajları ve başarı hikayelerini keşfedin.",
+      "workflow": "Tedarikçilerin İş Akışı",
+      "benefits": "Tedarikçilerin Elde Ettiği Avantajlar",
+      "successStories": "Başarı Hikayeleri"
+    }
   }
 }
