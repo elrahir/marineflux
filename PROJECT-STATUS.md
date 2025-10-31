@@ -203,42 +203,47 @@
 
 ## 📊 Project Statistics
 
-- **Total Files Created**: 80+
-- **Components**: 25+
-- **Pages**: 25+
-- **TypeScript Types**: 6 files (User, Order, Quotation, RFQ, Supplier, Message)
-- **Localization Keys**: 150+ (TR + EN)
-- **Firebase Collections**: 9 (users, shipowners, suppliers, rfqs, quotations, orders, notifications, chats, messages)
-- **UI Components**: 15+ (Button, Card, Input, Badge, Label, Textarea, FloatingChatWidget, etc.)
-- **API Routes**: 16+ (RFQ, Quotation, Order, User, Supplier, Chat, Message management)
+- **Total Files Created**: 120+
+- **Components**: 30+ (UI, Layout, Supplier-specific, Chat)
+- **Pages**: 35+ (Auth, Admin, Shipowner, Supplier with all sub-pages)
+- **TypeScript Types**: 6 files (User, Order, Quotation, RFQ, Supplier, Message, Category)
+- **Localization Keys**: 200+ (TR + EN)
+- **Firebase Collections**: 10 (users, shipowners, suppliers, rfqs, quotations, orders, notifications, chats, messages, reviews)
+- **UI Components**: 20+ (shadcn/ui components + custom components)
+- **API Routes**: 20+ (RFQ, Quotation, Order, User, Supplier, Chat, Message, Review, Notification, Payment)
+- **Documentation Files**: 15+ (Architecture, Setup, Deployment guides)
 
-## 🎯 Next Priorities
+## 🎯 Current Phase: Phase 2.5 - Enhanced Features & Polish
 
-### Phase 1: Core Functionality ✅ COMPLETED
+### Phase 1: Core Functionality ✅ COMPLETED (v0.1-0.3)
 1. ✅ Complete RFQ creation flow
 2. ✅ Implement quotation submission
 3. ✅ Build order management
-4. ⏳ Add file upload capability
-5. ⏳ Implement notifications
+4. ✅ Real-time messaging system
+5. ✅ Firebase infrastructure
 
-### Phase 2: Enhanced Features (Current Focus)
-1. ✅ Real-time messaging system
-2. ✅ Registration page with role selection
-3. ✅ Sortable data tables
-4. ✅ Profile management (Supplier & Shipowner)
-5. ✅ Admin user management interface
-6. ⏳ File upload for RFQs and quotations
-7. ⏳ Real-time notifications UI
-8. ⏳ Advanced search and filters
-9. ⏳ Rating and review system
-10. ⏳ Payment integration preparation
+### Phase 2: Enhanced Features ✅ MOSTLY COMPLETED (v0.4-0.6)
+1. ✅ Registration page with role selection
+2. ✅ Sortable data tables
+3. ✅ Profile management (Supplier & Shipowner)
+4. ✅ Admin user management interface
+5. ✅ 3-level category system (Supplier vs Service Provider classification)
+6. ✅ Category-based RFQ filtering
+7. ✅ Modern teklif karşılaştırma tasarımı
+8. ✅ Takvim/Timeline widget (Supplier dashboard)
+9. ✅ How-it-works pages (TR/EN)
+10. ✅ Floating notifications widget
+11. ⏳ File upload for RFQs and quotations
+12. ⏳ Advanced search with complex filters
 
-### Phase 3: Polish & Production (Next)
-1. Testing and bug fixes
-2. Performance optimization
-3. Security hardening
-4. Documentation completion
-5. Deployment preparation
+### Phase 3: Polish & Production (Next - v0.7-1.0)
+1. 🔄 Testing and bug fixes (UI/UX improvements ongoing)
+2. 🔄 Performance optimization (ongoing)
+3. 🔄 Security hardening (ongoing)
+4. ✅ Documentation completion
+5. ⏳ Payment integration
+6. ⏳ Email notifications
+7. ⏳ Advanced analytics dashboard
 
 ## 🛠 Tech Stack Summary
 

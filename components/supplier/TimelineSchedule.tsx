@@ -241,7 +241,7 @@ export function TimelineSchedule({ events, locale }: TimelineScheduleProps) {
   };
 
   return (
-    <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-0 text-white">
+    <Card className="bg-gradient-to-br from-maritime-600 via-ocean-800 to-maritime-950 border-0 text-white">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-white flex items-center gap-2">

@@ -322,7 +322,7 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                     >
                       {/* Best Offer Badge */}
                       {quotation.price === lowestPrice && (
-                        <div className="absolute top-0 right-0 bg-teal-500 text-white px-2 py-0.5 text-xs font-bold rounded-bl">
+                        <div className="absolute top-0 right-0 bg-teal-600 text-white px-2 py-0.5 text-xs font-bold rounded-bl">
                           {locale === 'tr' ? '🏆 EN İYİ' : '🏆 BEST'}
                         </div>
                       )}
@@ -353,153 +353,130 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                         </div>
                       )}
 
-                      <CardHeader className="pt-10 pb-2">
-                        {/* Company Name */}
-                        <div className="flex items-center gap-1 mb-2">
-                          <h3 className="text-sm font-bold text-gray-900 truncate">{quotation.supplierCompany}</h3>
+                      <CardHeader className="pb-3 pt-10">
+                        <div className="flex items-start gap-2">
+                          <Building2 className="h-4 w-4 text-maritime-600 flex-shrink-0 mt-1" />
+                          <h3 className="text-base font-bold text-gray-900 break-words">{quotation.supplierCompany}</h3>
                         </div>
-                        
-                        {/* Supplier Rating */}
-                        {(quotation.supplierRating !== undefined && quotation.supplierRating > 0) && (
-                          <div className="flex items-center gap-1 mb-1">
-                            <div className="flex items-center gap-0.5">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star
-                                  key={star}
-                                  className={`h-3 w-3 ${
-                                    star <= Math.round(quotation.supplierRating || 0)
-                                      ? 'fill-yellow-400 text-yellow-400'
-                                      : 'text-gray-300'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-xs font-semibold text-gray-700">
-                              {quotation.supplierRating?.toFixed(1)}
-                            </span>
-                          </div>
-                        )}
-                        
-                        {getStatusBadge(quotation.status)}
                       </CardHeader>
 
-                      <CardContent className="space-y-2 p-3">
-                        {/* Price - Most Important */}
-                        <div className={`rounded p-2 text-center text-xs ${
+                      <CardContent className="space-y-4">
+                        {/* Price Section */}
+                        <div className={`rounded-lg p-3 text-center border-2 ${
                           quotation.price === lowestPrice 
-                            ? 'bg-teal-50 border border-teal-500' 
-                            : 'bg-maritime-50 border border-maritime-200'
+                            ? 'bg-teal-50 border-teal-600' 
+                            : 'bg-gray-50 border-gray-200'
                         }`}>
-                          <div className="text-gray-600">
-                            {locale === 'tr' ? 'Fiyat' : 'Price'}
+                          <div className="text-xs text-gray-600 mb-1">
+                            {locale === 'tr' ? 'Toplam Fiyat' : 'Total Price'}
                           </div>
-                          <div className={`text-lg font-bold ${
-                            quotation.price === lowestPrice ? 'text-teal-600' : 'text-maritime-700'
+                          <div className={`text-2xl font-bold ${
+                            quotation.price === lowestPrice ? 'text-teal-600' : 'text-gray-900'
                           }`}>
                             {quotation.price.toLocaleString()}
-                            <span className="text-xs ml-1">{quotation.currency}</span>
+                            <span className="text-sm ml-1">{quotation.currency}</span>
                           </div>
-                          {/* Price Difference from Lowest */}
                           {quotation.price !== lowestPrice && (
-                            <div className="text-xs text-amber-600 mt-0.5">
-                              +{((quotation.price - lowestPrice) / lowestPrice * 100).toFixed(0)}%
+                            <div className="text-xs text-yellow-600 font-semibold mt-2">
+                              +{((quotation.price - lowestPrice) / lowestPrice * 100).toFixed(1)}%
+                              <span className="text-xs text-gray-600 ml-1">({(quotation.price - lowestPrice).toLocaleString()} fazla)</span>
                             </div>
                           )}
                         </div>
 
-                        {/* Key Metrics */}
-                        <div className="space-y-1">
-                          {/* Estimated Ready Date */}
-                          {quotation.estimatedReadyDate && (
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-gray-600">
-                                {locale === 'tr' ? 'Tahmini Hazır' : 'Ready Date'}
-                              </span>
-                              <span className="font-semibold">
-                                {new Date(quotation.estimatedReadyDate).toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
-                              </span>
+                        {/* Details Section */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                              <Clock className="h-3.5 w-3.5" />
+                              {locale === 'tr' ? 'Teslimat' : 'Delivery'}
                             </div>
-                          )}
-
+                            <div className="font-semibold text-gray-900 text-xs">
+                              {quotation.deliveryTime} {locale === 'tr' ? 'gün' : 'days'}
+                            </div>
+                          </div>
                           {quotation.deliveryLocation && (
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-gray-600">
+                            <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                              <div className="flex items-center gap-2 text-xs text-gray-600">
+                                <MapPin className="h-3.5 w-3.5" />
                                 {locale === 'tr' ? 'Yer' : 'Location'}
-                              </span>
-                              <span className="font-semibold truncate ml-1 text-right">
-                                {quotation.deliveryLocation.split(',')[0]}
-                              </span>
+                              </div>
+                              <div className="font-semibold text-gray-900 text-xs text-right">
+                                {quotation.deliveryLocation}
+                              </div>
                             </div>
                           )}
                         </div>
 
-                        {/* Submission Date */}
-                        <div className="text-xs text-gray-500 text-center pt-1 border-t">
-                          {new Date(quotation.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
+                        {/* Status Section */}
+                        <div>
+                          {quotation.status === 'pending' && (
+                            <Badge className="w-full justify-center bg-gradient-to-r from-yellow-200 to-yellow-100 text-yellow-900 border border-yellow-300">
+                              <Clock className="h-3 w-3 mr-1" />
+                              {locale === 'tr' ? 'Beklemede' : 'Pending'}
+                            </Badge>
+                          )}
+                          {quotation.status === 'accepted' && (
+                            <Badge className="w-full justify-center bg-gradient-to-r from-teal-200 to-teal-100 text-teal-900 border border-teal-300">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              {locale === 'tr' ? 'Kabul Edildi' : 'Accepted'}
+                            </Badge>
+                          )}
+                          {quotation.status === 'rejected' && (
+                            <Badge className="w-full justify-center bg-gradient-to-r from-gray-200 to-gray-100 text-gray-900 border border-gray-300">
+                              {locale === 'tr' ? 'Reddedildi' : 'Rejected'}
+                            </Badge>
+                          )}
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="space-y-1 pt-2">
+                        <div className="space-y-2 pt-2">
                           {quotation.status === 'pending' && (
                             <>
                               <Button 
-                                className="w-full bg-teal-600 hover:bg-teal-700 h-8 text-xs"
+                                className="w-full bg-gradient-to-r from-teal-700 to-teal-600 hover:from-teal-800 hover:to-teal-700 text-white text-sm py-2 font-semibold shadow-md hover:shadow-lg transition-all duration-200"
                                 onClick={() => handleAcceptQuotation(quotation.id)}
                                 disabled={processing === quotation.id}
                               >
                                 {processing === quotation.id ? (
-                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
                                 ) : (
-                                  <CheckCircle className="mr-1 h-3 w-3" />
+                                  <CheckCircle className="mr-2 h-3.5 w-3.5" />
                                 )}
-                                {locale === 'tr' ? 'Kabul' : 'Accept'}
+                                {locale === 'tr' ? 'Kabul Et' : 'Accept'}
                               </Button>
-                              <div className="grid grid-cols-2 gap-1">
+                              <div className="grid grid-cols-2 gap-2">
                                 <Button 
-                                  variant="outline"
+                                  className="bg-gradient-to-r from-maritime-600 to-maritime-500 hover:from-maritime-700 hover:to-maritime-600 text-white text-xs py-1.5 font-semibold shadow-md hover:shadow-lg transition-all duration-200"
                                   size="sm"
-                                  className="h-7 text-xs"
                                   onClick={() => handleContactSupplier(quotation.supplierUid, quotation.supplierCompany)}
                                 >
-                                  <MessageCircle className="mr-0.5 h-3 w-3" />
-                                  {locale === 'tr' ? 'Mesaj' : 'Msg'}
+                                  <MessageCircle className="mr-1 h-3 w-3" />
+                                  {locale === 'tr' ? 'Mesaj' : 'Message'}
                                 </Button>
                                 <Button 
-                                  variant="destructive"
+                                  className="bg-gradient-to-r from-orange-900 to-red-950 hover:from-orange-950 hover:to-red-1000 text-white text-xs py-1.5 font-semibold shadow-md hover:shadow-lg transition-all duration-200"
                                   size="sm"
-                                  className="h-7 text-xs"
                                   onClick={() => handleRejectQuotation(quotation.id)}
                                   disabled={processing === quotation.id}
                                 >
-                                  {locale === 'tr' ? 'Red' : 'Reject'}
+                                  {locale === 'tr' ? 'Reddet' : 'Reject'}
                                 </Button>
                               </div>
                             </>
                           )}
-                          
-                          {quotation.status === 'accepted' && (
-                            <div className="bg-teal-50 border border-teal-200 rounded p-1 flex items-center gap-1">
-                              <CheckCircle className="h-3 w-3 text-teal-600" />
-                              <span className="text-xs text-teal-800 font-medium">
-                                {locale === 'tr' ? 'Kabul' : 'Accepted'}
-                              </span>
-                            </div>
-                          )}
-                          
-                          {quotation.status === 'rejected' && (
-                            <div className="bg-gray-50 border border-gray-200 rounded p-1 text-center">
-                              <span className="text-xs text-gray-600">
-                                {locale === 'tr' ? 'Red' : 'Rejected'}
-                              </span>
-                            </div>
-                          )}
                         </div>
+
+                        {/* Timestamp */}
+                        <p className="text-xs text-gray-500 text-center pt-2 border-t">
+                          {locale === 'tr' ? 'Gönderme:' : 'Submitted:'} {new Date(quotation.createdAt).toLocaleDateString(locale)}
+                        </p>
                       </CardContent>
                     </Card>
                   ))}
-                </div>
-              )}
-            </div>
+              </div>
+            )}
+          </div>
         </div>
       </DashboardLayout>
     </ProtectedRoute>

@@ -169,48 +169,48 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
 
           {/* Stats Row - Compact */}
           <div className="grid grid-cols-3 gap-4">
-            <Card className="border-l-4 border-l-teal-500">
+            <Card className="border-l-4 border-l-teal-900">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-600 uppercase tracking-wide">
+                    <p className="text-xs text-black uppercase tracking-wide">
                       {locale === 'tr' ? 'Açık RFQ' : 'Open RFQs'}
                     </p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.open}</p>
+                    <p className="text-2xl font-bold text-black mt-1">{stats.open}</p>
                   </div>
-                  <div className="text-teal-600 text-xs font-semibold">
+                  <div className="text-black text-xs font-semibold">
                     {locale === 'tr' ? 'Aktif' : 'Active'}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-l-4 border-l-blue-500">
+            <Card className="border-l-4 border-l-blue-900">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-600 uppercase tracking-wide">
+                    <p className="text-xs text-black uppercase tracking-wide">
                       {locale === 'tr' ? 'Teklif Bekleyen' : 'Pending Quotes'}
                     </p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.pending}</p>
+                    <p className="text-2xl font-bold text-black mt-1">{stats.pending}</p>
                   </div>
-                  <div className="text-blue-600 text-xs font-semibold">
+                  <div className="text-black text-xs font-semibold">
                     {locale === 'tr' ? 'Devam Eden' : 'In Progress'}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-l-4 border-l-purple-500">
+            <Card className="border-l-4 border-l-purple-900">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-600 uppercase tracking-wide">
+                    <p className="text-xs text-black uppercase tracking-wide">
                       {locale === 'tr' ? 'Sipariş Verilen' : 'Awarded'}
                     </p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.awarded}</p>
+                    <p className="text-2xl font-bold text-black mt-1">{stats.awarded}</p>
                   </div>
-                  <div className="text-purple-600 text-xs font-semibold">
+                  <div className="text-black text-xs font-semibold">
                     {locale === 'tr' ? 'Tamamlandı' : 'Completed'}
                   </div>
                 </div>
@@ -390,23 +390,23 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
                               })}
                             </td>
                             <td className="py-3 px-4 text-center">
-                              <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-semibold text-xs">
+                              <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-900 rounded-full font-semibold text-xs">
                                 {rfq.quotationCount}
                               </span>
                             </td>
                             <td className="py-3 px-4 text-center">
                               {rfq.status === 'open' && (
-                                <Badge className="bg-teal-50 text-teal-700 border border-teal-200">
+                                <Badge className="bg-teal-100 text-teal-900 border border-teal-300">
                                   {locale === 'tr' ? 'Açık' : 'Open'}
                                 </Badge>
                               )}
                               {rfq.status === 'closed' && (
-                                <Badge className="bg-gray-50 text-gray-700 border border-gray-200">
+                                <Badge className="bg-gray-200 text-gray-900 border border-gray-300">
                                   {locale === 'tr' ? 'Kapalı' : 'Closed'}
                                 </Badge>
                               )}
                               {rfq.status === 'awarded' && (
-                                <Badge className="bg-purple-50 text-purple-700 border border-purple-200">
+                                <Badge className="bg-purple-100 text-purple-900 border border-purple-300">
                                   {locale === 'tr' ? 'Verildi' : 'Awarded'}
                                 </Badge>
                               )}

@@ -119,7 +119,11 @@ export function FloatingNotificationsWidget({
                 }`}
                 onClick={() => {
                   if (notification.link) {
-                    window.location.href = `/${locale}${notification.link}`;
+                    // Check if link already contains locale prefix
+                    const link = notification.link.startsWith(`/${locale}`) 
+                      ? notification.link 
+                      : `/${locale}${notification.link}`;
+                    window.location.href = link;
                   }
                   if (!notification.read) {
                     updateDoc(doc(db, 'notifications', notification.id), { read: true });

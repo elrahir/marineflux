@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const shipownerUid = searchParams.get('shipownerUid');
     const supplierUid = searchParams.get('supplierUid');
+    const rfqId = searchParams.get('rfqId');
     const status = searchParams.get('status');
     const limitCount = parseInt(searchParams.get('limit') || '50');
 
@@ -20,6 +21,11 @@ export async function GET(request: NextRequest) {
     // Filter by supplier
     if (supplierUid) {
       q = query(q, where('supplierUid', '==', supplierUid));
+    }
+
+    // Filter by RFQ ID
+    if (rfqId) {
+      q = query(q, where('rfqId', '==', rfqId));
     }
 
     // Filter by status

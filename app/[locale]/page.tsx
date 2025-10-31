@@ -177,7 +177,7 @@ function HeroSection({ locale }: { locale: string }) {
             alt={locale === 'tr' ? 'MarineFlux - Denizcilik Tedarik Zinciri' : 'MarineFlux - Maritime Supply Chain'}
             fill
             priority
-            className="object-contain object-center w-full h-full"
+            className="object-cover w-full h-full"
             quality={95}
           />
           {/* Dark Overlay for Text Readability */}
@@ -188,8 +188,8 @@ function HeroSection({ locale }: { locale: string }) {
 
         {/* Content */}
         <CardContent className="p-0 relative z-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 min-h-[500px] md:min-h-[600px] flex flex-col items-start justify-start">
-            <div className="max-w-xl text-left w-full space-y-5 md:space-y-6 pt-4 md:pt-6">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 min-h-[500px] md:min-h-[650px] flex flex-col items-start justify-center">
+            <div className="max-w-xl text-left w-full space-y-5 md:space-y-6">
               {/* Main Heading */}
               <div className="space-y-0">
                 <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-white drop-shadow-lg">

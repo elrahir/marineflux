@@ -339,15 +339,15 @@ export default function CreateRFQPage({ params }: { params: Promise<{ locale: st
 
                 {/* Error Message */}
                 {error && (
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
-                    <p className="text-sm text-amber-600">{error}</p>
+                  <div className="p-3 bg-orange-900 bg-opacity-10 border border-orange-900 border-opacity-20 rounded-md">
+                    <p className="text-sm text-orange-900">{error}</p>
                   </div>
                 )}
 
                 {/* Success Message */}
                 {success && (
-                  <div className="p-3 bg-teal-50 border border-teal-200 rounded-md">
-                    <p className="text-sm text-teal-600">
+                  <div className="p-3 bg-teal-900 bg-opacity-10 border border-teal-900 border-opacity-20 rounded-md">
+                    <p className="text-sm text-teal-900">
                       {locale === 'tr' 
                         ? '✓ RFQ başarıyla oluşturuldu! Yönlendiriliyorsunuz...'
                         : '✓ RFQ created successfully! Redirecting...'}
