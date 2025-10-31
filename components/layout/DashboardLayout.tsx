@@ -10,16 +10,17 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { logout } from '@/lib/firebase/auth';
 import { FloatingChatWidget } from '@/components/chat/FloatingChatWidget';
 import { FloatingNotificationsWidget } from '@/components/chat/FloatingNotificationsWidget';
+import { AlertsWidget } from '@/components/shipowner/AlertsWidget';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, onSnapshot, orderBy, updateDoc, doc, limit } from 'firebase/firestore';
 import {
-  Anchor,
   LayoutDashboard,
   Users,
   Package,
   FileText,
   ShoppingCart,
   History,
+  BarChart3,
   LogOut,
   Menu,
   X,
@@ -119,7 +120,7 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
         { icon: Search, label: t('common.search'), href: `/${locale}/shipowner/search` },
         { icon: FileText, label: t('shipowner.myRfqs'), href: `/${locale}/shipowner/rfq` },
         { icon: ShoppingCart, label: t('shipowner.orders'), href: `/${locale}/shipowner/orders` },
-        { icon: History, label: t('shipowner.history'), href: `/${locale}/shipowner/history` },
+        { icon: BarChart3, label: locale === 'tr' ? 'Analizler' : 'Analytics', href: `/${locale}/shipowner/analytics` },
         { icon: Settings, label: t('common.profile'), href: `/${locale}/shipowner/profile` },
       ];
     } else {
@@ -139,25 +140,28 @@ export function DashboardLayout({ children, locale, userType }: DashboardLayoutP
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation */}
-      <header className="bg-white border-b border-gray-200 fixed w-full top-0 z-10 shadow-sm">
+      <header className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 lg:left-64 z-10 shadow-sm">
         <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo and Mobile Menu Toggle */}
-            <div className="flex items-center">
+          <div className="flex items-center gap-3 h-16">
+            {/* Mobile Menu Toggle */}
+            <div className="flex items-center flex-shrink-0">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden mr-2 p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-colors"
+                className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-colors"
               >
                 {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
-              <Link href={`/${locale}`} className="flex items-center gap-2">
-                <Anchor className="h-8 w-8 text-slate-700" />
-                <span className="text-xl font-bold text-gray-900">MarineFlux</span>
-              </Link>
             </div>
 
+            {/* Center - Alerts Bar (Only for shipowner) */}
+            {userType === 'shipowner' && user?.uid && (
+              <div className="hidden md:flex items-center flex-1 min-w-0 mx-2">
+                <AlertsWidget locale={locale} userId={user.uid} />
+              </div>
+            )}
+
             {/* Right Side Items */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-shrink-0">
               {/* Chat Button */}
               <Button 
                 variant="ghost" 

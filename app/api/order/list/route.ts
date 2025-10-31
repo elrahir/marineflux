@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/config';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, limit, doc, getDoc } from 'firebase/firestore';
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,14 +39,40 @@ export async function GET(request: NextRequest) {
     const querySnapshot = await getDocs(q);
     const orders: any[] = [];
 
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
+    // Fetch quotations to get estimatedReadyDate
+    const quotationPromises: Promise<any>[] = [];
+    querySnapshot.forEach((orderDoc) => {
+      const data = orderDoc.data();
+      if (data.quotationId) {
+        quotationPromises.push(
+          getDoc(doc(db, 'quotations', data.quotationId)).then((quotationDoc) => {
+            return {
+              orderId: orderDoc.id,
+              estimatedReadyDate: quotationDoc.data()?.estimatedReadyDate,
+            };
+          }).catch(() => null)
+        );
+      }
+    });
+
+    const quotationsData = await Promise.all(quotationPromises);
+    const estimatedReadyDateMap = new Map<string, any>();
+    quotationsData.forEach((item) => {
+      if (item && item.orderId) {
+        estimatedReadyDateMap.set(item.orderId, item.estimatedReadyDate);
+      }
+    });
+
+    querySnapshot.forEach((orderDoc) => {
+      const data = orderDoc.data();
+      const estimatedReadyDate = estimatedReadyDateMap.get(orderDoc.id);
       orders.push({
-        id: doc.id,
+        id: orderDoc.id,
         ...data,
         createdAt: data.createdAt?.toDate?.()?.toISOString(),
         updatedAt: data.updatedAt?.toDate?.()?.toISOString(),
-        expectedDeliveryDate: data.expectedDeliveryDate?.toDate?.()?.toISOString(), // Convert expectedDeliveryDate
+        expectedDeliveryDate: data.expectedDeliveryDate?.toDate?.()?.toISOString(),
+        estimatedReadyDate: estimatedReadyDate?.toDate?.()?.toISOString(),
         timeline: data.timeline?.map((event: any) => ({
           ...event,
           timestamp: event.timestamp?.toDate?.()?.toISOString(),

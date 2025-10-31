@@ -10,6 +10,7 @@ import { FileText, Package, DollarSign, Star, TrendingUp, Clock, MessageSquare }
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { TimelineSchedule } from '@/components/supplier/TimelineSchedule';
+import { getEventLabel } from '@/lib/timeline-expressions';
 
 interface RFQ {
   id: string;
@@ -211,50 +212,113 @@ export default function SupplierDashboard({ params }: { params: Promise<{ locale
       return catData ? (locale === 'tr' ? catData.tr : catData.en) : categoryId;
     };
 
-    // Add RFQs with deadlines in the date range
+    // Add RFQ created events
     rfqs.forEach((rfq) => {
-      const deadlineDate = new Date(rfq.deadline);
-      if (deadlineDate >= oneWeekAgo && deadlineDate <= threeWeeksLater) {
-        const vesselName = (rfq as any).vessel?.name || 'Gemi';
-        const categoryLabel = getCategoryLabel((rfq as any).mainCategory || (rfq as any).category || '');
+      const vesselName = (rfq as any).vessel?.name || 'Gemi';
+      const categoryLabel = getCategoryLabel((rfq as any).mainCategory || (rfq as any).category || '');
+      const titleWithCategory = `${vesselName} - ${categoryLabel}`;
+      
+      const createdDate = new Date(rfq.createdAt);
+      if (createdDate >= oneWeekAgo && createdDate <= threeWeeksLater) {
+        const rfqCreatedLabel = getEventLabel('rfq', 'created', locale);
         events.push({
-          id: `rfq-${rfq.id}`,
+          id: `rfq-created-${rfq.id}`,
           type: 'rfq' as const,
-          title: vesselName,
-          date: deadlineDate,
-          eventType: categoryLabel,
-          description: locale === 'tr' ? 'Teklif Verme Deadline' : 'Bidding Deadline',
-          status: 'active',
+          title: titleWithCategory,
+          date: createdDate,
+          eventType: rfqCreatedLabel,
+          description: categoryLabel,
+          status: 'created',
+          rfqId: rfq.id,
         });
+      }
+
+      // Add RFQ cancelled event if status is closed/cancelled
+      if (rfq.status === 'closed' || rfq.status === 'cancelled') {
+        const updatedDate = new Date(rfq.updatedAt || rfq.createdAt);
+        if (updatedDate >= oneWeekAgo && updatedDate <= threeWeeksLater) {
+          const rfqCancelledLabel = getEventLabel('rfq', 'cancelled', locale);
+          events.push({
+            id: `rfq-cancelled-${rfq.id}`,
+            type: 'rfq' as const,
+            title: titleWithCategory,
+            date: updatedDate,
+            eventType: rfqCancelledLabel,
+            description: categoryLabel,
+            status: 'cancelled',
+            rfqId: rfq.id,
+          });
+        }
       }
     });
 
-    // Add Quotations with their creation dates
+    // Add Quotation events - only concrete events
     quotations.forEach((quot) => {
-      const quotDate = new Date(quot.createdAt);
-      if (quotDate >= oneWeekAgo && quotDate <= threeWeeksLater) {
-        const vesselName = (quot as any).vesselName || 'Gemi';
-        const categoryLabel = getCategoryLabel((quot as any).rfqCategory || '');
-        
-        // Translate quotation status
-        const statusTranslations: { [key: string]: { tr: string; en: string } } = {
-          'pending': { tr: 'Bekleme', en: 'Pending' },
-          'accepted': { tr: 'Kabul Edildi', en: 'Accepted' },
-          'rejected': { tr: 'Reddedildi', en: 'Rejected' },
-        };
-        const statusText = statusTranslations[quot.status];
-        const statusDisplay = statusText ? (locale === 'tr' ? statusText.tr : statusText.en) : quot.status;
-        
-        events.push({
-          id: `quot-${quot.id}`,
-          type: 'quotation' as const,
-          title: vesselName,
-          date: quotDate,
-          eventType: statusDisplay,
-          description: categoryLabel,
-          status: quot.status,
-          amount: (quot as any).totalPrice,
-        });
+      const vesselName = (quot as any).vesselName || 'Gemi';
+      const categoryLabel = getCategoryLabel((quot as any).rfqCategory || '');
+      const titleWithCategory = `${vesselName} - ${categoryLabel}`;
+      
+      // Teklif alındı - always show when quotation is created (status pending)
+      // Note: For supplier, this is when they sent the quotation
+      if (quot.status === 'pending') {
+        const quotDate = new Date(quot.createdAt);
+        if (quotDate >= oneWeekAgo && quotDate <= threeWeeksLater) {
+          // For supplier, this means "Teklif Verildi" but we'll show as "received" in timeline
+          const quotationReceivedLabel = getEventLabel('quotation', 'received', locale);
+          
+          events.push({
+            id: `quot-received-${quot.id}`,
+            type: 'quotation' as const,
+            title: titleWithCategory,
+            date: quotDate,
+            eventType: quotationReceivedLabel,
+            description: categoryLabel,
+            status: 'received',
+            quotationId: quot.id,
+            quotationRfqId: quot.rfqId,
+          });
+        }
+      }
+
+      // Teklif onaylandı
+      if (quot.status === 'accepted') {
+        const acceptedDate = new Date((quot as any).acceptedAt || quot.updatedAt || quot.createdAt);
+        if (acceptedDate >= oneWeekAgo && acceptedDate <= threeWeeksLater) {
+          const quotationAcceptedLabel = getEventLabel('quotation', 'accepted', locale);
+          
+          events.push({
+            id: `quot-accepted-${quot.id}`,
+            type: 'quotation' as const,
+            title: titleWithCategory,
+            date: acceptedDate,
+            eventType: quotationAcceptedLabel,
+            description: categoryLabel,
+            status: 'accepted',
+            quotationId: quot.id,
+            quotationRfqId: quot.rfqId,
+            quotationOrderId: (quot as any).orderId,
+          });
+        }
+      }
+
+      // Teklif reddedildi
+      if (quot.status === 'rejected') {
+        const rejectedDate = new Date(quot.updatedAt || quot.createdAt);
+        if (rejectedDate >= oneWeekAgo && rejectedDate <= threeWeeksLater) {
+          const quotationRejectedLabel = getEventLabel('quotation', 'rejected', locale);
+          
+          events.push({
+            id: `quot-rejected-${quot.id}`,
+            type: 'quotation' as const,
+            title: titleWithCategory,
+            date: rejectedDate,
+            eventType: quotationRejectedLabel,
+            description: categoryLabel,
+            status: 'rejected',
+            quotationId: quot.id,
+            quotationRfqId: quot.rfqId,
+          });
+        }
       }
     });
 
@@ -262,77 +326,98 @@ export default function SupplierDashboard({ params }: { params: Promise<{ locale
     orders.forEach((order) => {
       const shipName = (order as any).shipName || 'Gemi';
       const categoryLabel = getCategoryLabel((order as any).category || '');
+      const titleWithCategory = `${shipName} - ${categoryLabel}`;
 
-      // Add order creation event
-      const orderDate = new Date(order.createdAt);
-      if (orderDate >= oneWeekAgo && orderDate <= threeWeeksLater) {
-        events.push({
-          id: `order-created-${order.id}`,
-          type: 'order' as const,
-          title: shipName,
-          date: orderDate,
-          eventType: locale === 'tr' ? 'Sipariş Oluşturuldu' : 'Order Created',
-          description: categoryLabel,
-          status: 'created',
-          amount: order.amount,
-        });
-      }
-
-      // Add timeline events (status changes, payment updates, etc.)
+      // Add timeline events - only concrete events, filter process statuses
       if (order.timeline && order.timeline.length > 0) {
         order.timeline.forEach((timelineEvent, index) => {
           const eventDate = timelineEvent.timestamp?.toDate ? timelineEvent.timestamp.toDate() : new Date(timelineEvent.timestamp);
           
           if (eventDate >= oneWeekAgo && eventDate <= threeWeeksLater) {
-            // Get Turkish description for the status
-            const statusDescriptions: { [key: string]: { tr: string; en: string } } = {
-              'pending': { tr: 'Bekleme', en: 'Pending' },
-              'confirmed': { tr: 'Onaylandı', en: 'Confirmed' },
-              'in_progress': { tr: 'Hazırlanıyor', en: 'In Progress' },
-              'shipped': { tr: 'Kargoya Verildi', en: 'Shipped' },
-              'delivered': { tr: 'Teslim Edildi', en: 'Delivered' },
-              'completed': { tr: 'Tamamlandı', en: 'Completed' },
-              'cancelled': { tr: 'İptal Edildi', en: 'Cancelled' },
-              'pending_supplier_approval': { tr: 'Tedarikçi Onayı Bekleniyor', en: 'Awaiting Supplier Approval' },
-              'pending_payment': { tr: 'Ödeme Bekleniyor', en: 'Awaiting Payment' },
-              'payment_awaiting_confirmation': { tr: 'Ödeme Onayı Bekleniyor', en: 'Payment Confirmation Pending' },
-              'paid': { tr: 'Ödeme Tamamlandı', en: 'Payment Completed' },
-              'pending_shipowner_confirmation': { tr: 'Gemi Sahibi Onayı Bekleniyor', en: 'Awaiting Shipowner Confirmation' },
-            };
+            const eventStatus = timelineEvent.status;
+            
+            // Skip process statuses - only show concrete events
+            const processStatuses = [
+              'pending',
+              'pending_payment',
+              'pending_supplier_approval',
+              'pending_shipowner_confirmation',
+              'payment_awaiting_confirmation',
+              'in_progress',
+              'created'
+            ];
+            
+            if (processStatuses.includes(eventStatus)) {
+              return; // Skip this event
+            }
 
-            const statusDesc = statusDescriptions[timelineEvent.status];
-            const description = timelineEvent.description || 
-              (statusDesc ? (locale === 'tr' ? statusDesc.tr : statusDesc.en) : timelineEvent.status);
+            // Map timeline events to our event system
+            let mappedStatus = eventStatus;
+            if (eventStatus === 'confirmed') {
+              mappedStatus = 'confirmed'; // Sipariş Onaylandı
+            } else if (eventStatus === 'ready') {
+              mappedStatus = 'ready'; // Hazır
+            } else if (eventStatus === 'shipped') {
+              mappedStatus = 'shipped'; // Kargolandı
+            } else if (eventStatus === 'delivered') {
+              mappedStatus = 'delivered'; // Teslim Alındı
+            } else {
+              // Only process if it's a concrete event we want to show
+              return;
+            }
+
+            const eventLabel = getEventLabel('order', mappedStatus as any, locale);
 
             events.push({
               id: `order-timeline-${order.id}-${index}`,
               type: 'order' as const,
-              title: shipName,
+              title: titleWithCategory,
               date: eventDate,
-              eventType: description,
+              eventType: eventLabel,
               description: categoryLabel,
-              status: timelineEvent.status,
-              amount: order.amount,
+              status: mappedStatus,
+              orderId: order.id,
             });
           }
         });
       }
 
-      // Also add expected delivery date if available
-      if ((order as any).expectedDeliveryDate) {
+      // Add estimated ready date if order is active (in_progress, confirmed, ready, shipped)
+      if ((order as any).estimatedReadyDate && ['in_progress', 'confirmed', 'ready', 'shipped'].includes(order.status)) {
+        const readyDate = (order as any).estimatedReadyDate?.toDate 
+          ? (order as any).estimatedReadyDate.toDate() 
+          : new Date((order as any).estimatedReadyDate);
+        if (readyDate >= oneWeekAgo && readyDate <= threeWeeksLater) {
+          const readyLabel = getEventLabel('order', 'estimated_ready', locale);
+          events.push({
+            id: `estimated-ready-${order.id}`,
+            type: 'order' as const,
+            title: titleWithCategory,
+            date: readyDate,
+            eventType: readyLabel,
+            description: categoryLabel,
+            status: 'estimated_ready',
+            orderId: order.id,
+          });
+        }
+      }
+
+      // Add expected delivery date if order is active (in_progress, confirmed, ready, shipped)
+      if ((order as any).expectedDeliveryDate && ['in_progress', 'confirmed', 'ready', 'shipped'].includes(order.status)) {
         const deliveryDate = (order as any).expectedDeliveryDate?.toDate 
           ? (order as any).expectedDeliveryDate.toDate() 
           : new Date((order as any).expectedDeliveryDate);
-        if (deliveryDate >= oneWeekAgo && deliveryDate <= threeWeeksLater && order.status !== 'completed') {
+        if (deliveryDate >= oneWeekAgo && deliveryDate <= threeWeeksLater) {
+          const deliveryLabel = getEventLabel('order', 'expected_delivery', locale);
           events.push({
             id: `delivery-expected-${order.id}`,
             type: 'order' as const,
-            title: shipName,
+            title: titleWithCategory,
             date: deliveryDate,
-            eventType: locale === 'tr' ? 'Beklenen Teslimat' : 'Expected Delivery',
+            eventType: deliveryLabel,
             description: categoryLabel,
             status: 'expected_delivery',
-            amount: order.amount,
+            orderId: order.id,
           });
         }
       }
@@ -427,6 +512,7 @@ export default function SupplierDashboard({ params }: { params: Promise<{ locale
           <TimelineSchedule 
             events={timelineEvents}
             locale={locale}
+            userType="supplier"
           />
 
           {/* Revenue & Pipeline */}

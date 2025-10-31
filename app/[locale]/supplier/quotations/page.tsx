@@ -98,11 +98,11 @@ export default function SupplierQuotationsPage({ params }: { params: Promise<{ l
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">{locale === 'tr' ? 'Beklemede' : 'Pending'}</Badge>;
+        return <Badge className="bg-cyan-100 text-cyan-700">{locale === 'tr' ? 'Beklemede' : 'Pending'}</Badge>;
       case 'accepted':
-        return <Badge className="bg-teal-100 text-teal-800">{locale === 'tr' ? 'Kabul Edildi' : 'Accepted'}</Badge>;
+        return <Badge className="bg-teal-100 text-teal-700">{locale === 'tr' ? 'Kabul Edildi' : 'Accepted'}</Badge>;
       case 'rejected':
-        return <Badge className="bg-amber-100 text-amber-800">{locale === 'tr' ? 'Reddedildi' : 'Rejected'}</Badge>;
+        return <Badge className="bg-orange-100 text-orange-700">{locale === 'tr' ? 'Reddedildi' : 'Rejected'}</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }

@@ -545,8 +545,11 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
                       const colors: {[key: string]: string} = {
                         'pending_supplier_approval': 'bg-yellow-100 text-yellow-600',
                         'pending_payment': 'bg-orange-100 text-orange-600',
+                        'pending_shipowner_confirmation': 'bg-blue-100 text-blue-600',
                         'payment_awaiting_confirmation': 'bg-blue-100 text-blue-600',
+                        'paid_pending_confirmation': 'bg-blue-100 text-blue-600',
                         'paid': 'bg-teal-100 text-teal-600',
+                        'confirmed': 'bg-green-100 text-green-600',
                         'in_progress': 'bg-purple-100 text-purple-600',
                         'shipped': 'bg-indigo-100 text-indigo-600',
                         'delivered': 'bg-green-100 text-green-600',
@@ -559,11 +562,12 @@ export default function SupplierOrderDetailPage({ params }: { params: Promise<{ 
                         // New system statuses
                         'pending_supplier_approval': { tr: 'Sipariş oluşturuldu', en: 'Order created' },
                         'pending_payment': { tr: 'Satıcı tarafından onaylandı', en: 'Supplier approved' },
+                        'pending_shipowner_confirmation': { tr: 'Ödeme onayı bekleniyor', en: 'Awaiting payment confirmation' },
                         'payment_awaiting_confirmation': { tr: 'Ödeme yapıldı', en: 'Payment made' },
                         'paid': { tr: 'Ödeme onaylandı', en: 'Payment confirmed' },
+                        'confirmed': { tr: 'Sipariş onaylandı', en: 'Order confirmed' },
                         // Old system statuses (backward compatibility)
                         'pending': { tr: 'Sipariş oluşturuldu', en: 'Order created' },
-                        'confirmed': { tr: 'Satıcı tarafından onaylandı', en: 'Supplier approved' },
                         'paid_pending_confirmation': { tr: 'Ödeme yapıldı', en: 'Payment made' }, // Old name for compatibility
                         'in_progress': { tr: 'Hazırlığa başlandı', en: 'Preparation started' },
                         'shipped': { tr: 'Kargolandı', en: 'Shipped' },

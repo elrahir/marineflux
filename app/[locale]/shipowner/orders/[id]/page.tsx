@@ -28,6 +28,9 @@ import {
   Star
 } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { formatDateShort, formatDateTimeline } from '@/lib/utils';
+import { getCategoryLabel as getCategoryName } from '@/types/categories';
+import { ArrowLeft, Tag } from 'lucide-react';
 
 interface Order {
   id: string;
@@ -50,6 +53,8 @@ interface Order {
   specifications: string;
   createdAt: string;
   updatedAt?: string;
+  expectedDeliveryDate?: string | Date;
+  estimatedReadyDate?: string | Date;
   vessel?: {
     name: string;
     type: string;
@@ -447,246 +452,480 @@ export default function ShipownerOrderDetailPage({ params }: { params: Promise<{
     <ProtectedRoute allowedRoles={['shipowner']} locale={locale}>
       <DashboardLayout locale={locale} userType="shipowner">
         <div className="space-y-6">
-          {/* Page Header */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Link
-                href={`/${locale}/shipowner/orders`}
-                className="text-sm text-gray-600 hover:text-gray-900"
-              >
-                {locale === 'tr' ? '← Siparişlere Dön' : '← Back to Orders'}
-              </Link>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold text-gray-900">{order.rfqTitle}</h1>
-                {getStatusBadge(order.status)}
-                {getPaymentStatusBadge(order.paymentStatus)}
-              </div>
-              <div className="flex gap-2">
-                {order.paymentStatus === 'pending' && order.status === 'pending_payment' && (
-                  <Button size="sm" onClick={handleMakePayment}>
-                    <DollarSign className="mr-2 h-4 w-4" />
-                    {locale === 'tr' ? 'Ödeme Yap' : 'Make Payment'}
-                  </Button>
-                )}
-                {order.paymentStatus === 'payment_awaiting_confirmation' && (
-                  <div className="text-sm text-blue-600 bg-blue-50 px-3 py-2 rounded">
-                    {locale === 'tr' ? '⏳ Satıcının ödeme onayı bekleniyor' : '⏳ Awaiting supplier confirmation'}
-                  </div>
-                )}
-                {order.status === 'shipped' && (
-                  <Button size="sm" onClick={handleMarkAsDelivered}>
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    {locale === 'tr' ? 'Teslim Alındı Olarak İşaretle' : 'Mark as Delivered'}
-                  </Button>
-                )}
-                <Button variant="outline" size="sm" onClick={() => window.print()}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  {locale === 'tr' ? 'Yazdır' : 'Print'}
-                </Button>
-              </div>
-            </div>
-            <p className="text-gray-600 mt-2">
-              {locale === 'tr' ? 'Sipariş No:' : 'Order ID:'} #{order.id.substring(0, 8).toUpperCase()}
-            </p>
-          </div>
+          {/* Back Button */}
+          <Link 
+            href={`/${locale}/shipowner/orders`}
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            {locale === 'tr' ? 'Siparişlere Dön' : 'Back to Orders'}
+          </Link>
 
-          {/* Order Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {locale === 'tr' ? 'Toplam Tutar' : 'Total Amount'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-primary">
-                  {order.amount.toLocaleString()} {order.currency}
-                </div>
-                <p className="text-xs text-gray-600 mt-1">
-                  {locale === 'tr' ? 'KDV dahil' : 'VAT included'}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {locale === 'tr' ? 'Teslimat Süresi' : 'Delivery Time'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-gray-900">{order.deliveryTime}</div>
-                <p className="text-xs text-gray-600 mt-1">
-                  {locale === 'tr' ? 'Tahmini' : 'Estimated'}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  {locale === 'tr' ? 'Kategori' : 'Category'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold text-gray-900">{getCategoryLabel(order.category)}</div>
-                <p className="text-xs text-gray-600 mt-1">
-                  {locale === 'tr' ? 'Ürün kategorisi' : 'Product category'}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Order Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Supplier Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5" />
-                  {locale === 'tr' ? 'Tedarikçi Bilgileri' : 'Supplier Information'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-1">{locale === 'tr' ? 'Şirket Adı' : 'Company Name'}</h4>
-                  <p className="text-gray-700">{order.supplierCompany}</p>
-                </div>
-                
-                <div className="pt-4 border-t">
-                  <Link href={`/${locale}/shipowner/rfq/${order.rfqId}`}>
-                    <Button variant="outline" className="w-full">
-                      <FileText className="mr-2 h-4 w-4" />
-                      {locale === 'tr' ? 'Orijinal RFQ\'yu Görüntüle' : 'View Original RFQ'}
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Delivery Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  {locale === 'tr' ? 'Teslimat Bilgileri' : 'Delivery Information'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-1">{locale === 'tr' ? 'Teslimat Yeri' : 'Delivery Location'}</h4>
-                  <p className="text-gray-700">{order.deliveryLocation}</p>
-                </div>
-
-                {order.vessel && (
-                  <div>
-                    <h4 className="font-semibold mb-1">{locale === 'tr' ? 'Gemi Bilgileri' : 'Vessel Information'}</h4>
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <Ship className="h-4 w-4" />
-                      <span>{order.vessel.name} ({order.vessel.type})</span>
+          {/* Header Section */}
+          <div className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column - Primary Information (2/3 width) */}
+              <div className="lg:col-span-2 space-y-4">
+                {/* Title and Status */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 flex-wrap mb-3">
+                      <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{order.rfqTitle}</h1>
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(order.status)}
+                        {getPaymentStatusBadge(order.paymentStatus)}
+                      </div>
                     </div>
-                    {order.vessel.imo && (
-                      <p className="text-sm text-gray-600 mt-1">IMO: {order.vessel.imo}</p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Product Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{locale === 'tr' ? 'Sipariş Detayları' : 'Order Details'}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-semibold mb-1">{locale === 'tr' ? 'Açıklama' : 'Description'}</h4>
-                <p className="text-gray-700 whitespace-pre-wrap">{order.rfqDescription}</p>
-              </div>
-
-              {order.specifications && (
-                <div>
-                  <h4 className="font-semibold mb-1">{locale === 'tr' ? 'Teknik Özellikler' : 'Technical Specifications'}</h4>
-                  <p className="text-gray-700 whitespace-pre-wrap">{order.specifications}</p>
-                </div>
-              )}
-
-              {order.notes && (
-                <div>
-                  <h4 className="font-semibold mb-1">{locale === 'tr' ? 'Notlar' : 'Notes'}</h4>
-                  <p className="text-gray-700 whitespace-pre-wrap">{order.notes}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Timeline */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{locale === 'tr' ? 'Sipariş Geçmişi' : 'Order Timeline'}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {order.timeline && order.timeline.length > 0 ? (
-                  order.timeline.map((event: any, index: number) => {
-                    const getStatusColor = (status: string) => {
-                      const colors: {[key: string]: string} = {
-                        'pending_supplier_approval': 'bg-yellow-100 text-yellow-600',
-                        'pending_payment': 'bg-orange-100 text-orange-600',
-                        'paid_pending_confirmation': 'bg-blue-100 text-blue-600',
-                        'paid': 'bg-teal-100 text-teal-600',
-                        'in_progress': 'bg-purple-100 text-purple-600',
-                        'shipped': 'bg-indigo-100 text-indigo-600',
-                        'delivered': 'bg-green-100 text-green-600',
-                      };
-                      return colors[status] || 'bg-gray-100 text-gray-600';
-                    };
-
-                    const getStatusLabel = (status: string) => {
-                      const labels: {[key: string]: {tr: string; en: string}} = {
-                        // New system statuses
-                        'pending_supplier_approval': { tr: 'Sipariş oluşturuldu', en: 'Order created' },
-                        'pending_payment': { tr: 'Satıcı tarafından onaylandı', en: 'Supplier approved' },
-                        'payment_awaiting_confirmation': { tr: 'Ödeme yapıldı', en: 'Payment made' },
-                        'paid': { tr: 'Ödeme onaylandı', en: 'Payment confirmed' },
-                        // Old system statuses (backward compatibility)
-                        'pending': { tr: 'Sipariş oluşturuldu', en: 'Order created' },
-                        'confirmed': { tr: 'Satıcı tarafından onaylandı', en: 'Supplier approved' },
-                        'paid_pending_confirmation': { tr: 'Ödeme yapıldı', en: 'Payment made' }, // Old name for compatibility
-                        'in_progress': { tr: 'Hazırlığa başlandı', en: 'Preparation started' },
-                        'shipped': { tr: 'Kargolandı', en: 'Shipped' },
-                        'delivered': { tr: 'Teslim alındı', en: 'Delivered' },
-                      };
-                      return labels[status]?.[locale as 'tr' | 'en'] || status;
-                    };
-
-                    const colorClass = getStatusColor(event.status);
-
-                    return (
-                      <div key={index} className="flex items-start gap-4">
-                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${colorClass}`}>
-                          <CheckCircle className="h-5 w-5" />
+                    
+                    {/* Metadata - Two Rows Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="h-4 w-4 text-gray-400" />
+                            <span>{formatDateShort(order.createdAt, locale)}</span>
+                          </div>
+                          {order.category && (
+                            <div className="flex items-center gap-1.5">
+                              <Tag className="h-4 w-4 text-gray-400" />
+                              <span>{getCategoryLabel(order.category)}</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-1">
-                          <p className="font-semibold">{getStatusLabel(event.status)}</p>
-                          <p className="text-sm text-gray-600">
-                            {new Date(event.timestamp?.toDate?.() || event.timestamp).toLocaleString(locale)}
-                          </p>
+                        
+                        {order.vessel && (
+                          <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                            <Ship className="h-4 w-4 text-gray-400" />
+                            <span className="font-medium">{order.vessel.name}</span>
+                            {order.vessel.type && <span className="text-gray-500">({order.vessel.type})</span>}
+                            {order.vessel.imo && <span className="text-gray-500">• IMO: {order.vessel.imo}</span>}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Supplier Info in Metadata Area */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                          <Building2 className="h-4 w-4 text-gray-400" />
+                          <span className="text-gray-500">{locale === 'tr' ? 'Tedarikçi:' : 'Supplier:'}</span>
+                          <span className="font-semibold text-gray-900">{order.supplierCompany}</span>
+                        </div>
+
+                        {/* Ready Date - Estimated and Actual */}
+                        <div className="bg-white rounded-lg border border-gray-200 p-3">
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <Package className="h-3.5 w-3.5 text-gray-400" />
+                            <span className="text-xs font-medium text-gray-600">
+                              {locale === 'tr' ? 'Hazır Tarihi' : 'Ready Date'}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <span className="text-[10px] text-gray-500 block mb-0.5">{locale === 'tr' ? 'Tahmini' : 'Estimated'}</span>
+                              <p className="text-xs font-semibold text-gray-700">
+                                {order.estimatedReadyDate 
+                                  ? formatDateShort(order.estimatedReadyDate, locale)
+                                  : <span className="text-gray-400 italic">{locale === 'tr' ? 'Bekleniyor' : 'Pending'}</span>
+                                }
+                              </p>
+                            </div>
+                            {(() => {
+                              const actualReadyEvent = order.timeline?.find((event: any) => 
+                                event.status === 'in_progress' || event.status === 'confirmed'
+                              );
+                              const actualReadyDate = actualReadyEvent?.timestamp 
+                                ? (typeof actualReadyEvent.timestamp === 'string' 
+                                    ? new Date(actualReadyEvent.timestamp) 
+                                    : actualReadyEvent.timestamp)
+                                : null;
+                              
+                              return (
+                                <div>
+                                  <span className="text-[10px] text-gray-500 block mb-0.5">{locale === 'tr' ? 'Gerçek' : 'Actual'}</span>
+                                  <p className="text-xs font-semibold text-emerald-700">
+                                    {actualReadyDate 
+                                      ? formatDateShort(actualReadyDate, locale)
+                                      : <span className="text-gray-400 italic">{locale === 'tr' ? 'Bekleniyor' : 'Pending'}</span>
+                                    }
+                                  </p>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* Delivery Date - Expected and Actual */}
+                        <div className="bg-white rounded-lg border border-gray-200 p-3">
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <Clock className="h-3.5 w-3.5 text-gray-400" />
+                            <span className="text-xs font-medium text-gray-600">
+                              {locale === 'tr' ? 'Teslimat Tarihi' : 'Delivery Date'}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <span className="text-[10px] text-gray-500 block mb-0.5">{locale === 'tr' ? 'Tahmini' : 'Expected'}</span>
+                              <p className="text-xs font-semibold text-gray-700">
+                                {order.expectedDeliveryDate 
+                                  ? formatDateShort(order.expectedDeliveryDate, locale)
+                                  : <span className="text-gray-400 italic">{locale === 'tr' ? 'Bekleniyor' : 'Pending'}</span>
+                                }
+                              </p>
+                            </div>
+                            {(() => {
+                              const actualDeliveredEvent = order.timeline?.find((event: any) => 
+                                event.status === 'delivered'
+                              );
+                              const actualDeliveredDate = actualDeliveredEvent?.timestamp 
+                                ? (typeof actualDeliveredEvent.timestamp === 'string' 
+                                    ? new Date(actualDeliveredEvent.timestamp) 
+                                    : actualDeliveredEvent.timestamp)
+                                : null;
+                              
+                              return (
+                                <div>
+                                  <span className="text-[10px] text-gray-500 block mb-0.5">{locale === 'tr' ? 'Gerçek' : 'Actual'}</span>
+                                  <p className="text-xs font-semibold text-emerald-700">
+                                    {actualDeliveredDate 
+                                      ? formatDateShort(actualDeliveredDate, locale)
+                                      : <span className="text-gray-400 italic">{locale === 'tr' ? 'Bekleniyor' : 'Pending'}</span>
+                                    }
+                                  </p>
+                                </div>
+                              );
+                            })()}
+                          </div>
                         </div>
                       </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    {locale === 'tr' ? 'Geçmiş bulunamadı' : 'No timeline events'}
+                    </div>
                   </div>
+                </div>
+
+                {/* Description */}
+                {order.rfqDescription && (
+                  <p className="text-gray-700 text-sm leading-relaxed">{order.rfqDescription}</p>
                 )}
+              </div>
+
+              {/* Right Column - Summary & Actions (1/3 width) */}
+              <div className="flex flex-col gap-4">
+                {/* Financial Information Card */}
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <DollarSign className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold text-gray-900">
+                      {locale === 'tr' ? 'Toplam Tutar' : 'Total Amount'}
+                    </span>
+                  </div>
+                  <p className="text-3xl font-bold text-primary mb-4">
+                    {order.amount.toLocaleString()} <span className="text-xl text-gray-600">{order.currency}</span>
+                  </p>
+                  
+                  {/* Delivery Info */}
+                  {(order.deliveryTime || order.deliveryLocation) && (
+                    <>
+                      <div className="border-t border-gray-200 my-4"></div>
+                      <div className="space-y-3">
+                        {order.deliveryTime && (
+                          <div>
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <Clock className="h-3.5 w-3.5 text-gray-400" />
+                              <span className="text-xs font-medium text-gray-600">
+                                {locale === 'tr' ? 'Teslimat Süresi' : 'Delivery Time'}
+                              </span>
+                            </div>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {order.deliveryTime}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {order.deliveryLocation && (
+                          <div>
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                              <span className="text-xs font-medium text-gray-600">
+                                {locale === 'tr' ? 'Teslimat Yeri' : 'Delivery Location'}
+                              </span>
+                            </div>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {order.deliveryLocation}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-2">
+                  <Link href={`/${locale}/shipowner/rfq/${order.rfqId}`} className="block">
+                    <Button variant="outline" size="sm" className="w-full text-xs py-2 h-auto justify-start">
+                      <FileText className="h-3.5 w-3.5 mr-2" />
+                      {locale === 'tr' ? 'RFQ Detayını Görüntüle' : 'View RFQ Details'}
+                    </Button>
+                  </Link>
+                  
+                  {order.paymentStatus === 'pending' && order.status === 'pending_payment' && (
+                    <Button size="sm" onClick={handleMakePayment} className="w-full text-xs py-2 h-auto">
+                      <DollarSign className="h-3.5 w-3.5 mr-2" />
+                      {locale === 'tr' ? 'Ödeme Yap' : 'Make Payment'}
+                    </Button>
+                  )}
+                  
+                  {order.paymentStatus === 'payment_awaiting_confirmation' && (
+                    <div className="text-xs text-blue-600 bg-blue-50 px-3 py-2 rounded text-center">
+                      {locale === 'tr' ? '⏳ Ödeme onayı bekleniyor' : '⏳ Awaiting confirmation'}
+                    </div>
+                  )}
+                  
+                  {order.status === 'shipped' && (
+                    <Button size="sm" onClick={handleMarkAsDelivered} className="w-full text-xs py-2 h-auto">
+                      <CheckCircle className="h-3.5 w-3.5 mr-2" />
+                      {locale === 'tr' ? 'Teslim Alındı' : 'Mark Delivered'}
+                    </Button>
+                  )}
+                  
+                  <Button variant="outline" size="sm" onClick={() => window.print()} className="w-full text-xs py-2 h-auto">
+                    <FileText className="h-3.5 w-3.5 mr-2" />
+                    {locale === 'tr' ? 'Yazdır' : 'Print'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Compact Horizontal Timeline */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-start gap-1">
+                {/* Order Created */}
+                <div className="flex flex-col items-center flex-1 min-w-0">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${
+                    true ? 'bg-purple-900 text-white border-purple-900' : 'bg-gray-200 text-gray-500 border-gray-300'
+                  }`}>
+                    <Package className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-xs font-semibold text-gray-900 mt-1.5 text-center leading-tight px-0.5">
+                    {locale === 'tr' ? 'Sipariş' : 'Order'}
+                  </p>
+                  <p className="text-[10px] text-gray-600 mt-0.5 text-center px-0.5 truncate w-full">
+                    {formatDateTimeline(order.createdAt, locale)}
+                  </p>
+                </div>
+
+                {/* Connector - Active if order is confirmed or beyond */}
+                <div className={`flex-1 h-0.5 mt-3.5 max-w-[20px] ${
+                  (() => {
+                    if (['confirmed', 'in_progress', 'shipped', 'delivered', 'completed'].includes(order.status)) {
+                      return true;
+                    }
+                    if (order.timeline && Array.isArray(order.timeline)) {
+                      return order.timeline.some((event: any) => event.status === 'confirmed');
+                    }
+                    return false;
+                  })() ? 'bg-indigo-600' : 'bg-gray-200'
+                }`}></div>
+
+                {/* Supplier Approval / Confirmed */}
+                <div className="flex flex-col items-center flex-1 min-w-0">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${
+                    (() => {
+                      if (['confirmed', 'in_progress', 'shipped', 'delivered', 'completed'].includes(order.status)) {
+                        return true;
+                      }
+                      if (order.timeline && Array.isArray(order.timeline)) {
+                        return order.timeline.some((event: any) => event.status === 'confirmed');
+                      }
+                      return false;
+                    })()
+                      ? 'bg-indigo-600 text-white border-indigo-600' 
+                      : 'bg-gray-200 text-gray-500 border-gray-300'
+                  }`}>
+                    <CheckCircle className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-xs font-semibold text-gray-900 mt-1.5 text-center leading-tight px-0.5">
+                    {locale === 'tr' ? 'Onay' : 'Confirm'}
+                  </p>
+                </div>
+
+                {/* Connector - Active if payment is paid */}
+                <div className={`flex-1 h-0.5 mt-3.5 max-w-[20px] ${
+                  (() => {
+                    if (order.paymentStatus === 'paid') {
+                      return true;
+                    }
+                    if (order.timeline && Array.isArray(order.timeline)) {
+                      return order.timeline.some((event: any) => event.status === 'paid');
+                    }
+                    return false;
+                  })() ? 'bg-green-600' : 'bg-gray-200'
+                }`}></div>
+
+                {/* Payment */}
+                <div className="flex flex-col items-center flex-1 min-w-0">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${
+                    (() => {
+                      if (order.paymentStatus === 'paid') {
+                        return true;
+                      }
+                      if (order.timeline && Array.isArray(order.timeline)) {
+                        return order.timeline.some((event: any) => event.status === 'paid');
+                      }
+                      return false;
+                    })()
+                      ? 'bg-green-600 text-white border-green-600' 
+                      : 'bg-gray-200 text-gray-500 border-gray-300'
+                  }`}>
+                    <CheckCircle className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-xs font-semibold text-gray-900 mt-1.5 text-center leading-tight px-0.5">
+                    {locale === 'tr' ? 'Ödeme' : 'Pay'}
+                  </p>
+                  {order.paymentStatus === 'paid' && order.amount && (
+                    <p className="text-[10px] text-green-700 font-medium mt-0.5 text-center px-0.5">
+                      ${(order.amount / 1000).toFixed(0)}k
+                    </p>
+                  )}
+                </div>
+
+                {/* Connector - Active if order is in progress or beyond */}
+                <div className={`flex-1 h-0.5 mt-3.5 max-w-[20px] ${
+                  ['in_progress', 'shipped', 'delivered', 'completed'].includes(order.status) 
+                    ? 'bg-purple-600' 
+                    : 'bg-gray-200'
+                }`}></div>
+
+                {/* In Progress */}
+                <div className="flex flex-col items-center flex-1 min-w-0">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${
+                    ['in_progress', 'shipped', 'delivered', 'completed'].includes(order.status) 
+                      ? 'bg-purple-600 text-white border-purple-600' 
+                      : 'bg-gray-200 text-gray-500 border-gray-300'
+                  }`}>
+                    <Package className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-xs font-semibold text-gray-900 mt-1.5 text-center leading-tight px-0.5">
+                    {locale === 'tr' ? 'Hazır' : 'Progress'}
+                  </p>
+                </div>
+
+                {/* Connector - Active if order is shipped or delivered */}
+                <div className={`flex-1 h-0.5 mt-3.5 max-w-[20px] ${
+                  ['shipped', 'delivered', 'completed'].includes(order.status) 
+                    ? 'bg-blue-600' 
+                    : 'bg-gray-200'
+                }`}></div>
+
+                {/* Shipped */}
+                <div className="flex flex-col items-center flex-1 min-w-0">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${
+                    ['shipped', 'delivered', 'completed'].includes(order.status) 
+                      ? 'bg-blue-600 text-white border-blue-600' 
+                      : 'bg-gray-200 text-gray-500 border-gray-300'
+                  }`}>
+                    <Package className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-xs font-semibold text-gray-900 mt-1.5 text-center leading-tight px-0.5">
+                    {locale === 'tr' ? 'Kargo' : 'Ship'}
+                  </p>
+                  {(() => {
+                    // Find shipped event in timeline
+                    if (order.timeline && Array.isArray(order.timeline)) {
+                      const shippedEvent = order.timeline.find((event: any) => event.status === 'shipped');
+                      if (shippedEvent && shippedEvent.timestamp) {
+                        return (
+                          <>
+                            <p className="text-[10px] text-blue-700 font-medium mt-0.5 text-center px-0.5 truncate w-full">
+                              {formatDateTimeline(shippedEvent.timestamp?.toDate?.() || shippedEvent.timestamp, locale)}
+                            </p>
+                            {order.expectedDeliveryDate && (
+                              <p className="text-[9px] text-blue-600 mt-0.5 text-center px-0.5 truncate w-full">
+                                {locale === 'tr' ? 'Tahmini varış:' : 'ETA:'} {formatDateTimeline(order.expectedDeliveryDate, locale)}
+                              </p>
+                            )}
+                          </>
+                        );
+                      }
+                    }
+                    // Fallback to expectedDeliveryDate if timeline doesn't have shipped event yet
+                    if (order.status === 'shipped' && order.expectedDeliveryDate) {
+                      return (
+                        <>
+                          <p className="text-[10px] text-blue-700 font-medium mt-0.5 text-center px-0.5 truncate w-full">
+                            {formatDateTimeline(order.expectedDeliveryDate, locale)}
+                          </p>
+                          <p className="text-[9px] text-blue-600 mt-0.5 text-center px-0.5 truncate w-full">
+                            {locale === 'tr' ? 'Tahmini varış:' : 'ETA:'} {formatDateTimeline(order.expectedDeliveryDate, locale)}
+                          </p>
+                        </>
+                      );
+                    }
+                    return null;
+                  })()}
+                </div>
+
+                {/* Connector - Active if order is delivered */}
+                <div className={`flex-1 h-0.5 mt-3.5 max-w-[20px] ${
+                  ['delivered', 'completed'].includes(order.status) 
+                    ? 'bg-emerald-600' 
+                    : 'bg-gray-200'
+                }`}></div>
+
+                {/* Delivered */}
+                <div className="flex flex-col items-center flex-1 min-w-0">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${
+                    ['delivered', 'completed'].includes(order.status) 
+                      ? 'bg-emerald-600 text-white border-emerald-600' 
+                      : 'bg-gray-200 text-gray-500 border-gray-300'
+                  }`}>
+                    <CheckCircle className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-xs font-semibold text-gray-900 mt-1.5 text-center leading-tight px-0.5">
+                    {locale === 'tr' ? 'Teslim' : 'Deliver'}
+                  </p>
+                  {(() => {
+                    if (order.timeline && Array.isArray(order.timeline)) {
+                      const deliveredEvent = order.timeline.find((event: any) => event.status === 'delivered');
+                      if (deliveredEvent && deliveredEvent.timestamp) {
+                        return (
+                          <p className="text-[10px] text-emerald-700 font-medium mt-0.5 text-center px-0.5 truncate w-full">
+                            {formatDateTimeline(deliveredEvent.timestamp?.toDate?.() || deliveredEvent.timestamp, locale)}
+                          </p>
+                        );
+                      }
+                    }
+                    return null;
+                  })()}
+                </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Product Details */}
+          {(order.specifications || order.notes) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{locale === 'tr' ? 'Teknik Detaylar' : 'Technical Details'}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {order.specifications && (
+                  <div>
+                    <h4 className="font-semibold mb-1">{locale === 'tr' ? 'Teknik Özellikler' : 'Technical Specifications'}</h4>
+                    <p className="text-gray-700 whitespace-pre-wrap">{order.specifications}</p>
+                  </div>
+                )}
+
+                {order.notes && (
+                  <div>
+                    <h4 className="font-semibold mb-1">{locale === 'tr' ? 'Notlar' : 'Notes'}</h4>
+                    <p className="text-gray-700 whitespace-pre-wrap">{order.notes}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Review Section - Show when order is delivered */}
           {order.status === 'delivered' && (

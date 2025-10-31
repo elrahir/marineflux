@@ -396,17 +396,17 @@ export default function RFQPage({ params }: { params: Promise<{ locale: string }
                             </td>
                             <td className="py-3 px-4 text-center">
                               {rfq.status === 'open' && (
-                                <Badge className="bg-teal-100 text-teal-900 border border-teal-300">
+                                <Badge className="bg-cyan-100 text-cyan-700 border border-cyan-300">
                                   {locale === 'tr' ? 'Açık' : 'Open'}
                                 </Badge>
                               )}
                               {rfq.status === 'closed' && (
-                                <Badge className="bg-gray-200 text-gray-900 border border-gray-300">
+                                <Badge className="bg-slate-100 text-slate-700 border border-slate-300">
                                   {locale === 'tr' ? 'Kapalı' : 'Closed'}
                                 </Badge>
                               )}
                               {rfq.status === 'awarded' && (
-                                <Badge className="bg-purple-100 text-purple-900 border border-purple-300">
+                                <Badge className="bg-teal-100 text-teal-700 border border-teal-300">
                                   {locale === 'tr' ? 'Verildi' : 'Awarded'}
                                 </Badge>
                               )}

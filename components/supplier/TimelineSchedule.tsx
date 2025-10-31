@@ -1,9 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, FileText, MessageSquare, Package, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { Calendar, FileText, MessageSquare, Package, ChevronLeft, ChevronRight, AlertCircle, Clock, DollarSign, CheckCircle, XCircle, Truck } from 'lucide-react';
+import { getEventColor, getMinimapColor, EventType, EventStatus } from '@/lib/timeline-colors';
+import { getEventExpression, getEventLabel, getEventBadge } from '@/lib/timeline-expressions';
+import { Badge } from '@/components/ui/badge';
 
 interface TimelineEvent {
   id: string;
@@ -19,9 +23,10 @@ interface TimelineEvent {
 interface TimelineScheduleProps {
   events: TimelineEvent[];
   locale: string;
+  userType?: 'shipowner' | 'supplier';
 }
 
-export function TimelineSchedule({ events, locale }: TimelineScheduleProps) {
+export function TimelineSchedule({ events, locale, userType = 'shipowner' }: TimelineScheduleProps) {
   const [currentDayOffset, setCurrentDayOffset] = useState(0);
 
   // Get 7 days starting from offset
@@ -51,35 +56,28 @@ export function TimelineSchedule({ events, locale }: TimelineScheduleProps) {
     });
   };
 
-  const getEventColor = (type: string, status?: string) => {
-    if (type === 'rfq') {
-      return 'bg-maritime-600 border-maritime-400';
-    }
-    if (type === 'quotation') {
-      return 'bg-amber-700 border-amber-400';
-    }
-    if (type === 'order') {
-      if (status === 'paid' || status === 'payment_awaiting_confirmation') {
-        return 'bg-green-700 border-green-400';
+  // Get event icon - now considers both type and status
+  const getEventIcon = (type: EventType, status?: EventStatus) => {
+    // Status-based icons for orders
+    if (type === 'order' && status) {
+      if (['paid', 'payment_awaiting_confirmation'].includes(status)) {
+        return DollarSign;
       }
-      if (status === 'shipped' || status === 'delivered') {
-        return 'bg-blue-700 border-blue-400';
+      if (['shipped', 'expected_delivery'].includes(status)) {
+        return Truck;
       }
-      if (status === 'in_progress') {
-        return 'bg-purple-700 border-purple-400';
-      }
-      if (status === 'completed') {
-        return 'bg-emerald-700 border-emerald-400';
+      if (['delivered', 'completed', 'confirmed'].includes(status)) {
+        return CheckCircle;
       }
       if (status === 'cancelled') {
-        return 'bg-red-700 border-red-400';
+        return XCircle;
       }
-      return 'bg-slate-600 border-slate-400';
+      if (status.includes('pending') || status === 'payment_awaiting_confirmation') {
+        return Clock;
+      }
     }
-    return 'bg-slate-600 border-slate-400';
-  };
-
-  const getEventIcon = (type: string) => {
+    
+    // Type-based icons
     switch (type) {
       case 'rfq':
         return FileText;
@@ -160,7 +158,7 @@ export function TimelineSchedule({ events, locale }: TimelineScheduleProps) {
     return types;
   };
 
-  // Get the primary color for a date based on events
+  // Get the primary color for a date based on events (using new hybrid system)
   const getPrimaryColorForDate = (date: Date) => {
     const dayEvents = getEventsForDate(date);
     
@@ -173,43 +171,18 @@ export function TimelineSchedule({ events, locale }: TimelineScheduleProps) {
     const orderEvents = dayEvents.filter(e => e.type === 'order');
     if (orderEvents.length > 0) {
       const orderEvent = orderEvents[0];
-      // Color based on order status
-      if (orderEvent.status === 'paid' || orderEvent.status === 'payment_awaiting_confirmation') {
-        return 'bg-green-600';
-      }
-      if (orderEvent.status === 'shipped' || orderEvent.status === 'delivered' || orderEvent.status === 'expected_delivery') {
-        return 'bg-blue-600';
-      }
-      if (orderEvent.status === 'in_progress') {
-        return 'bg-purple-600';
-      }
-      if (orderEvent.status === 'completed') {
-        return 'bg-emerald-600';
-      }
-      if (orderEvent.status === 'confirmed') {
-        return 'bg-cyan-600';
-      }
-      return 'bg-sky-500';
+      return getMinimapColor('order', orderEvent.status as EventStatus);
     }
 
     // Then check quotation events
     const quotationEvents = dayEvents.filter(e => e.type === 'quotation');
     if (quotationEvents.length > 0) {
       const quotEvent = quotationEvents[0];
-      if (quotEvent.status === 'accepted') {
-        return 'bg-emerald-600';
-      }
-      if (quotEvent.status === 'rejected') {
-        return 'bg-red-600';
-      }
-      if (quotEvent.status === 'pending') {
-        return 'bg-yellow-400';
-      }
-      return 'bg-amber-600';
+      return getMinimapColor('quotation', quotEvent.status as EventStatus);
     }
 
     // Finally RFQ events
-    return 'bg-maritime-600';
+    return getMinimapColor('rfq');
   };
 
   // Handle minimap day click
@@ -406,38 +379,86 @@ export function TimelineSchedule({ events, locale }: TimelineScheduleProps) {
                         }}
                       >
                         {dayEvents.map((event) => {
-                          const Icon = getEventIcon(event.type);
-                          const colorClass = getEventColor(event.type, event.status);
+                          const Icon = getEventIcon(event.type as EventType, event.status as EventStatus);
+                          const colorClass = getEventColor(event.type as EventType, event.status as EventStatus);
+                          
+                          // Get improved expressions
+                          const expression = getEventExpression(
+                            event.type as EventType,
+                            event.status as EventStatus,
+                            locale
+                          );
+                          const eventLabel = getEventLabel(
+                            event.type as EventType,
+                            event.status as EventStatus,
+                            locale
+                          );
+                          const badgeText = getEventBadge(
+                            event.type as EventType,
+                            event.status as EventStatus,
+                            locale
+                          );
                         
                           // Build detailed tooltip text
-                          const tooltipParts = [event.title];
-                          if (event.eventType) tooltipParts.push(event.eventType);
+                          const tooltipParts = [event.title, expression.description];
                           if (event.amount) tooltipParts.push(`$${event.amount.toLocaleString()}`);
                           const tooltipText = tooltipParts.join(' • ');
 
+                          // Determine which ID and link to show based on user type
+                          let entityId: string | undefined;
+                          let detailLink: string | undefined;
+                          
+                          if (event.rfqId) {
+                            entityId = event.rfqId;
+                            detailLink = `/${locale}/${userType}/rfq/${event.rfqId}`;
+                          } else if (event.quotationId) {
+                            // For quotations, link to RFQ if available, otherwise to Order if accepted
+                            if (event.quotationOrderId) {
+                              // If quotation is accepted, link to order
+                              entityId = event.quotationOrderId;
+                              detailLink = `/${locale}/${userType}/orders/${event.quotationOrderId}`;
+                            } else if (event.quotationRfqId) {
+                              // Link to RFQ page
+                              entityId = event.quotationRfqId;
+                              detailLink = `/${locale}/${userType}/rfq/${event.quotationRfqId}`;
+                            } else {
+                              // Fallback - show quotation ID but link to RFQ if we can extract it
+                              entityId = event.quotationId;
+                              detailLink = `/${locale}/${userType}/rfq/${event.quotationId}`;
+                            }
+                          } else if (event.orderId) {
+                            entityId = event.orderId;
+                            detailLink = `/${locale}/${userType}/orders/${event.orderId}`;
+                          }
+
+                          // If no link, render as div, otherwise as Link
+                          const CardWrapper = entityId && detailLink ? Link : 'div';
+                          const wrapperProps = entityId && detailLink 
+                            ? { href: detailLink, className: 'block' }
+                            : {};
+
                           return (
-                            <div
+                            <CardWrapper
                               key={event.id}
-                            className={`${colorClass} rounded px-2 py-1.5 text-xs border-l-2 cursor-pointer hover:opacity-80 transition-opacity group`}
-                            title={tooltipText}
+                              {...wrapperProps}
                             >
-                            <div className="flex items-start justify-between gap-1">
-                              <div className="flex items-start gap-1 flex-1 min-w-0">
-                                <Icon className="h-3 w-3 flex-shrink-0 mt-0.5 text-white" />
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-white font-semibold text-xs leading-tight truncate">
-                                    {event.title}
-                                  </p>
-                                  {event.eventType && (
-                                    <p className="text-gray-100 text-xs leading-tight truncate">
-                                      {event.eventType}
+                              <div
+                                className={`${colorClass} rounded px-2.5 py-2 text-xs border-l-2 cursor-pointer hover:opacity-90 transition-opacity group shadow-sm min-h-[3.5rem]`}
+                                title={tooltipText}
+                              >
+                                <div className="flex items-start gap-2 flex-1 min-w-0 h-full">
+                                  <Icon className="h-4 w-4 flex-shrink-0 mt-0.5 text-white" />
+                                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                                    <p className="text-white font-semibold text-[11px] leading-[1.35] line-clamp-2 break-words mb-1">
+                                      {event.title}
                                     </p>
-                                  )}
+                                    <p className="text-white/85 text-[9.5px] leading-tight">
+                                      {eventLabel}
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
-                              <AlertCircle className="h-3 w-3 flex-shrink-0 text-white opacity-70 group-hover:opacity-100 mt-0.5" />
-                            </div>
-                          </div>
+                            </CardWrapper>
                           );
                         })}
                       </div>
@@ -455,31 +476,6 @@ export function TimelineSchedule({ events, locale }: TimelineScheduleProps) {
               })}
             </div>
 
-          {/* Legend */}
-          <div className="mt-4 pt-4 border-t border-white/10">
-            <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 bg-maritime-600 rounded"></div>
-                <span className="text-gray-300">{locale === 'tr' ? 'RFQ' : 'RFQ'}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 bg-amber-700 rounded"></div>
-                <span className="text-gray-300">{locale === 'tr' ? 'Teklif' : 'Quotation'}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 bg-slate-600 rounded"></div>
-                <span className="text-gray-300">{locale === 'tr' ? 'Sipariş (Genel)' : 'Order (General)'}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 bg-green-700 rounded"></div>
-                <span className="text-gray-300">{locale === 'tr' ? 'Ödeme' : 'Payment'}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 bg-blue-700 rounded"></div>
-                <span className="text-gray-300">{locale === 'tr' ? 'Kargo' : 'Shipping'}</span>
-              </div>
-            </div>
-          </div>
         </div>
       </CardContent>
     </Card>

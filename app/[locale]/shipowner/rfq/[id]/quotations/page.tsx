@@ -88,21 +88,21 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
     switch (status) {
       case 'pending':
         return (
-          <Badge className="bg-yellow-100 text-yellow-800">
+          <Badge className="bg-cyan-100 text-cyan-700">
             <Clock className="h-3 w-3 mr-1" />
             {locale === 'tr' ? 'Beklemede' : 'Pending'}
           </Badge>
         );
       case 'accepted':
         return (
-          <Badge className="bg-teal-100 text-teal-800">
+          <Badge className="bg-teal-100 text-teal-700">
             <CheckCircle className="h-3 w-3 mr-1" />
             {locale === 'tr' ? 'Kabul Edildi' : 'Accepted'}
           </Badge>
         );
       case 'rejected':
         return (
-          <Badge className="bg-amber-100 text-amber-800">
+          <Badge className="bg-orange-100 text-orange-700">
             {locale === 'tr' ? 'Reddedildi' : 'Rejected'}
           </Badge>
         );
@@ -411,19 +411,19 @@ export default function RFQQuotationsPage({ params }: { params: Promise<{ locale
                         {/* Status Section */}
                         <div>
                           {quotation.status === 'pending' && (
-                            <Badge className="w-full justify-center bg-gradient-to-r from-yellow-200 to-yellow-100 text-yellow-900 border border-yellow-300">
+                            <Badge className="w-full justify-center bg-cyan-100 text-cyan-700 border border-cyan-300">
                               <Clock className="h-3 w-3 mr-1" />
                               {locale === 'tr' ? 'Beklemede' : 'Pending'}
                             </Badge>
                           )}
                           {quotation.status === 'accepted' && (
-                            <Badge className="w-full justify-center bg-gradient-to-r from-teal-200 to-teal-100 text-teal-900 border border-teal-300">
+                            <Badge className="w-full justify-center bg-teal-100 text-teal-700 border border-teal-300">
                               <CheckCircle className="h-3 w-3 mr-1" />
                               {locale === 'tr' ? 'Kabul Edildi' : 'Accepted'}
                             </Badge>
                           )}
                           {quotation.status === 'rejected' && (
-                            <Badge className="w-full justify-center bg-gradient-to-r from-gray-200 to-gray-100 text-gray-900 border border-gray-300">
+                            <Badge className="w-full justify-center bg-orange-100 text-orange-700 border border-orange-300">
                               {locale === 'tr' ? 'Reddedildi' : 'Rejected'}
                             </Badge>
                           )}

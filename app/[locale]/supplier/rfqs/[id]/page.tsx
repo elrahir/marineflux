@@ -58,14 +58,27 @@ export default function SupplierRFQDetailPage({ params }: { params: Promise<{ lo
     if (!user?.uid) return;
     
     try {
-      const response = await fetch(`/api/rfq/list?status=open&uid=${user.uid}&role=supplier`);
-      const data = await response.json();
+      // First try to get from open RFQs
+      let response = await fetch(`/api/rfq/list?status=open&uid=${user.uid}&role=supplier`);
+      let data = await response.json();
+      
+      if (data.success) {
+        let rfqData = data.rfqs.find((r: any) => r.id === id);
+        if (rfqData) {
+          setRfq(rfqData);
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // If not found in open RFQs, try without status filter (for awarded/closed RFQs)
+      response = await fetch(`/api/rfq/list?uid=${user.uid}&role=supplier&limit=1000`);
+      data = await response.json();
       
       if (data.success) {
         const rfqData = data.rfqs.find((r: any) => r.id === id);
         if (rfqData) {
           setRfq(rfqData);
-          // TODO: Check if supplier has already submitted a quote
         }
       }
     } catch (error) {
